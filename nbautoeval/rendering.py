@@ -185,7 +185,7 @@ class TableCell:
                 #print("Sending method {}".format(symbol))
                 method = getattr(self.content, symbol)
                 cell_html = method(self.width)
-                html += cell_html
+                html += "<pre>" + cell_html + "</pre>"
             else:
                 proxy = CellObj(self.content)
                 method = getattr(proxy, symbol)
