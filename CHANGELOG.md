@@ -1,3 +1,8 @@
+# 0.4.1 - 2018 Sep 26
+
+* bugfix: in the correction table, cells sometimes were missing the <pre> tag
+* was during py3s2 in exo_wc, that has an input with 2 consecutive spaces
+
 # 0.4.0 - 2018 Aug 30
 
 * cosmetic changes in example and correction tables
