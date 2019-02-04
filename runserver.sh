@@ -8,4 +8,4 @@ TOPLEVEL=$(cd $DIRNAME; pwd -P)
 
 echo Using PYTHONPATH=$TOPLEVEL
 
-PYTHONPATH=$TOPLEVEL jupyter-3.5 notebook-3.5
+PYTHONPATH=$TOPLEVEL jupyter notebook
