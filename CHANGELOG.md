@@ -1,3 +1,8 @@
+# 0.4.2 - 2019 Jul 25
+
+* fix label as it show up on pypi
+* expose symbols globally
+
 # 0.4.1 - 2018 Sep 26
 
 * bugfix: in the correction table, cells sometimes were missing the <pre> tag
