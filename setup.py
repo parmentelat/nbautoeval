@@ -15,7 +15,7 @@ setup(
     version          = version,
     author           = "Thierry Parmentelat",
     author_email     = "thierry.parmentelat@inria.fr",
-    description      = "A mini framework to implementauto-evaluated exercises in notebooks",
+    description      = "A mini framework to implement auto-evaluated exercises in Jupyter notebooks",
     long_description = contents("README.md"),
     license          = "CC BY-SA 4.0",
     keywords         = "jupyter notebooks exercises",
