@@ -1,18 +1,27 @@
 #!/usr/bin/env python3
 
-from setuptools import setup, find_packages
+from pathlib import Path
 
-from nbautoeval.version import version
+import setuptools
+
 
 def contents(localfile):
-    import os.path
-    full_path = os.path.join(os.path.dirname(__file__), localfile)
-    with open(full_path) as f:
+    with (Path(__file__).parent / localfile).open() as f:
         return f.read()
 
-setup(
+# https://packaging.python.org/guides/single-sourcing-package-version/
+# set __version__ by read & exec of the python code
+# this is better than an import that would otherwise try to
+# import the whole package, and fail if a required module is not yet there
+VERSION_FILE = Path(__file__).parent / "nbautoeval" / "version.py"
+ENV = {}
+with VERSION_FILE.open() as f:
+    exec(f.read(), ENV)                                 # pylint: disable=w0122
+__version__ = ENV['__version__']
+
+setuptools.setup(
     name             = "nbautoeval",
-    version          = version,
+    version          = __version__,
     author           = "Thierry Parmentelat",
     author_email     = "thierry.parmentelat@inria.fr",
     description      = "A mini framework to implement auto-evaluated exercises in Jupyter notebooks",
@@ -20,7 +29,7 @@ setup(
     license          = "CC BY-SA 4.0",
     keywords         = "jupyter notebooks exercises",
     url              = "https://github.com/parmentelat/nbautoeval",
-    packages         = find_packages(),
+    packages         = setuptools.find_packages(),
     install_requires = [
         ' numpy', 
         'ipython',

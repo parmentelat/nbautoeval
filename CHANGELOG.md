@@ -1,7 +1,3 @@
-# 0.4.3 - 2019 Jul 31
-
-* add requires in particular for when using in readthedocs
-
 # 0.4.2 - 2019 Jul 25
 
 * fix label as it show up on pypi
