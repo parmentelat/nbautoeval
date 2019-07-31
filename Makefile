@@ -15,7 +15,7 @@ version: update_version_from_changelog
 
 LIBRARY = nbautoeval
 
-VERSION = $(shell python3 -c "from $(LIBRARY).version import version; print(version)")
+VERSION = $(shell python3 -c "from $(LIBRARY).version import __version__; print(__version__)")
 VERSIONTAG = $(LIBRARY)-$(VERSION)
 GIT-TAG-ALREADY-SET = $(shell git tag | grep '^$(VERSIONTAG)$$')
 # to check for uncommitted changes
