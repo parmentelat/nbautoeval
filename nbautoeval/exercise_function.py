@@ -2,8 +2,6 @@
 
 # pylint: disable=c0111, w0703, r1705
 
-from __future__ import print_function
-
 ############################################################
 # the low level interface - used to be used directly in the first exercises
 

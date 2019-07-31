@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 from nbautoeval.exercise_class import ExerciseClass, ScenarioClass
 from nbautoeval.args import Args
 

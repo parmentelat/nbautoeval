@@ -21,6 +21,10 @@ setup(
     keywords         = "jupyter notebooks exercises",
     url              = "https://github.com/parmentelat/nbautoeval",
     packages         = find_packages(),
+    install_requires = [
+        ' numpy', 
+        'ipython',
+    ],
     classifiers      = [
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
