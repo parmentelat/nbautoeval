@@ -1,3 +1,7 @@
+# 0.4.7 - 2019 Oct 7
+
+* properly display type objects when used as arguments
+
 # 0.4.6 - 2019 Jul 31
 
 * add requires in particular for when using in readthedocs
