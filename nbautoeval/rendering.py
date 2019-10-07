@@ -44,7 +44,7 @@ def truncate_str(message, max_size):
 
 # display functions as their name
 def custom_repr(x):
-    if isinstance(x, (FunctionType, BuiltinFunctionType, BuiltinMethodType)):
+    if isinstance(x, (type, FunctionType, BuiltinFunctionType, BuiltinMethodType)):
         return x.__name__
     elif isinstance(x, set):
         return "{" + commas(x) + "}"
