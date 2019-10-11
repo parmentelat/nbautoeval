@@ -33,8 +33,9 @@ class ClassStep:
         'CLASS' is the class object itself
     """
     
-    def __init__(self, exp):
+    def __init__(self, exp, statement=False):
         self.exp = exp
+        self.statement = statement
         
     def replace(self, varname, classname):
         return self.exp.replace("INSTANCE", varname).replace("CLASS", classname)
@@ -198,11 +199,18 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 computed_ref = step.replace("REF", "ref_class")
                 computed_stu = step.replace("STU", "student_class")
 
-                # so that we display the function name
-                ref_result = eval(computed_ref)
+                # the function to use to run code, whether it's a statement
+                # or an expression; in the former case of course, there is no need 
+                # to cmpare results as they are None, but that's not important
+                code_runner = exec if step.statement else eval
+                ref_result = code_runner(computed_ref)
                 try:
-                    student_result = eval(computed_stu)
-                    if self.compare(ref_result, student_result):
+                    student_result = code_runner(computed_stu)
+                    if step.statement:
+                        style = ok_style
+                        msg = 'OK'
+                        ref_result = student_result = '-'
+                    elif self.compare(ref_result, student_result):
                         style = ok_style
                         msg = 'OK'
                     else:
@@ -282,7 +290,11 @@ class ExerciseClass:                                    # pylint: disable=r0902
             for step in scenario.steps:
                 computed = step.replace("SAMPLE", "ref_class")
                 displayed = step.replace(self.obj_name, ref_class.__name__)
-                ref_result = eval(computed)
+                code_runner = exec if step.statement else eval
+                # print(f"statement={step.statement}, code={computed}")
+                ref_result = code_runner(computed)
+                if step.statement:
+                    ref_result = "-"
                 cells = (TableCell(displayed, layout='text', width=c1),
                          TableCell(ref_result, layout=self.layout, width=c2,
                                    style=left_border_thick_style

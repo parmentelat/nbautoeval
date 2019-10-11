@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# # provide a workable class
+
+
+# provide a workable class
 
 ####################
 class Fifo:
@@ -23,7 +25,8 @@ class Fifo:
         return len(self.items)
 
 
-# # create an exercise instance
+
+# create an exercise instance
 
 from nbautoeval.exercise_class import ExerciseClass, ClassScenario
 from nbautoeval.args import Args
