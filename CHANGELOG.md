@@ -1,3 +1,7 @@
+# 0.5.0 - 2019 Oct 11
+
+* rewrote class-oriented exercise to extend possibilities
+
 # 0.4.7 - 2019 Oct 7
 
 * properly display type objects when used as arguments
