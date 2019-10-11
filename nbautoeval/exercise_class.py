@@ -25,7 +25,7 @@ from .rendering import (
 # but in most cases this does represent column widths
 DEFAULT_LAYOUT_ARGS = (50, 25, 25)
 
-class ClassStep:
+class ClassExpression:
     """
     this utility class is used to model a step in a class scenario
     it is basically built from a string where
@@ -33,12 +33,20 @@ class ClassStep:
         'CLASS' is the class object itself
     """
     
-    def __init__(self, exp, statement=False):
-        self.exp = exp
+    def __init__(self, code, statement=False):
+        self.code = code
         self.statement = statement
         
     def replace(self, varname, classname):
-        return self.exp.replace("INSTANCE", varname).replace("CLASS", classname)
+        return self.code.replace("INSTANCE", varname).replace("CLASS", classname)
+
+
+class ClassStatement(ClassExpression):
+    """
+    a shortcut to create statements
+    """
+    def __init__(self, code):
+        ClassExpression.__init__(self, code, True)
 
 ##########
 class ClassScenario:
@@ -50,13 +58,13 @@ class ClassScenario:
 
     So a scenario is defined from
       * one Args instance that is passed to the constructor
-      * a list of ClassStep (or mere str) objects
+      * a list of ClassExpression (or mere str) objects
         
     Example:
       for a Polynom class created from a set of coefficients
       ClassScenario(
           Args(1, 2, 3),
-          ClassStep("repr(INSTANCE)"),
+          ClassExpression("repr(INSTANCE)"),
           "INSTANCE.derivative()",
           "INSTANCE + CLASS(3, 4, 5)",
       )
@@ -69,7 +77,7 @@ class ClassScenario:
     def __init__(self, init_args, *expressions):
         self.init_args = init_args
         def step(exp):
-            return exp if isinstance(exp, ClassStep) else ClassStep(exp)
+            return exp if isinstance(exp, ClassExpression) else ClassExpression(exp)
         self.steps = [step(exp) for exp in expressions]
 
 
@@ -166,9 +174,9 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 init_args.render_prefix(f"{self.obj_name} = ")
                 
                 # initialize both objects
-                REF = ref_args.init_obj(     # pytlint=disable: unused-variable
+                REF = ref_args.init_obj(     # pylint: disable=unused-variable
                     ref_class)  
-                STU = student_args.init_obj( # pytlint=disable: unused-variable
+                STU = student_args.init_obj( # pylint: disable=unused-variable
                     student_class)
                 cells = (TableCell(init_args, layout=self.layout, width=c1),
                          TableCell(CellLegend('-'),
