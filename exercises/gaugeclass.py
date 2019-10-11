@@ -22,7 +22,8 @@ class Gauge:
 
 # create an exercise instance
 
-from nbautoeval.exercise_class import ExerciseClass, ClassScenario, ClassStep
+from nbautoeval.exercise_class import (
+    ExerciseClass, ClassScenario, ClassExpression, ClassStatement)
 from nbautoeval.args import Args
 
 scenario1 = ClassScenario(
@@ -31,20 +32,21 @@ scenario1 = ClassScenario(
     # a list of expressions, with 
     # INSTANCE and CLASS replaced as appropriate
     "INSTANCE.x",
-    ClassStep("INSTANCE.x = 50", statement=True),
+    # statements need to be tagged as such 
+    ClassStatement("INSTANCE.x = 50"),
     "INSTANCE.x",
-    ClassStep("INSTANCE.x = 2000", statement=True),
+    ClassStatement("INSTANCE.x = 2000"),
     "INSTANCE.x",
 )
 
 scenario2 = ClassScenario(
     # arguments to the constructor
     Args(1000),
-    # a list of expressions, with 
-    # INSTANCE and CLASS replaced as appropriate
-    "INSTANCE.x",
-    ClassStep("INSTANCE.x = -1000", statement=True),
-    "INSTANCE.x",
+    # note that a str object passed here is actually
+    # used to create a ClassExpression object
+    ClassExpression("INSTANCE.x"),
+    ClassStatement("INSTANCE.x = -1000"),
+    ClassExpression("INSTANCE.x"),
 )
 
 
