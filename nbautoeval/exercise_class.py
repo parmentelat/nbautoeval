@@ -14,6 +14,7 @@ from .rendering import (
     top_border_style, top_border_style2, 
     bottom_border_style, bottom_border_style2, bottom_border_style3,
     left_border_thick_style, left_border_thin_style,
+    table_border_style,
 )
 
 
@@ -66,13 +67,14 @@ class ClassScenario:
       ClassScenario(
           Args(1, 2, 3),
           ClassExpression("repr(INSTANCE)"),
-          "INSTANCE.derivative()",
-          "INSTANCE + CLASS(3, 4, 5)",
+          ClassExpression("INSTANCE.derivative()"),
+          ClassExpression("INSTANCE + CLASS(3, 4, 5)"),
       )
       
       the expressions will be evaluated for 
       both the reference class and the student's class
-      and the results compared with ==
+      and the results compared with == 
+      (unless the validate method is redefined on the Exercise class)
     """
 
     def __init__(self, init_args, *expressions):
@@ -83,8 +85,6 @@ class ClassScenario:
 
 
 ##########
-import operator
-
 class ExerciseClass:                                    # pylint: disable=r0902
     """
     Much like the ExerciseFunction class, this allows to define
@@ -97,7 +97,6 @@ class ExerciseClass:                                    # pylint: disable=r0902
     """
 
     def __init__(self, solution, scenarios, *,          # pylint: disable=r0913
-                 compare=operator.eq,
                  copy_mode='deep',
                  layout=None,
                  call_layout=None,
@@ -109,7 +108,6 @@ class ExerciseClass:                                    # pylint: disable=r0902
                  ):
         self.solution = solution
         self.scenarios = scenarios
-        self.compare = compare
         self.copy_mode = copy_mode
         self.layout = layout
         self.call_layout = call_layout
@@ -148,7 +146,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
         c1, c2, c3 = columns
         ref_class = self.solution
 
-        table = Table(style=font_style(self.font_size))
+        table = Table(style=font_style(self.font_size) + table_border_style)
         html = table.header()
 
         for i, scenario in enumerate(self.scenarios, 1):
@@ -219,7 +217,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                         style = ok_style
                         msg = 'OK'
                         ref_result = student_result = '-'
-                    elif self.compare(ref_result, student_result):
+                    elif self.validate(ref_result, student_result):
                         style = ok_style
                         msg = 'OK'
                     else:
@@ -266,7 +264,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
         # can provide 3 args (convenient when it's the same as correction) or just 2
         columns = columns[:2]
         c1, c2 = columns
-        table = Table(style=font_style(self.font_size))
+        table = Table(style=font_style(self.font_size) + table_border_style)
         html = table.header()
 
         sample_scenarios = self.scenarios[:how_many_samples]
@@ -312,3 +310,16 @@ class ExerciseClass:                                    # pylint: disable=r0902
 
         html += table.footer()
         return HTML(html)
+    
+
+    def validate(self, expected, result):               # pylint: disable=r0201
+        """
+        how to compare the results as obtained from
+        * the solution function
+        * and the student function
+
+        the default here is to use ==
+        """
+        return expected == result
+
+

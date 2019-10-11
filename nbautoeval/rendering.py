@@ -30,6 +30,7 @@ bottom_border_style2 = "border-bottom:1px solid gray;"
 bottom_border_style3 = "border-bottom:1px dotted gray;"
 left_border_thick_style = "border-left:3px solid gray;"
 left_border_thin_style = "border-left:1px solid gray;"
+table_border_style = "margin: 10px;"
 
 ########## helpers for rendering / truncating
 def html_escape(s):
