@@ -2,11 +2,10 @@
 
 # pylint: disable=c0111, c0103, r1705, w0703
 
-from itertools import islice
-
 from IPython.display import HTML
 
 from .log import log_correction
+
 from .rendering import (
     Table, TableRow, TableCell, CellLegend,
     font_style, default_font_size, default_header_font_size,
@@ -25,49 +24,56 @@ from .rendering import (
 # but in most cases this does represent column widths
 DEFAULT_LAYOUT_ARGS = (24, 28, 28)
 
-##########
-def pairwise(it):
-    it_left = islice(it, 0, None, 2)
-    it_right = islice(it, 1, None, 2)
-    return zip(it_left, it_right)
+class StepClass:
+    """
+    this utility class is used to model a step in a class scenario
+    it is basically built from a string where
+        'INSTANCE' is the object created in the first step, and
+        'CLASS' is the class object itself
+    """
+    
+    def __init__(self, exp):
+        self.exp = exp
+        
+    def replace(self, varname, classname):
+        return self.exp.replace("INSTANCE", varname).replace("CLASS", classname)
 
-class ScenarioClass(list):
+##########
+class ScenarioClass:
     """
     Describes a scenario that can be applied to a class
 
     Typically we want to create an instance (using some args),
     and then run some methods (still with some args)
 
-    So a class scenario in its simpler form is defined as a list
-    of couples of the form
-    ( method_name, Args_object )
-    the latter being an instance of ArgsKeywords or Args
+    So a scenario is defined from
+      * one Args instance that is passed to the constructor
+      * a list of StepClass (or mere str) objects
+        
+    Example:
+      for a Polynom class created from a set of coefficients
+      ScenarioClass(
+          Args(1, 2, 3),
+          StepClass("repr(INSTANCE)"),
+          "INSTANCE.derivative()",
+          "INSTANCE + CLASS(3, 4, 5)",
+      )
+      
+      the expressions will be evaluated for 
+      both the reference class and the student's class
+      and the results compared with ==
     """
 
-    def __init__(self, init_args_obj, *steps_args_obj):
-        list.__init__(self)
-        if init_args_obj:
-            self.set_init_args(init_args_obj)
-        for methodname, args_obj in pairwise(steps_args_obj):
-            self.add_step(methodname, args_obj)
+    def __init__(self, init_args, *expressions):
+        self.init_args = init_args
+        def step(exp):
+            return exp if isinstance(exp, StepClass) else StepClass(exp)
+        self.steps = [step(exp) for exp in expressions]
 
-    def set_init_args(self, args_obj):
-        """
-        Defines the arguments to constructor
-        """
-        if self and self[0][0] == '__init__':
-            print("Only one __init__ step is allowed")
-            return
-        self.insert(0, ('__init__', args_obj))
-
-    def add_step(self, methodname, args_obj):
-        """
-        Scenario is to proceed by calling method
-        of that name with these arguments
-        """
-        self.append((methodname, args_obj,))
 
 ##########
+import operator
+
 class ExerciseClass:                                    # pylint: disable=r0902
     """
     Much like the ExerciseFunction class, this allows to define
@@ -79,17 +85,20 @@ class ExerciseClass:                                    # pylint: disable=r0902
     we can generate online example and correction.
     """
 
-    def __init__(self, solution, scenarios,             # pylint: disable=r0913
+    def __init__(self, solution, scenarios, *,          # pylint: disable=r0913
+                 compare=operator.eq,
                  copy_mode='deep',
                  layout=None,
                  call_layout=None,
                  nb_examples=1,
-                 obj_name='o',
+                 obj_name='X',
                  layout_args=None,
                  font_size=default_font_size,
-                 header_font_size=default_header_font_size):
+                 header_font_size=default_header_font_size,
+                 ):
         self.solution = solution
         self.scenarios = scenarios
+        self.compare = compare
         self.copy_mode = copy_mode
         self.layout = layout
         self.call_layout = call_layout
@@ -99,8 +108,10 @@ class ExerciseClass:                                    # pylint: disable=r0902
         # sizes for the table
         self.font_size = font_size
         self.header_font_size = header_font_size
+        # 
         # computed
         self.name = solution.__name__
+        
 
     # adding this feature on ExerciseClass as a mirror of ExerciseFunction
     # but this it is unclear if it's really useful as class exos will be likely
@@ -111,6 +122,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
             for scenario in self.scenarios:
                 for step in scenario:
                     step[1].set_layout(self.call_layout)
+
 
     def correction(self, student_class):        # pylint: disable=r0914, r0915
 
@@ -129,10 +141,8 @@ class ExerciseClass:                                    # pylint: disable=r0902
         html = table.header()
 
         for i, scenario in enumerate(self.scenarios):
-            # first step has to be a constructor
-            assert len(scenario) >= 1 and scenario[0][0] == '__init__'
 
-            methodname, args_obj = scenario[0]
+            init_args = scenario.init_args
 
             # start of scenario
             legend = CellLegend("Scénario {}".format(i+1))
@@ -144,25 +154,26 @@ class ExerciseClass:                                    # pylint: disable=r0902
                      for x in ('Appel', 'Attendu', 'Obtenu', '')]
             html += TableRow(cells=cells).html()
 
-            # XXX TODO : take care of copying Args instances before using them
-
             # initialize both objects
             try:
                 # clone args for both usages
-                ref_args = args_obj.clone(self.copy_mode)
-                student_args = args_obj.clone(self.copy_mode)
+                ref_args = init_args.clone(self.copy_mode)
+                student_args = init_args.clone(self.copy_mode)
                 # always render the classname - with a name
-                args_obj.render_function_name(self.name)
-                args_obj.render_prefix("{}=".format(self.obj_name))
+                init_args.render_function_name(self.name)
+                init_args.render_prefix(f"{self.obj_name} = ")
+                
                 # initialize both objects
-                ref_obj = ref_args.init_obj(ref_class)
-                student_obj = student_args.init_obj(student_class)
-                cells = (TableCell(args_obj, layout=self.layout, width=c1),
+                REF = ref_args.init_obj(     # pytlint=disable: unused-variable
+                    ref_class)  
+                STU = student_args.init_obj( # pytlint=disable: unused-variable
+                    student_class)
+                cells = (TableCell(init_args, layout=self.layout, width=c1),
                          TableCell(CellLegend('-'),
                                    style=left_border_thick_style),
                          TableCell(CellLegend('-'),
                                    style=left_border_thin_style),
-                         TableCell(CellLegend('OK'),
+                         TableCell(CellLegend('-'),
                                    style=left_border_thick_style))
                 html += TableRow(cells=cells, style=ok_style).html()
             except Exception as e:
@@ -181,17 +192,16 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 continue
 
             # other steps of that scenario
-            for methodname, args_obj in scenario[1:]:
-                # clone args for both usages
-                ref_args = args_obj.clone(self.copy_mode)
-                student_args = args_obj.clone(self.copy_mode)
+            for step in scenario.steps:
+                displayed = step.replace(self.obj_name, ref_class.__name__)
+                computed_ref = step.replace("REF", "ref_class")
+                computed_stu = step.replace("STU", "student_class")
+
                 # so that we display the function name
-                args_obj.render_function_name(methodname)
-                args_obj.render_prefix("{}.".format(self.obj_name))
-                ref_result = ref_args.call_obj(ref_obj, methodname)
+                ref_result = eval(computed_ref)
                 try:
-                    student_result = student_args.call_obj(student_obj, methodname)
-                    if ref_result == student_result:
+                    student_result = eval(computed_stu)
+                    if self.compare(ref_result, student_result):
                         style = ok_style
                         msg = 'OK'
                     else:
@@ -205,7 +215,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                     student_result = "Exception {}".format(e)
 
                 # xxx styling maybe a little too much...
-                cells = (TableCell(args_obj, layout=self.layout, width=c1),
+                cells = (TableCell(displayed, layout='text', width=c1),
                          TableCell(ref_result, layout=self.layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style),
@@ -221,6 +231,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
         html += "</table>"
 
         return HTML(html)
+
 
     def example(self):                                  # pylint: disable=r0914
         """
@@ -243,12 +254,14 @@ class ExerciseClass:                                    # pylint: disable=r0902
 
         sample_scenarios = self.scenarios[:how_many_samples]
         for i, scenario in enumerate(sample_scenarios):
-            # first step has to be a constructor
-            assert len(scenario) >= 1 and scenario[0][0] == '__init__'
 
-            methodname, args_obj = scenario[0]
-            # always render the classname
-            args_obj.render_function_name(self.name)
+            # first step is to create an instance
+            # lets' call it SAMPLE
+            init_args = scenario.init_args.clone(self.copy_mode)
+            SAMPLE = init_args.init_obj(ref_class)       # pylint: disable=unused-variable
+
+            init_args.render_function_name(self.name)
+            init_args.render_prefix(f"{self.obj_name} = ")
 
             # start of scenario
             legend = CellLegend("Scénario {}".format(i+1))
@@ -260,20 +273,17 @@ class ExerciseClass:                                    # pylint: disable=r0902
                      for x in ('Appel', 'Attendu')]
             html += TableRow(cells=cells).html()
 
-            ref_args = args_obj.clone(self.copy_mode)
-            ref_args.render_function_name(self.name)
-            ref_obj = ref_args.init_obj(ref_class)
-            cells = (TableCell(args_obj, layout=self.layout, width=c1),
+            cells = (TableCell(init_args, layout=self.layout, width=c1),
                      TableCell(CellLegend('-'),
                                style=left_border_thick_style
                                + left_text_style))
             html += TableRow(cells=cells).html()
 
-            for methodname, args_obj in scenario[1:]:
-                ref_args = args_obj.clone(self.copy_mode)
-                ref_args.render_function_name(methodname)
-                ref_result = ref_args.call_obj(ref_obj, methodname)
-                cells = (TableCell(ref_args, layout=self.layout, width=c1),
+            for step in scenario.steps:
+                computed = step.replace("SAMPLE", "ref_class")
+                displayed = step.replace(self.obj_name, ref_class.__name__)
+                ref_result = eval(computed)
+                cells = (TableCell(displayed, layout='text', width=c1),
                          TableCell(ref_result, layout=self.layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style))
