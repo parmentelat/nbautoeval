@@ -24,6 +24,8 @@ center_text_style = 'text-align: center;'
 left_text_style = 'text-align: left;'
 right_text_style = 'text-align: right;'
 
+top_border_style = "border-top:2px double black; "
+top_border_style2 = "border-top:1px solid gray; "
 bottom_border_style = "border-bottom:2px solid gray;"
 left_border_thick_style = "border-left:3px solid gray;"
 left_border_thin_style = "border-left:1px solid gray;"

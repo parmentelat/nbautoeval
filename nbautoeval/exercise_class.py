@@ -11,7 +11,8 @@ from .rendering import (
     font_style, default_font_size, default_header_font_size,
     ok_style, ko_style,
     center_text_style, left_text_style,
-    bottom_border_style, left_border_thick_style, left_border_thin_style,
+    top_border_style, top_border_style2, bottom_border_style,
+    left_border_thick_style, left_border_thin_style,
 )
 
 
@@ -22,7 +23,7 @@ from .rendering import (
 # however when adding new layouts like 'text', the argument passed to the layout
 # function ceased to be a column width, so we call this layout_args instead
 # but in most cases this does represent column widths
-DEFAULT_LAYOUT_ARGS = (24, 28, 28)
+DEFAULT_LAYOUT_ARGS = (50, 25, 25)
 
 class StepClass:
     """
@@ -149,10 +150,10 @@ class ExerciseClass:                                    # pylint: disable=r0902
             html += TableRow(
                 cells=[TableCell(legend, colspan=4, tag='th',
                                  style='text-align:center')],
-                style=font_style(self.header_font_size)).html()
+                style=font_style(self.header_font_size) + top_border_style).html()
             cells = [TableCell(CellLegend(x), tag='th')
                      for x in ('Appel', 'Attendu', 'Obtenu', '')]
-            html += TableRow(cells=cells).html()
+            html += TableRow(cells=cells, style=top_border_style2 + bottom_border_style).html()
 
             # initialize both objects
             try:
@@ -268,10 +269,10 @@ class ExerciseClass:                                    # pylint: disable=r0902
             html += TableRow(
                 cells=[TableCell(legend, colspan=4, tag='th',
                                  style=center_text_style)],
-                style=font_style(self.header_font_size)).html()
+                style=font_style(self.header_font_size) + top_border_style).html()
             cells = [TableCell(CellLegend(x), tag='th')
                      for x in ('Appel', 'Attendu')]
-            html += TableRow(cells=cells).html()
+            html += TableRow(cells=cells, style=top_border_style2 + bottom_border_style).html()
 
             cells = (TableCell(init_args, layout=self.layout, width=c1),
                      TableCell(CellLegend('-'),
