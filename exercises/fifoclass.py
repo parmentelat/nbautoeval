@@ -10,7 +10,7 @@ class Fifo:
         self.items = []
 
     def __repr__(self):
-        contents = join(f"{i}" for i in self.items)
+        contents = ", ".join(f"{i}" for i in self.items)
         return f"<Fifo [{contents}]>"
 
     def incoming(self, incoming):

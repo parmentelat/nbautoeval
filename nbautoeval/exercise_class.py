@@ -181,7 +181,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
             except Exception as exc:
                 import traceback
                 traceback.print_exc()
-                cell1 = TableCell(args_obj, layout=self.layout, width=c1+c2,
+                cell1 = TableCell(init_args, layout=self.layout, width=c1+c2,
                                   colspan=2)
                 error = f"Exception {exc}"
                 cell2 = TableCell(CellLegend(error), width=c3,
