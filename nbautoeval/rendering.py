@@ -11,8 +11,7 @@ default_font_size='small'
 default_header_font_size='medium'
 
 def font_style(font_size):
-    return 'font-family:monospace;font-size:{};'\
-    .format(font_size)
+    return f'font-family:monospace;font-size:{font_size};'
 
 # iteration 1 was using this
 #ok_style = 'background-color:#66CC66;'
@@ -53,7 +52,7 @@ def custom_repr(x):
 
 def commas(iterable):
     if isinstance(iterable, dict):
-        return ", ".join(["{}={}".format(k, custom_repr(v)) for k, v in iterable.items()])
+        return ", ".join(f"{k}={custom_repr(v)}" for k, v in iterable.items())
     elif isinstance(iterable, str):
         return str
     else:
@@ -86,8 +85,8 @@ class CellObj:
         torender is expected to be a plain string on multiple lines
         WARNING: with this layout, width is expected to be a font size
         """
-        style = "font-size:{};".format(width)
-        html = "<pre 'style={}'>".format(style)
+        style = f"font-size:{width};"
+        html = f"<pre 'style={style}'>"
         contents = str(self.torender)
         if not show_backslash_n:
             html += contents
@@ -106,7 +105,7 @@ class CellLegend:
     def __init__(self, legend):
         self.legend = legend
     def __repr__(self):
-        return "<CellLegend {}>".format(self.legend)
+        return f"<CellLegend {self.legend}>"
     def layout_truncate(self, width):
         return truncate_str(self.legend, width)
     layout_pprint = layout_truncate
@@ -120,18 +119,18 @@ class CellLegend:
 # use e.g. tag_keywords('tr', hclass='error') to get
 # <table class='error'>
 def tag_keywords(tag, **html_tags):
-    html = "<{}".format(tag)
+    html = f"<{tag}"
     for k, v in html_tags.items():
         # ignore stuff that is defined by default as None
         if v is None:
             continue
-        html += " {}='{}'".format(k if k != 'hclass' else 'class', v)
+        html += f" {k if k != 'hclass' else 'class'}='{v}'"
     html += ">"
     return html
 
 # end_tag('table') -> </table>
 def end_tag(tag):
-    return "</{}>".format(tag)
+    return f"</{tag}>"
 
 ##############################
 class Table:
@@ -179,10 +178,9 @@ class TableCell:
     def html(self):
         html = tag_keywords(self.tag, **self.html_tags)
         layout = self.computed_layout()
-        symbol = 'layout_{}'.format(layout)
+        symbol = f'layout_{layout}'
         try:
             if hasattr(self.content, symbol):
-                #print("Sending method {}".format(symbol))
                 method = getattr(self.content, symbol)
                 cell_html = method(self.width)
                 html += "<pre>" + cell_html + "</pre>"
@@ -193,7 +191,7 @@ class TableCell:
         except:                                         # pylint: disable=w0702
             import traceback
             traceback.print_exc()
-            html += "TableCell.html({})".format(self.content)
+            html += f"TableCell.html({self.content})"
         html += end_tag(self.tag)
         return html
 
@@ -225,7 +223,7 @@ class TableCell:
         if computed_layout is None:
             computed_layout = self.default_layout
         if computed_layout not in self.supported_layouts:
-            print("WARNING: unsupported layout {}".format(computed_layout))
+            print(f"WARNING: unsupported layout {computed_layout}")
             computed_layout = self.default_layout
         return computed_layout
 

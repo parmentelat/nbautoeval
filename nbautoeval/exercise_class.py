@@ -141,12 +141,12 @@ class ExerciseClass:                                    # pylint: disable=r0902
         table = Table(style=font_style(self.font_size))
         html = table.header()
 
-        for i, scenario in enumerate(self.scenarios):
+        for i, scenario in enumerate(self.scenarios, 1):
 
             init_args = scenario.init_args
 
             # start of scenario
-            legend = CellLegend("Scénario {}".format(i+1))
+            legend = CellLegend(f"Scénario {i}")
             html += TableRow(
                 cells=[TableCell(legend, colspan=4, tag='th',
                                  style='text-align:center')],
@@ -177,12 +177,12 @@ class ExerciseClass:                                    # pylint: disable=r0902
                          TableCell(CellLegend('-'),
                                    style=left_border_thick_style))
                 html += TableRow(cells=cells, style=ok_style).html()
-            except Exception as e:
+            except Exception as exc:
                 import traceback
                 traceback.print_exc()
                 cell1 = TableCell(args_obj, layout=self.layout, width=c1+c2,
                                   colspan=2)
-                error = "Exception {}".format(e)
+                error = f"Exception {exc}"
                 cell2 = TableCell(CellLegend(error), width=c3,
                                   style=left_border_thick_style)
                 cell3 = TableCell(CellLegend('KO'),
@@ -209,11 +209,11 @@ class ExerciseClass:                                    # pylint: disable=r0902
                         style = ko_style
                         msg = 'KO'
                         overall = False
-                except Exception as e:
+                except Exception as exc:
                     style = ko_style
                     msg = 'KO'
                     overall = False
-                    student_result = "Exception {}".format(e)
+                    student_result = f"Exception {exc}"
 
                 # xxx styling maybe a little too much...
                 cells = (TableCell(displayed, layout='text', width=c1),
@@ -249,12 +249,11 @@ class ExerciseClass:                                    # pylint: disable=r0902
         # can provide 3 args (convenient when it's the same as correction) or just 2
         columns = columns[:2]
         c1, c2 = columns
-        #print("Using columns={}".format(columns))
         table = Table(style=font_style(self.font_size))
         html = table.header()
 
         sample_scenarios = self.scenarios[:how_many_samples]
-        for i, scenario in enumerate(sample_scenarios):
+        for i, scenario in enumerate(sample_scenarios, 1):
 
             # first step is to create an instance
             # lets' call it SAMPLE
@@ -265,7 +264,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
             init_args.render_prefix(f"{self.obj_name} = ")
 
             # start of scenario
-            legend = CellLegend("Scénario {}".format(i+1))
+            legend = CellLegend(f"Scénario {i}")
             html += TableRow(
                 cells=[TableCell(legend, colspan=4, tag='th',
                                  style=center_text_style)],

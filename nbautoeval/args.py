@@ -36,11 +36,10 @@ class ArgsTupleDict:
         self.layout = None
 
     def __repr__(self):
-        result = "<Args {}{}{} ".format(
-            self.prefix, self.function_name, self.args)
+        result = f"<Args {self.prefix}{self.function_name}{self.args} "
         if self.keywords:
-            result += "Keywords:" + ",".join(["{}={}".format(k, v)
-                                              for (k, v) in self.keywords.items()])
+            result += ("Keywords:" + 
+                       ",".join(f"{k}={v}" for (k, v) in self.keywords.items()))
         result += ">"
         return result
 
@@ -52,19 +51,17 @@ class ArgsTupleDict:
 
     def call(self, function, debug=False):
         if debug:
-            print("calling {} *{} **{}".format(function.__name__, self.args, self.keywords))
+            print(f"calling {function.__name__} *{self.args} **{self.keywords}")
         return function(*self.args, **self.keywords)
 
     def init_obj(self, klass, debug=False):
         if debug:
-            print("creating object in class {}, *{} **{}"
-                  .format(klass.__name__, self.args, self.keywords))
+            print(f"creating object in class {klass.__name__}, *{self.args} **{self.keywords}")
         return klass(*self.args, **self.keywords)
 
     def call_obj(self, obj, methodname, debug=False):
         if debug:
-            print("calling method {} on object {} *{} **{}"
-                  .format(methodname, obj, self.args, self.keywords))
+            print(f"calling method {methodname} on object {obj} *{self.args} **{self.keywords}")
         method = getattr(obj, methodname)
         return method(*self.args, **self.keywords)
 
@@ -105,7 +102,7 @@ class ArgsTupleDict:
         if self.keywords:
             text += ", " + commas(self.keywords)
         if self.function_name:
-            text = "{}({})".format(self.function_name, text)
+            text = f"{self.function_name}({text})"
         text = self.prefix + text
         return truncate_str(text, width)
 
@@ -116,10 +113,8 @@ class ArgsTupleDict:
         # try to render with no width limit, if it fits it's OK
         simple_case = self.layout_truncate(width=0)
         if len(simple_case) <= width:
-            #print("using simple_case {}".format(simple_case))
             return simple_case
         else:
-            #print("simple_case too long {} > {}".format(len(simple_case), width))
             pass
         # else
         indent = 2
@@ -134,8 +129,7 @@ class ArgsTupleDict:
             pprint.pformat(arg, width=width-indent, indent=indent)
             for arg in self.args]
         keyword_tokens = [
-            "{}={}".format(k, pprint.pformat(v, width=width-indent,
-                                             indent=indent))
+            f"{k}={pprint.pformat(v, width=width-indent, indent=indent)}"
             for (k, v) in self.keywords.items()]
         tokens = [indent_pformat(x) for x in args_tokens + keyword_tokens]
         html += (",\n").join(tokens)

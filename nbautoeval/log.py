@@ -30,11 +30,7 @@ def log_correction(exoname, success):
         uid = os.getuid()
         message = "OK" if success else "KO"
         with open(log_filename(), 'a') as log:
-            line = "{now} {uid} {exoname} {message}\n".format(
-                now=now,
-                uid=uid,
-                exoname=exoname,
-                message=message)
+            line = f"{now} {uid} {exoname} {message}\n"
             log.write(line)
     except Exception:
         # really not sure what to do then...

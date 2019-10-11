@@ -114,7 +114,7 @@ class ExerciseFunction:                                 # pylint: disable=r0902
                   else DEFAULT_LAYOUT_ARGS
 
         col1, col2, col3 = columns
-        #print("Using columns={}".format(columns))
+        #print(f"Using columns={columns}")
 
         table = Table(style=font_style(self.font_size))
         html = table.header()
@@ -194,7 +194,7 @@ class ExerciseFunction:                                 # pylint: disable=r0902
         # can provide 3 args (convenient when it's the same as correction) or just 2
         columns = columns[:2]
         col1, col2 = columns
-        #print("Using columns={}".format(columns))
+        #print(f"Using columns={columns}")
 
         table = Table(style=font_style(self.font_size))
         html = table.header()
