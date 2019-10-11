@@ -11,7 +11,8 @@ from .rendering import (
     font_style, default_font_size, default_header_font_size,
     ok_style, ko_style,
     center_text_style, left_text_style,
-    top_border_style, top_border_style2, bottom_border_style,
+    top_border_style, top_border_style2, 
+    bottom_border_style, bottom_border_style2, bottom_border_style3,
     left_border_thick_style, left_border_thin_style,
 )
 
@@ -185,7 +186,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                                    style=left_border_thin_style),
                          TableCell(CellLegend('-'),
                                    style=left_border_thick_style))
-                html += TableRow(cells=cells, style=ok_style).html()
+                html += TableRow(cells=cells, style=ok_style + bottom_border_style2).html()
             except Exception as exc:
                 import traceback
                 traceback.print_exc()
@@ -197,7 +198,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 cell3 = TableCell(CellLegend('KO'),
                                   style=left_border_thick_style)
                 html += TableRow(cells=(cell1, cell2, cell3),
-                                 style=ko_style).html()
+                                 style=ko_style + bottom_border_style2).html()
                 overall = False
                 continue
 
@@ -241,7 +242,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                                    +left_text_style),
                          TableCell(CellLegend(msg),
                                    style=left_border_thick_style))
-                html += TableRow(cells=cells, style=style).html()
+                html += TableRow(cells=cells, style=style + bottom_border_style3).html()
 
         log_correction(self.name, overall)
 
@@ -293,7 +294,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                      TableCell(CellLegend('-'),
                                style=left_border_thick_style
                                + left_text_style))
-            html += TableRow(cells=cells).html()
+            html += TableRow(cells=cells, style=bottom_border_style2).html()
 
             for step in scenario.steps:
                 computed = step.replace("SAMPLE", "ref_class")
@@ -307,7 +308,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                          TableCell(ref_result, layout=self.layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style))
-                html += TableRow(cells=cells).html()
+                html += TableRow(cells=cells, style=bottom_border_style3).html()
 
         html += table.footer()
         return HTML(html)
