@@ -25,10 +25,10 @@ class Fifo:
 
 # # create an exercise instance
 
-from nbautoeval.exercise_class import ExerciseClass, ScenarioClass
+from nbautoeval.exercise_class import ExerciseClass, ClassScenario
 from nbautoeval.args import Args
 
-scenario1 = ScenarioClass(
+scenario1 = ClassScenario(
     # arguments to the constructor
     Args(),
     # a list of expressions, with 
@@ -42,7 +42,7 @@ scenario1 = ScenarioClass(
     "len(INSTANCE)"
 )
 
-scenario2 = ScenarioClass(
+scenario2 = ClassScenario(
     Args(),
     "INSTANCE.outgoing()",
     "INSTANCE.incoming(1)",

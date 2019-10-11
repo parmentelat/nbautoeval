@@ -25,7 +25,7 @@ from .rendering import (
 # but in most cases this does represent column widths
 DEFAULT_LAYOUT_ARGS = (50, 25, 25)
 
-class StepClass:
+class ClassStep:
     """
     this utility class is used to model a step in a class scenario
     it is basically built from a string where
@@ -40,7 +40,7 @@ class StepClass:
         return self.exp.replace("INSTANCE", varname).replace("CLASS", classname)
 
 ##########
-class ScenarioClass:
+class ClassScenario:
     """
     Describes a scenario that can be applied to a class
 
@@ -49,13 +49,13 @@ class ScenarioClass:
 
     So a scenario is defined from
       * one Args instance that is passed to the constructor
-      * a list of StepClass (or mere str) objects
+      * a list of ClassStep (or mere str) objects
         
     Example:
       for a Polynom class created from a set of coefficients
-      ScenarioClass(
+      ClassScenario(
           Args(1, 2, 3),
-          StepClass("repr(INSTANCE)"),
+          ClassStep("repr(INSTANCE)"),
           "INSTANCE.derivative()",
           "INSTANCE + CLASS(3, 4, 5)",
       )
@@ -68,7 +68,7 @@ class ScenarioClass:
     def __init__(self, init_args, *expressions):
         self.init_args = init_args
         def step(exp):
-            return exp if isinstance(exp, StepClass) else StepClass(exp)
+            return exp if isinstance(exp, ClassStep) else ClassStep(exp)
         self.steps = [step(exp) for exp in expressions]
 
 

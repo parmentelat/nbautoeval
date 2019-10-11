@@ -84,7 +84,8 @@ class ExerciseRegexpGroups(ExerciseFunction):
     def regexp_to_solution(regexp, groups, match_mode):
         if match_mode != 'match':
             # only tested with 'match' so far
-            print(f"WARNING: ExerciseRegexpGroups : match_mode {match_mode} not yet implemented")
+            print(f"WARNING: ExerciseRegexpGroups : "
+                  f"match_mode {match_mode} not yet implemented")
         def solution(string):
             if match_mode in ('match', 'search'):
                 if match_mode == 'match':
