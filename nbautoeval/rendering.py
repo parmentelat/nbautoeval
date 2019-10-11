@@ -31,8 +31,6 @@ left_border_thin_style = "border-left:1px solid gray;"
 ########## helpers for rendering / truncating
 def html_escape(s):
     return s
-    # xxx need to find code for < and >
-    return s.replace("<", "&lt;").replace(">", "&gt;").replace("&", "&amp;")
 
 def truncate_str(message, max_size):
     # width = 0 or less means do not truncate
