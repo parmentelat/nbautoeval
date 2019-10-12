@@ -3,6 +3,7 @@
 # pylint: disable=c0111, c0103, r1705
 
 import pprint
+import html as stdlib_html
 
 from types import FunctionType, BuiltinFunctionType, BuiltinMethodType
 
@@ -105,6 +106,14 @@ class CellObj:
         Same as layout_text but with \n at the end of line that have it
         """
         return self.layout_text(width, show_backslash_n=True)
+    
+    def layout_raw(self, width):
+        style = f"font-size:{width};"
+        html = f"<pre 'style={style}'>"
+        html += stdlib_html.escape(str(self.torender))
+        html += "</pre>"
+        return html
+
 
 class CellLegend:
     def __init__(self, legend):
@@ -213,7 +222,7 @@ class TableCell:
     default_layout = 'truncate'
     supported_layouts = [
         'truncate', 'pprint',
-        'void', 'text', 'text_backslash_n',
+        'void', 'text', 'text_backslash_n', 'raw',
     ]
 
     def computed_layout(self):

@@ -8,9 +8,9 @@ class Fifo:
 
     def __init__(self):
         self.items = []
-
+        
     def __repr__(self):
-        contents = ", ".join(f"{i}" for i in self.items)
+        contents = ", ".join(str(item) for item in self.items)
         return f"[Fifo {contents}]"
 
     def incoming(self, incoming):

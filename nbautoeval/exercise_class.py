@@ -185,9 +185,9 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 overall = overall and ok
                 msg = 'OK' if ok else 'KO'
                 cells = (TableCell(init_args, layout=self.layout, width=c1),
-                         TableCell(CellLegend(ref_repr),
+                         TableCell(ref_repr, layout='raw',
                                    style=left_border_thick_style+left_text_style),
-                         TableCell(CellLegend(stu_repr),
+                         TableCell(stu_repr, layout='raw',
                                    style=left_border_thin_style+left_text_style),
                          TableCell(CellLegend(msg),
                                    style=left_border_thick_style))
@@ -212,10 +212,9 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 code_ref = step.replace("REF", "ref_class")
                 code_stu = step.replace("STU", "stu_class")
                 disp = step.replace(self.obj_name, ref_class.__name__)
-                layout = self.layout
+                layout = 'raw'
                 if step.statement:
                     disp += f"; {self.obj_name}"
-                    layout = 'text'
 
                 # the function to use to run code, whether it's a statement
                 # or an expression; in the former case of course, there is no need 
@@ -239,7 +238,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                     if step.statement:
                         ref_result = repr(REF)
 
-                cells = (TableCell(disp, layout='text', width=c1),
+                cells = (TableCell(disp, layout='raw', width=c1),
                          TableCell(ref_result, layout=layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style),
@@ -298,7 +297,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
             init_args.render_postfix(f"; {self.obj_name}")
 
             cells = (TableCell(init_args, layout=self.layout, width=c1),
-                     TableCell(CellLegend(repr(SAMPLE)),
+                     TableCell(repr(SAMPLE), layout='raw',
                                style=left_border_thick_style
                                + left_text_style))
             html += TableRow(cells=cells, style=bottom_border_style2).html()
@@ -311,11 +310,11 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 ### display
                 if step.statement:
                     disp += f"; {self.obj_name}"
-                    layout = 'text'
+                    layout = 'raw'
                     ref_result = repr(SAMPLE)
                 else:
                     layout = self.layout
-                cells = (TableCell(disp, layout='text', width=c1),
+                cells = (TableCell(disp, layout='raw', width=c1),
                          TableCell(ref_result, layout=layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style))
