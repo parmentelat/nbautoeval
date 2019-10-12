@@ -295,6 +295,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
 
             init_args.render_function_name(self.name)
             init_args.render_prefix(f"{self.obj_name} = ")
+            init_args.render_postfix(f"; {self.obj_name}")
 
             cells = (TableCell(init_args, layout=self.layout, width=c1),
                      TableCell(CellLegend(repr(SAMPLE)),
