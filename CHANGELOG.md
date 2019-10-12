@@ -1,3 +1,9 @@
+# 0.5.2 - 2019 Oct 12
+
+* bugfix in class example display
+* bugfix in displaying outputs with <> which is the case for 
+  default repr() on objects that don't have their own __repr__()
+
 # 0.5.1 - 2019 Oct 12
 
 * improved class definition: 
