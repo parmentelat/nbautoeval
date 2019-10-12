@@ -31,12 +31,13 @@ class ArgsTupleDict:
         self.function_name = None
         # can be overridden later on using 'render_prefix'
         self.prefix = ""
+        self.postfix = ""
         # default - no way to set this on the constructor
         # because layout=x is already captured in _keywords
         self.layout = None
 
     def __repr__(self):
-        result = f"<Args {self.prefix}{self.function_name}{self.args} "
+        result = f"<Args {self.prefix}{self.function_name}{self.args}{self.postfix} "
         if self.keywords:
             result += ("Keywords:" + 
                        ",".join(f"{k}={v}" for (k, v) in self.keywords.items()))
@@ -85,10 +86,15 @@ class ArgsTupleDict:
 
     def render_prefix(self, prefix):
         """
-        if called, arguments will be rendered like this
-        with the prefix prepended
+        if called, arguments will be rendered with this prefix prepended
         """
         self.prefix = prefix
+
+    def render_postfix(self, postfix):
+        """
+        if called, arguments will be rendered with this postfix appended
+        """
+        self.postfix = postfix
 
     def layout_void(self, width):                # pylint: disable=r0201, w0613
         return ""
@@ -103,7 +109,7 @@ class ArgsTupleDict:
             text += ", " + commas(self.keywords)
         if self.function_name:
             text = f"{self.function_name}({text})"
-        text = self.prefix + text
+        text = self.prefix + text + self.postfix
         return truncate_str(text, width)
 
     def layout_pprint(self, width):
@@ -135,6 +141,7 @@ class ArgsTupleDict:
         html += (",\n").join(tokens)
         if self.function_name:
             html += ")\n"
+        html += self.postfix
         html += "</pre>"
         return html
 

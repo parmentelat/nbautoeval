@@ -18,6 +18,9 @@ class Gauge:
         self._x = min(MAX, max(MIN, x))
         
     x = property(_get_x, _set_x)
+    
+    def __repr__(self):
+        return f"{self._x}"
 
 
 # create an exercise instance

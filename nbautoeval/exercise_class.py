@@ -133,7 +133,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                     step[1].set_layout(self.call_layout)
 
 
-    def correction(self, student_class):        # pylint: disable=r0914, r0915
+    def correction(self, stu_class):        # pylint: disable=r0914, r0915
 
         self.set_call_layout()
 
@@ -167,24 +167,31 @@ class ExerciseClass:                                    # pylint: disable=r0902
             try:
                 # clone args for both usages
                 ref_args = init_args.clone(self.copy_mode)
-                student_args = init_args.clone(self.copy_mode)
+                stu_args = init_args.clone(self.copy_mode)
                 # always render the classname - with a name
                 init_args.render_function_name(self.name)
                 init_args.render_prefix(f"{self.obj_name} = ")
+                init_args.render_postfix(f"; {self.obj_name}")
                 
                 # initialize both objects
                 REF = ref_args.init_obj(     # pylint: disable=unused-variable
                     ref_class)  
-                STU = student_args.init_obj( # pylint: disable=unused-variable
-                    student_class)
+                STU = stu_args.init_obj(     # pylint: disable=unused-variable
+                    stu_class)
+                ref_repr = repr(REF)
+                stu_repr = repr(STU)
+                ok = self.validate(REF, STU, ref_class, stu_class)
+                style = ok_style if ok else ko_style
+                overall = overall and ok
+                msg = 'OK' if ok else 'KO'
                 cells = (TableCell(init_args, layout=self.layout, width=c1),
-                         TableCell(CellLegend('-'),
-                                   style=left_border_thick_style),
-                         TableCell(CellLegend('-'),
-                                   style=left_border_thin_style),
-                         TableCell(CellLegend('-'),
+                         TableCell(CellLegend(ref_repr),
+                                   style=left_border_thick_style+left_text_style),
+                         TableCell(CellLegend(stu_repr),
+                                   style=left_border_thin_style+left_text_style),
+                         TableCell(CellLegend(msg),
                                    style=left_border_thick_style))
-                html += TableRow(cells=cells, style=ok_style + bottom_border_style2).html()
+                html += TableRow(cells=cells, style=style + bottom_border_style2).html()
             except Exception as exc:
                 import traceback
                 traceback.print_exc()
@@ -202,40 +209,41 @@ class ExerciseClass:                                    # pylint: disable=r0902
 
             # other steps of that scenario
             for step in scenario.steps:
-                displayed = step.replace(self.obj_name, ref_class.__name__)
-                computed_ref = step.replace("REF", "ref_class")
-                computed_stu = step.replace("STU", "student_class")
+                code_ref = step.replace("REF", "ref_class")
+                code_stu = step.replace("STU", "stu_class")
+                disp = step.replace(self.obj_name, ref_class.__name__)
+                layout = self.layout
+                if step.statement:
+                    disp += f"; {self.obj_name}"
+                    layout = 'text'
 
                 # the function to use to run code, whether it's a statement
                 # or an expression; in the former case of course, there is no need 
                 # to cmpare results as they are None, but that's not important
                 code_runner = exec if step.statement else eval
-                ref_result = code_runner(computed_ref)
+                ref_result = code_runner(code_ref)
                 try:
-                    student_result = code_runner(computed_stu)
+                    stu_result = code_runner(code_stu)
                     if step.statement:
-                        style = ok_style
-                        msg = 'OK'
-                        ref_result = student_result = '-'
-                    elif self.validate(ref_result, student_result):
-                        style = ok_style
-                        msg = 'OK'
-                    else:
-                        style = ko_style
-                        msg = 'KO'
-                        overall = False
+                        stu_result = repr(STU)
+                        ref_result = repr(REF)
+                    ok = self.validate(ref_result, stu_result, ref_class, stu_class)
+                    style = ok_style if ok else ko_style
+                    msg = 'OK' if ok else 'KO'
+                    overall = overall and ok
                 except Exception as exc:
                     style = ko_style
                     msg = 'KO'
                     overall = False
-                    student_result = f"Exception {exc}"
+                    stu_result = f"Exception {exc}"
+                    if step.statement:
+                        ref_result = repr(REF)
 
-                # xxx styling maybe a little too much...
-                cells = (TableCell(displayed, layout='text', width=c1),
-                         TableCell(ref_result, layout=self.layout, width=c2,
+                cells = (TableCell(disp, layout='text', width=c1),
+                         TableCell(ref_result, layout=layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style),
-                         TableCell(student_result, layout=self.layout, width=c3,
+                         TableCell(stu_result, layout=layout, width=c3,
                                    style=left_border_thin_style
                                    +left_text_style),
                          TableCell(CellLegend(msg),
@@ -270,14 +278,6 @@ class ExerciseClass:                                    # pylint: disable=r0902
         sample_scenarios = self.scenarios[:how_many_samples]
         for i, scenario in enumerate(sample_scenarios, 1):
 
-            # first step is to create an instance
-            # lets' call it SAMPLE
-            init_args = scenario.init_args.clone(self.copy_mode)
-            SAMPLE = init_args.init_obj(ref_class)       # pylint: disable=unused-variable
-
-            init_args.render_function_name(self.name)
-            init_args.render_prefix(f"{self.obj_name} = ")
-
             # start of scenario
             legend = CellLegend(f"Scénario {i}")
             html += TableRow(
@@ -286,24 +286,36 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 style=font_style(self.header_font_size) + top_border_style).html()
             cells = [TableCell(CellLegend(x), tag='th')
                      for x in ('Appel', 'Attendu')]
-            html += TableRow(cells=cells, style=top_border_style2 + bottom_border_style).html()
+            html += TableRow(cells=cells, 
+                             style=top_border_style2 + bottom_border_style).html()
+
+            # object construction
+            init_args = scenario.init_args.clone(self.copy_mode)
+            SAMPLE = init_args.init_obj(ref_class)      # pylint: disable=unused-variable
+
+            init_args.render_function_name(self.name)
+            init_args.render_prefix(f"{self.obj_name} = ")
 
             cells = (TableCell(init_args, layout=self.layout, width=c1),
-                     TableCell(CellLegend('-'),
+                     TableCell(CellLegend(repr(SAMPLE)),
                                style=left_border_thick_style
                                + left_text_style))
             html += TableRow(cells=cells, style=bottom_border_style2).html()
 
             for step in scenario.steps:
-                computed = step.replace("SAMPLE", "ref_class")
-                displayed = step.replace(self.obj_name, ref_class.__name__)
+                code = step.replace("SAMPLE", "ref_class")
+                disp = step.replace(self.obj_name, ref_class.__name__)
                 code_runner = exec if step.statement else eval
-                # print(f"statement={step.statement}, code={computed}")
-                ref_result = code_runner(computed)
+                ref_result = code_runner(code)
+                ### display
                 if step.statement:
-                    ref_result = "-"
-                cells = (TableCell(displayed, layout='text', width=c1),
-                         TableCell(ref_result, layout=self.layout, width=c2,
+                    disp += f"; {self.obj_name}"
+                    layout = 'text'
+                    ref_result = repr(SAMPLE)
+                else:
+                    layout = self.layout
+                cells = (TableCell(disp, layout='text', width=c1),
+                         TableCell(ref_result, layout=layout, width=c2,
                                    style=left_border_thick_style
                                    +left_text_style))
                 html += TableRow(cells=cells, style=bottom_border_style3).html()
@@ -312,14 +324,25 @@ class ExerciseClass:                                    # pylint: disable=r0902
         return HTML(html)
     
 
-    def validate(self, expected, result):               # pylint: disable=r0201
+    def validate(self, ref_res, stu_res, ref_class, stu_class):
         """
         how to compare the results as obtained from
-        * the solution function
-        * and the student function
-
-        the default here is to use ==
+        * the solution instance
+        * the student instance
+        * the solution class
+        * the student class 
+        
+        it is not possible in the general case to use == on objects
+        since the 2 classes are different, and so == will always return False
         """
-        return expected == result
-
+        if not isinstance(ref_res, ref_class) and not isinstance(stu_res, stu_class):
+            # assuming both are regular Python objects 
+            # use ==
+            return ref_res == stu_res
+        if isinstance(ref_res, ref_class) and isinstance(stu_res, stu_class):
+            # compare repr's
+            return repr(ref_res) == repr(stu_res)
+        else:
+            # something is wrong
+            return False
 
