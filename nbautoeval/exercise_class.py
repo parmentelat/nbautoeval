@@ -159,7 +159,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                 cells=[TableCell(legend, colspan=4, tag='th',
                                  style='text-align:center')],
                 style=font_style(self.header_font_size) + top_border_style).html()
-            cells = [TableCell(CellLegend(x), tag='th')
+            cells = [TableCell(CellLegend(x), tag='th', style=left_text_style)
                      for x in ('Appel', 'Attendu', 'Obtenu', '')]
             html += TableRow(cells=cells, style=top_border_style2 + bottom_border_style).html()
 

@@ -32,14 +32,9 @@ from nbautoeval.args import Args
 scenario1 = ClassScenario(
     # arguments to the constructor
     Args(10),
-    # a list of expressions, with 
-    # INSTANCE and CLASS replaced as appropriate
-    "INSTANCE.x",
     # statements need to be tagged as such 
     ClassStatement("INSTANCE.x = 50"),
-    "INSTANCE.x",
     ClassStatement("INSTANCE.x = 2000"),
-    "INSTANCE.x",
 )
 
 scenario2 = ClassScenario(
@@ -47,9 +42,7 @@ scenario2 = ClassScenario(
     Args(1000),
     # note that a str object passed here is actually
     # used to create a ClassExpression object
-    ClassExpression("INSTANCE.x"),
     ClassStatement("INSTANCE.x = -1000"),
-    ClassExpression("INSTANCE.x"),
 )
 
 

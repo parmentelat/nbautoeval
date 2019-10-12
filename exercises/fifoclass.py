@@ -11,7 +11,7 @@ class Fifo:
 
     def __repr__(self):
         contents = ", ".join(f"{i}" for i in self.items)
-        return f"<Fifo [{contents}]>"
+        return f"[Fifo {contents}]"
 
     def incoming(self, incoming):
         self.items.append(incoming)
@@ -38,6 +38,7 @@ scenario1 = ClassScenario(
     # INSTANCE and CLASS replaced as appropriate
     ClassExpression("INSTANCE.incoming(1)"),
     ClassExpression("INSTANCE.incoming(2)"),
+    ClassExpression("INSTANCE"),
     ClassExpression("INSTANCE.outgoing()"),
     ClassExpression("INSTANCE.incoming(3)"),
     ClassExpression("INSTANCE.incoming(4)"),

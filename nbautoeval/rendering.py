@@ -73,6 +73,8 @@ def truncate_value(value, width):
 class CellObj:
     def __init__(self, torender):
         self.torender = torender
+    def __repr__(self):
+        return f"[CellObj {self.torender}]"
     def layout_truncate(self, width):
         return truncate_value(self.torender, width)
     def layout_pprint(self, width):
@@ -108,7 +110,7 @@ class CellLegend:
     def __init__(self, legend):
         self.legend = legend
     def __repr__(self):
-        return f"<CellLegend {self.legend}>"
+        return f"[CellLegend {self.legend}]"
     def layout_truncate(self, width):
         return truncate_str(self.legend, width)
     layout_pprint = layout_truncate
@@ -149,6 +151,9 @@ class TableRow:                                         # pylint: disable=r0903
         self.cells = cells
         self.html_tags = html_tags
 
+    def __repr__(self):
+        return f"[TableRow with {len(self.cells)} cells]"
+
     def html(self):
         html = tag_keywords("tr", **self.html_tags)
         for cell in self.cells:
@@ -175,6 +180,9 @@ class TableCell:
         self.tag = tag
         self.layout = layout
         self.html_tags = html_tags
+
+    def __repr__(self):
+        return f"[TableCell {self.content}]"
 
     # if the 'content' object has a 'render' method, then use it
     # otherwise provide a few basic methods for that
