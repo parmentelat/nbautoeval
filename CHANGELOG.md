@@ -1,6 +1,15 @@
+# 0.5.1 - 2019 Oct 12
+
+* improved class definition: 
+  * results of constructor step now checked as well
+  * no longer need to call `repr()` explicitly
+  * now has support for statements w/ ClassExpression and ClassStatement
+  * StepClass now renamed into ClassExpression, which breaks from 0.5.0
+
 # 0.5.0 - 2019 Oct 11
 
 * rewrote class-oriented exercise to extend possibilities
+* DO NOT USE THIS VERSION as the API has been changed in 0.5.1
 
 # 0.4.7 - 2019 Oct 7
 
