@@ -21,7 +21,12 @@ class ExerciseGenerator(ExerciseFunction):
     def generator_to_solution(generator, max_iterations=None):
         def solution(*args, **kwds):
             iterator = generator(*args, **kwds)
-            return list(itertools.islice(iterator, None, max_iterations))
+            if max_iterations is None:
+                return list(iterator)
+            result = list(itertools.islice(iterator, None, max_iterations+1))
+            if len(result) == max_iterations+1:
+                result[-1] = '...'
+            return result
         return solution
 
     def __init__(self, generator, datasets, max_iterations=None,
