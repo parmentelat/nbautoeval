@@ -4,6 +4,8 @@
 
 import itertools
 
+from collections.abc import Iterator
+
 from .exercise_function import ExerciseFunction
 
 class ExerciseGenerator(ExerciseFunction):
@@ -18,12 +20,15 @@ class ExerciseGenerator(ExerciseFunction):
     (*) comparing each of the results yielded by next()
     """
     @staticmethod
-    def generator_to_solution(generator, max_iterations=None):
+    def generator_to_solution(generator_function, max_iterations=None):
         def solution(*args, **kwds):
-            iterator = generator(*args, **kwds)
+            # call the function written by the student
+            generator = generator_function(*args, **kwds)
+            if not isinstance(generator, (Iterator, range)):
+                raise TypeError(f"received a {type(generator)} instance: {generator} that is not an iterator ")
             if max_iterations is None:
-                return list(iterator)
-            result = list(itertools.islice(iterator, None, max_iterations+1))
+                return list(generator)
+            result = list(itertools.islice(generator, None, max_iterations+1))
             if len(result) == max_iterations+1:
                 result[-1] = '...'
             return result
