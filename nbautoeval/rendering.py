@@ -6,6 +6,7 @@ import pprint
 import html as stdlib_html
 
 from types import FunctionType, BuiltinFunctionType, BuiltinMethodType
+from collections.abc import Iterator
 
 ########## styles in html output
 default_font_size='small'
@@ -33,6 +34,7 @@ left_border_thick_style = "border-left:3px solid gray;"
 left_border_thin_style = "border-left:1px solid gray;"
 table_border_style = "margin: 10px;"
 
+DEBUG = False
 ########## helpers for rendering / truncating
 def html_escape(s):
     return s
@@ -79,12 +81,16 @@ class CellObj:
     def layout_truncate(self, width):
         return truncate_value(self.torender, width)
     def layout_pprint(self, width):
+        # print(f"using layout pprint on cellobj, self.torender={self.torender}")
+        if isinstance(self.torender, Iterator):
+            self.torender = list(self.torender)
         indent = 2
         html = "<pre>\n"
         width = width if width > 0 else 80
         html += pprint.pformat(self.torender, indent=indent, width=width)
         html += "</pre>"
         return html
+    layout_islice = layout_pprint
 
     def layout_text(self, width, show_backslash_n=False):
         """
@@ -201,6 +207,8 @@ class TableCell:
         symbol = f'layout_{layout}'
         try:
             if hasattr(self.content, symbol):
+                if DEBUG:
+                    print(f"calling method {symbol} on a {type(self.content).__name__}")
                 method = getattr(self.content, symbol)
                 cell_html = method(self.width)
                 html += "<pre>" + cell_html + "</pre>"
@@ -223,6 +231,7 @@ class TableCell:
     supported_layouts = [
         'truncate', 'pprint',
         'void', 'text', 'text_backslash_n', 'raw',
+        'islice',
     ]
 
     def computed_layout(self):
@@ -243,7 +252,8 @@ class TableCell:
         if computed_layout is None:
             computed_layout = self.default_layout
         if computed_layout not in self.supported_layouts:
-            print(f"WARNING: unsupported layout {computed_layout}")
+            print(f"WARNING: unsupported layout {computed_layout}"
+                  f" - resorting to {self.default_layout}")
             computed_layout = self.default_layout
         return computed_layout
 

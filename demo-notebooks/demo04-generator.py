@@ -67,7 +67,7 @@ exo_squares_maxed.correction(squares)
 # ****
 
 # %% [markdown]
-# ## checking for types
+# ## checking for types w/ an infinite iterator
 
 # %% [markdown]
 # standard `count()` with a limit on the number of iterations (max_iterations = 5)
@@ -107,6 +107,9 @@ exo_count_maxed.correction(mycount3)
 
 # %% [markdown]
 # ****
+
+# %% [markdown] {"trusted": true}
+# ## infinite iterators
 
 # %%
 from exercises.squares import exo_squares_count_maxed

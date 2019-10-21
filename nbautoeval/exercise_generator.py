@@ -3,7 +3,7 @@
 # pylint: disable=c0111, r1705, w0703
 
 import itertools
-
+import functools
 from collections.abc import Iterator
 
 from .exercise_function import ExerciseFunction
@@ -21,11 +21,12 @@ class ExerciseGenerator(ExerciseFunction):
     """
     @staticmethod
     def generator_to_solution(generator_function, max_iterations=None):
+        @functools.wraps(generator_function)
         def solution(*args, **kwds):
             # call the function written by the student
             generator = generator_function(*args, **kwds)
             if not isinstance(generator, (Iterator, range)):
-                raise TypeError(f"received a {type(generator)} instance: {generator} that is not an iterator ")
+                raise TypeError(f"not an iterator! received a {type(generator).__name__} instance: {generator} ")
             if max_iterations is None:
                 return list(generator)
             result = list(itertools.islice(generator, None, max_iterations+1))
@@ -34,7 +35,7 @@ class ExerciseGenerator(ExerciseFunction):
             return result
         return solution
 
-    def __init__(self, generator, datasets, max_iterations=None,
+    def __init__(self, generator_function, datasets, max_iterations=None,
                  *args, **keywords):
         """
         a generator exercise is made with
@@ -44,12 +45,17 @@ class ExerciseGenerator(ExerciseFunction):
           that are attempted to be retrieved
         . additional settings from ExerciseFunction
         """
-        solution = ExerciseGenerator.generator_to_solution(generator, max_iterations)
+        # change default
+        solution = ExerciseGenerator.generator_to_solution(generator_function, max_iterations)
         ExerciseFunction.__init__(self, solution, datasets, *args, **keywords)
-        self.generator = generator
+        self.generator_function = generator_function
         self.max_iterations = max_iterations
+        if 'call_layout' not in keywords:
+            self.call_layout = 'islice'
 
     def correction(self, student_generator):                    
         student_solution = ExerciseGenerator.generator_to_solution(
             student_generator, self.max_iterations)
         return ExerciseFunction.correction(self, student_solution)
+
+

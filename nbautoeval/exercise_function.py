@@ -233,6 +233,10 @@ class ExerciseFunction:                                 # pylint: disable=r0902
 
         the default here is to use ==
         """
+        
+        if DEBUG:
+            print(f"ExerciseFunction.validate is comparing {expected} with {result}")
+
         return expected == result
 
 # see this question on SO

@@ -1,4 +1,4 @@
-from .args import Args
+from .args import Args, GeneratorArgs
 from .exercise_function import ExerciseFunction
 from .exercise_generator import ExerciseGenerator
 from .exercise_regexp import ExerciseRegexp, ExerciseRegexpGroups

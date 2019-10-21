@@ -5,6 +5,8 @@
 
 import copy
 import pprint
+import itertools
+from collections.abc import Iterable
 
 from nbautoeval.rendering import commas, truncate_str
 
@@ -163,3 +165,55 @@ class Args(ArgsTupleDict):
     def __init__(self, *args, **kwds):
         # it is NOT *args here, this is intentional
         ArgsTupleDict.__init__(self, args, kwds)
+
+
+class GeneratorArgs(Args):
+    """
+    GenArgs is like Args but designed for use 
+    with an ExerciseGenerator
+    
+    See exercises/squares.py for an example of how to use it
+    """
+    def __init__(self, *args, islice=None, **kwds):
+        super().__init__(*args, **kwds)
+        self.islice = islice
+
+
+    def call(self, function, debug=False):
+        # call() already has it's contents converted
+        # to a list because comparison of results alreqdy has taken place
+        iterable = super().call(function)
+        if not isinstance(iterable, Iterable):
+            raise TypeError(f"not an iterable! received a {type(iterable).__name__} instance: {iterable}")
+        if not self.islice:
+            return iterable
+        return list(itertools.islice(iterable, *self.islice))
+
+
+    def pretty_slice(self):
+        if not self.islice:
+            return "all results"
+        if len(self.islice) == 1:
+            end, = self.islice
+            return f"iters → {end}"
+        if len(self.islice) == 2:
+            beg, end = self.islice
+            return f"iters {beg} → {end}"
+        if len(self.islice) == 3:
+            beg, end, step = self.islice
+            return f"iters {beg} → {end} / {step}"
+        return f"ERROR: unknown islice {self.islice}"
+
+
+    def layout_islice(self, width):
+        inherited = super().layout_pprint(width)
+        if self.islice is None:
+            return inherited
+        if inherited.startswith("<pre>"):
+            patched = inherited.replace("<pre>", f"<pre> {self.pretty_slice()}\n")
+        else:
+            patched = "<pre>\n"
+            patched += inherited + "\n"
+            patched += self.pretty_slice() + "\n"
+            patched += "</pre>"
+        return patched
