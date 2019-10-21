@@ -1,3 +1,9 @@
+# 0.6.0 - 2019 Oct 21
+
+* new classes ExerciseGenerator and GeneratorArgs to build exercises
+  where students are to write generator functions
+* demo notebooks are ol=nly exposed in jupytext/python format
+
 # 0.5.2 - 2019 Oct 12
 
 * bugfix in class example display
