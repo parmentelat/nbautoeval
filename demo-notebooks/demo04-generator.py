@@ -166,14 +166,42 @@ exo_primes.example()
 
 # %% [markdown]
 # **this is not working** 
-# see issue #
+# see issue #4
 
 # %%
-from exercises.primes import exo_primes_no_limit
-exo_primes_no_limit.example()
+#from exercises.primes import exo_primes_no_limit
+#exo_primes_no_limit.example()
+
+# %%
+# !cat ../exercises/primes.py
 
 # %% [markdown]
 # ***
 
+# %% [markdown]
+# ### passing iterators as arguments to iterators
+
+# %% [markdown]
+# Objective here is to write an iterator that takes an iterator as argument, and iterates its derivative, i.e. the difference between consecutive terms.
+
+# %% [markdown]
+# This is currently very patchy and could use a second pass; the logic is kind of OK, including for cloning iterators
+#
+# However rendering an argument iterator in the 'Appel' column remains to be done, right now it is still totally unedible ;)
+
 # %%
-# !cat ../exercises/primes.py
+from exercises.differential import exo_differential
+
+exo_differential.example()
+
+# %%
+# it's far from clear from this table, but we run differential on 
+# (*) itertools.count() so the expected output is a constant 1
+# (*) squares() that iterates 0, 1, 4, 9, 16 ... 
+#     so the expected outcome of differential is 1, 3, 5, 7, ..
+
+from exercises.differential import differential
+exo_differential.correction(differential)
+
+# %%
+# !cat ../exercises/differential.py

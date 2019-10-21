@@ -106,6 +106,7 @@ class ExerciseFunction:                                 # pylint: disable=r0902
         """
         colums should be a 3-tuple for the 3 columns widths
         copy_mode can be either None, 'shallow', or 'deep' (default)
+        or 'tee' for generators
         """
         self.set_call_layout()
         datasets = self.datasets
@@ -138,8 +139,12 @@ class ExerciseFunction:                                 # pylint: disable=r0902
             if self.render_name:
                 dataset.render_function_name(self.name)
             # always clone all inputs
-            student_dataset = dataset.clone(copy_mode)
-            ref_dataset = dataset.clone(copy_mode)
+            # quite hacky but I'm runing out of time here
+            if copy_mode != 'tee':
+                student_dataset = dataset.clone(copy_mode)
+                ref_dataset = dataset.clone(copy_mode)
+            else:
+                student_dataset, ref_dataset = dataset.duplicate('tee')
 
             # run both codes
             try:
@@ -207,7 +212,10 @@ class ExerciseFunction:                                 # pylint: disable=r0902
                                           style=center_text_style)
                                 for x in (title1, 'Resultat Attendu')]).html()
         for dataset in self.datasets[:how_many]:
-            sample_dataset = dataset.clone(self.copy_mode)
+            if self.copy_mode != 'tee':
+                sample_dataset = dataset.clone(self.copy_mode)
+            else:
+                sample_dataset, dataset = dataset.duplicate(self.copy_mode)
             if self.render_name:
                 dataset.render_function_name(self.name)
             try:

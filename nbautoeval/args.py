@@ -6,7 +6,7 @@
 import copy
 import pprint
 import itertools
-from collections.abc import Iterable
+from collections.abc import Iterable, Iterator
 
 from nbautoeval.rendering import commas, truncate_str
 
@@ -188,6 +188,28 @@ class GeneratorArgs(Args):
         if not self.islice:
             return iterable
         return list(itertools.islice(iterable, *self.islice))
+
+
+    # hacky / made in a rush...
+    # handles iterator when part of self.args
+    def duplicate(self, copy_mode):
+        copy1, copy2 = type(self)(), type(self)()
+        for att in ('keywords', 'function_name', 'prefix', 'postfix',
+                    'layout'):
+            setattr(copy1, att, copy.copy(getattr(self, att)))
+            setattr(copy2, att, copy.copy(getattr(self, att)))
+        a1, a2 = [], [] 
+        for arg in self.args:
+            if not isinstance(arg, Iterator):
+                a1.append(copy.copy(arg))
+                a2.append(copy.copy(arg))
+            else:
+                c1, c2 = itertools.tee(arg, 2)
+                a1.append(c1)
+                a2.append(c2)
+        copy1.args = tuple(a1)
+        copy2.args = tuple(a2)
+        return copy1, copy2
 
 
     def pretty_slice(self):
