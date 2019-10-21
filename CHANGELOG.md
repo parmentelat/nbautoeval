@@ -1,3 +1,8 @@
+# 0.6.1 - 2019 Oct 21
+
+* more illustrative examples of generator-based exercises
+* unfinished support to passing generators as arguments
+
 # 0.6.0 - 2019 Oct 21
 
 * new classes ExerciseGenerator and GeneratorArgs to build exercises
