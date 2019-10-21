@@ -63,6 +63,7 @@ pip install nbautoeval
 In this early stage the framework supports the following types of exercises
   * `ExerciseFunction` : the student is asked to write a function
   * `ExerciseRegexp` : the student is asked to write a regular expression
+  * `ExerciseGenerator` : the student is asked to write a generator function 
   * `ExerciseClass` : tests will happen on a class implementation
 
 A teacher who wishes to implement an exercise needs to write 2 parts :
@@ -79,5 +80,4 @@ A teacher who wishes to implement an exercise needs to write 2 parts :
 
 # Known issues
 
-* there remains some hard-wired labels in French
-* the regexp-based exercises come in too many variants and are thus not very well tested
+see https://github.com/parmentelat/nbautoeval/issues
