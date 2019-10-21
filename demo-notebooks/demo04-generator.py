@@ -135,3 +135,45 @@ def squares_count2():
 
 # %%
 exo_squares_count_maxed.correction(squares_count2)
+
+# %% [markdown]
+# ***
+
+# %%
+# !cat ../exercises/squares.py
+
+# %% [markdown]
+# ***
+# ***
+# ***
+#
+
+# %% [markdown]
+# # iterating on prime numbers
+
+# %% [markdown]
+# ### with `max_iterations`
+
+# %% [markdown]
+# It may be prudent to set a `max_iterations` on the exercise instance to avoid endless loops.
+
+# %%
+from exercises.primes import exo_primes
+exo_primes.example()
+
+# %% [markdown]
+# ### without `max_iterations`
+
+# %% [markdown]
+# **this is not working** 
+# see issue #
+
+# %%
+from exercises.primes import exo_primes_no_limit
+exo_primes_no_limit.example()
+
+# %% [markdown]
+# ***
+
+# %%
+# !cat ../exercises/primes.py
