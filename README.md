@@ -19,6 +19,8 @@ attempted corrections, as an attempt to provide feedback to teachers.
 Click the badge below to see a few sample demos under `mybinder.org` - it's all
 in the `demo-notebooks` subdir.
 
+**NOTE** the demo notebooks ship under a `.py` format and require `jupytext` intalled to be opened in Jupyter.
+
 [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/parmentelat/nbautoeval)
 
 
