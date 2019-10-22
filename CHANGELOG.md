@@ -1,5 +1,6 @@
 # 0.6.1 - 2019 Oct 21
 
+* DO NOT USE - broken !
 * more illustrative examples of generator-based exercises
 * unfinished support to passing generators as arguments
 
