@@ -1,3 +1,9 @@
+# 0.6.2 - 2019 Oct 24
+
+* essentially same features as 0.6.0, except for `copy_mode="tee"` 
+  that remains an available option but only explicitly
+  as it breaks some of our gen-based exos
+
 # 0.6.1 - 2019 Oct 21
 
 * DO NOT USE - broken !
