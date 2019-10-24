@@ -144,7 +144,7 @@ class ExerciseFunction:                                 # pylint: disable=r0902
                 student_dataset = dataset.clone(copy_mode)
                 ref_dataset = dataset.clone(copy_mode)
             else:
-                student_dataset, ref_dataset = dataset.duplicate('tee')
+                student_dataset, ref_dataset = dataset.copy_for_tee('tee')
 
             # run both codes
             try:
@@ -215,7 +215,7 @@ class ExerciseFunction:                                 # pylint: disable=r0902
             if self.copy_mode != 'tee':
                 sample_dataset = dataset.clone(self.copy_mode)
             else:
-                sample_dataset, dataset = dataset.duplicate(self.copy_mode)
+                sample_dataset, dataset = dataset.copy_for_tee(self.copy_mode)
             if self.render_name:
                 dataset.render_function_name(self.name)
             try:

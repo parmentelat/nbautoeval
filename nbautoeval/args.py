@@ -190,9 +190,13 @@ class GeneratorArgs(Args):
         return list(itertools.islice(iterable, *self.islice))
 
 
-    # hacky / made in a rush...
     # handles iterator when part of self.args
-    def duplicate(self, copy_mode):
+    # this is a part of aborted 0.6.1
+    # intention was to be smart about copying iterators
+    # but that did not work out too well
+    # kept this code for future reference only
+    # but it not used be default with 0.6.2 version
+    def copy_for_tee(self, copy_mode):
         copy1, copy2 = type(self)(), type(self)()
         for att in ('keywords', 'function_name', 'prefix', 'postfix',
                     'layout'):

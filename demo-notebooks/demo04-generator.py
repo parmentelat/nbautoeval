@@ -7,7 +7,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.2'
-#       jupytext_version: 1.1.7
+#       jupytext_version: 1.2.4
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -180,6 +180,9 @@ exo_primes.example()
 
 # %% [markdown]
 # ### passing iterators as arguments to iterators
+
+# %% [markdown]
+# **BEWARE** that this feature is experimental; in 0.6.2 we had to explicitly tag the exercise with `copy_mode="tee"` for it to work properly; setting this flag on other gen-based exos, including `primes` above, tends to break things.
 
 # %% [markdown]
 # Objective here is to write an iterator that takes an iterator as argument, and iterates its derivative, i.e. the difference between consecutive terms.

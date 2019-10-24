@@ -52,8 +52,10 @@ class ExerciseGenerator(ExerciseFunction):
         self.max_iterations = max_iterations
         if 'call_layout' not in keywords:
             self.call_layout = 'islice'
-        if 'copy_mode' not in keywords:
-            self.copy_mode = 'tee'
+        # that was part of the aborted 0.6.1 attempt
+        # to copy incoming generators - see also issue #4
+        #if 'copy_mode' not in keywords:
+        #    self.copy_mode = 'tee'
 
     def correction(self, student_generator):                    
         student_solution = ExerciseGenerator.generator_to_solution(
