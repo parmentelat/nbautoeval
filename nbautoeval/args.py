@@ -19,10 +19,10 @@ class ArgsTupleDict:
     of a tuple and a dictionary
 
     Example:
-    my_input = ArgsTupleDict( (1,2), {'a': []})
-    my_input.call (foo)
+    my_input = ArgsTupleDict((1, 2), {'a': []})
+    my_input.call(foo)
     would then return the result of
-    foo (1, 2, a=[])
+    foo(1, 2, a=[])
     """
     def __init__(self, _args=None, _keywords=None):
         # expecting a tuple or a list
