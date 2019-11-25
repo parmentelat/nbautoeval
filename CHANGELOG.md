@@ -1,3 +1,7 @@
+# 0.6.3 - 2019 Nov 25
+
+* bugfix for issue #7
+
 # 0.6.2 - 2019 Oct 24
 
 * essentially same features as 0.6.0, except for `copy_mode="tee"` 
