@@ -107,8 +107,10 @@ class ArgsTupleDict:
         remember that width <= 0 means no truncation
         """
         text = commas(self.args)
+        if self.args and self.keywords:
+            text += ", "
         if self.keywords:
-            text += ", " + commas(self.keywords)
+            text += commas(self.keywords)
         if self.function_name:
             text = f"{self.function_name}({text})"
         text = self.prefix + text + self.postfix
