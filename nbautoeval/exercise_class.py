@@ -66,7 +66,7 @@ class ClassScenario:
       for a Polynom class created from a set of coefficients
       ClassScenario(
           Args(1, 2, 3),
-          ClassExpression("repr(INSTANCE)"),
+          ClassExpression("INSTANCE"),
           ClassExpression("INSTANCE.derivative()"),
           ClassExpression("INSTANCE + CLASS(3, 4, 5)"),
       )
@@ -94,6 +94,12 @@ class ExerciseClass:                                    # pylint: disable=r0902
 
     From that plus a few accessories for fine-grained customization
     we can generate online example and correction.
+    
+    the check_init flag is mostly for legacy, and can come in handy
+    for very simple and early exos, given to students who do not yet know
+    how to write their own repr(); of course this assumes to not use 
+    an expression that ends with 'INSTANCE' in the scenario, as that
+    would still trigger repr()
     """
 
     def __init__(self, solution, scenarios, *,          # pylint: disable=r0913
@@ -105,6 +111,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
                  layout_args=None,
                  font_size=default_font_size,
                  header_font_size=default_header_font_size,
+                 check_init=True,
                  ):
         self.solution = solution
         self.scenarios = scenarios
@@ -117,6 +124,7 @@ class ExerciseClass:                                    # pylint: disable=r0902
         # sizes for the table
         self.font_size = font_size
         self.header_font_size = header_font_size
+        self.check_init = check_init
         # 
         # computed
         self.name = solution.__name__
@@ -178,9 +186,14 @@ class ExerciseClass:                                    # pylint: disable=r0902
                     ref_class)  
                 STU = stu_args.init_obj(     # pylint: disable=unused-variable
                     stu_class)
-                ref_repr = repr(REF)
-                stu_repr = repr(STU)
-                ok = self.validate(REF, STU, ref_class, stu_class)
+                if not self.check_init:
+                    ref_repr = '--'
+                    stu_repr = '--'
+                    ok = True
+                else:
+                    ref_repr = repr(REF)
+                    stu_repr = repr(STU)
+                    ok = self.validate(REF, STU, ref_class, stu_class)
                 style = ok_style if ok else ko_style
                 overall = overall and ok
                 msg = 'OK' if ok else 'KO'
