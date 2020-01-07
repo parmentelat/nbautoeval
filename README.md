@@ -21,7 +21,7 @@ in the `demo-notebooks` subdir.
 
 **NOTE** the demo notebooks ship under a `.py` format and require `jupytext` intalled to be opened in Jupyter.
 
-[![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/parmentelat/nbautoeval)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/parmentelat/nbautoeval/master?filepath=demo-notebooks)
 
 
 # History
