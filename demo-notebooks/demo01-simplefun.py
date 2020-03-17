@@ -4,17 +4,28 @@
 #   jupytext:
 #     cell_metadata_filter: all
 #     formats: py:percent
-#     notebook_metadata_filter: all,-language_info
+#     notebook_metadata_filter: all,-language_info,-jupytext.text_representation.jupytext_version
 #     text_representation:
 #       extension: .py
 #       format_name: percent
-#       format_version: '1.2'
-#       jupytext_version: 1.1.7
+#       format_version: '1.3'
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 #   notebookname: NO HEADING 1 found
+#   toc:
+#     base_numbering: 1
+#     nav_menu: {}
+#     number_sections: true
+#     sideBar: true
+#     skip_h1_title: false
+#     title_cell: Table of Contents
+#     title_sidebar: Contents
+#     toc_cell: false
+#     toc_position: {}
+#     toc_section_display: true
+#     toc_window_display: false
 #   version: '1.0'
 # ---
 
@@ -25,16 +36,12 @@
 # # Note on the environment
 
 # %% [markdown]
-# ## Standalone
+# ## For binder
 
 # %% [markdown]
-# See `runserver.sh` so that this example notebook has its `PYTHONPATH` set up properly in a standalone jupyter run.
-
-# %% [markdown]
-# ## Under binder
+# So that Python can find the `nbautoeval` package, especially under binder:
 
 # %%
-# just so that it runs smoothly under binder
 import sys
 sys.path.append("..")
 
@@ -69,12 +76,12 @@ exo_percentages.example()
 # %%
 # write your own implementation here
 def percentages(adn):
-#    from collections import Counter
-#    c = Counter(adn)
-#    l = len(adn)
-#    ks = ('A', 'C', 'G', 'T')
-#    return dict( [(k, 100*c[k]/l) for k in ks] )
-    return "your code"
+    # this code is providing one of the correct answers
+    # to illustrate the rendering
+    return {'A': 37.5,
+            'C': 25.0,
+            'G': 25.0,
+            'T': 12.5}
 
 
 # %% [markdown]
@@ -85,6 +92,8 @@ def percentages(adn):
 #  * their code
 #  * the correction cell
 # as many times as they want until it is all green.
+#
+# of course if you'd prefer you can merge both cells so students only need to evaluate one cell; the risk however with that mode is when beginners get lost they can also lose the correction code if it is in the same cell as their own code...
 
 # %%
 # validez votre code en évaluant cette cellule
