@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from nbautoeval.exercise_regexp import ExerciseRegexp, ExerciseRegexpGroups
+from nbautoeval import ExerciseRegexp, ExerciseRegexpGroups
 from nbautoeval.args import Args
 
 ########## step 1

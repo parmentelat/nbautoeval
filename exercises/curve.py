@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from nbautoeval.exercise_function import ExerciseFunction
-from nbautoeval.args import Args
+from nbautoeval import ExerciseFunction, Args, CallRenderer
 
 #
 # example how to use
@@ -27,4 +26,6 @@ def inputs_curve ():
 
 exo_curve = ExerciseFunction(curve, inputs_curve())
 
-exo_curve_noname = ExerciseFunction(curve, inputs_curve(), render_name=False)
+exo_curve_noname = ExerciseFunction(
+    curve, inputs_curve(), 
+    call_renderer=CallRenderer(show_function=False))

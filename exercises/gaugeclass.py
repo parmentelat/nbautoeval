@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # 
 # a very small class with a property
 # 

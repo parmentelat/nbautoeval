@@ -3,7 +3,7 @@
 #   jupytext:
 #     cell_metadata_filter: all
 #     formats: py:percent
-#     notebook_metadata_filter: all,-language_info,-jupytext.text_representation.jupytext_version
+#     notebook_metadata_filter: all,-language_info,-toc,-jupytext.text_representation.jupytext_version
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -19,13 +19,16 @@
 # %% [markdown]
 # <span style="float:left;">Licence CC BY-NC-ND</span><span style="float:right;">Thierry Parmentelat&nbsp;<img src="../media/inria-25.png" style="display:inline"></span><br/>
 
-# %% [markdown]
-# # A sample regular expression exercise
-
 # %%
 # just so that it runs smoothly under binder
 import sys
 sys.path.append("..")
+
+# %load_ext autoreload
+# %autoreload 2
+
+# %% [markdown]
+# # A sample regular expression exercise
 
 # %%
 from exercises.regexp import exo_at_least_two
@@ -99,8 +102,9 @@ exo_at_least_two.correction(at_least_two)
 # %% [markdown]
 # It can be tedious to close and re-open a notebook each time that a change is made. A few options in these situations&nbsp;:
 #
-# * In my environment I have a keyboard shortcut to restart the kernel - no questions asked.
 #
+# * use autoreload, as we do at the beginning of each of these demo notebooks
+# * In my environment I have a keyboard shortcut to restart the kernel - no questions asked.
 # * You can also do it in python itself (here for python3), but you need to recall that this must be cleaned up 
 
 # %%

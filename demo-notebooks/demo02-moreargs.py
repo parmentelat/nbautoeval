@@ -3,7 +3,7 @@
 #   jupytext:
 #     cell_metadata_filter: all
 #     formats: py:percent
-#     notebook_metadata_filter: all,-language_info,-jupytext.text_representation.jupytext_version
+#     notebook_metadata_filter: all,-language_info,-toc,-jupytext.text_representation.jupytext_version
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -23,6 +23,9 @@
 # just so that it runs smoothly under binder
 import sys
 sys.path.append("..")
+
+# %load_ext autoreload
+# %autoreload 2
 
 # %% [markdown]
 # # Functions with more arguments
@@ -105,6 +108,8 @@ anyfun(1, 2, 3, 4, foo='foo')
 # %%
 anyfun_inputs = [
     Args(1, 2, tutu='tutu'),
+    Args(1, 2, 3, 4, 5),
+    Args(1, 2, 3, foo='foo', bar='bar'),
 ]
 
 exo_anyfun = ExerciseFunction(anyfun, anyfun_inputs, nb_examples=0)
@@ -145,6 +150,14 @@ def curve (a, b, c=12):
 
 # %%
 exo_curve.correction(curve)
+
+# %% [markdown]
+# ## same with no function name
+
+# %%
+from exercises.curve import exo_curve_noname
+
+exo_curve_noname.example()
 
 # %% [markdown]
 # ## Corresponding python code

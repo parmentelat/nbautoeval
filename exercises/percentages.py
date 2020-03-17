@@ -6,10 +6,8 @@
 
 
 # importing the ExerciseFunction class
-from nbautoeval.exercise_function import ExerciseFunction
-
-# the Args object is for defining inputs 
-from nbautoeval.args import Args
+from nbautoeval import ExerciseFunction, Args
+from nbautoeval import CallRenderer, PPrintRenderer
 
 
 #
@@ -68,9 +66,38 @@ exo_percentages = ExerciseFunction(
     percentages,
     # the inputs
     inputs_percentages,
-    # the rest is optional, it contains  various tweaks
-    # on how to display input arguments
-    layout='pprint',
-    # in particular here, the widths of the first 3 columns in the correction table
-    layout_args=(40, 25, 25),
+    result_renderer=PPrintRenderer(width=20),
+)
+
+
+
+#
+# an alternative exercise instance to demonstrate
+# how to tweak the way the various columns are rendered
+# an ExerciseFunction instance can provide:
+# 
+# * call_renderer: how to display the call (leftmost column)
+# * result_renderer: how to display the results (2 middle columns)
+# 
+# the former should be some instance of one of the *CallRenderer classes
+#   as defined in call.py
+# the latter shoud be some instance of any of the *Renderer classes
+#   as defined in renderer.py
+# 
+exo_percentages2 = ExerciseFunction(
+    percentages, inputs_percentages,
+    # show function name in leftmost column
+    call_renderer=CallRenderer(show_function=False),
+    # use pprint to format results
+    result_renderer=PPrintRenderer(width=20),
+)
+
+#
+# illustration on how to set fonts sizes
+exo_percentages3 = ExerciseFunction(
+    percentages, inputs_percentages,
+    result_renderer=PPrintRenderer(width=20),
+    # here
+    font_size="75%",
+    header_font_size="200%",
 )

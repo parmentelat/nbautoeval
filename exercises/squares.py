@@ -1,5 +1,4 @@
-from nbautoeval import ExerciseGenerator, Args, GeneratorArgs
-
+from nbautoeval import ExerciseGenerator, GeneratorArgs, IsliceRenderer, PPrintRenderer
 
 # usual function that returns a generator
 def squares(n):
@@ -8,11 +7,12 @@ def squares(n):
         
 squares_inputs = [
     GeneratorArgs(2),
-    GeneratorArgs(3, islice=(4,)),
+    GeneratorArgs(5, islice=(1, 4)),
+    GeneratorArgs(3, islice=(5,)),
+    GeneratorArgs(10, islice=(2, 8, 3)),
     GeneratorArgs(4, islice=(4,)),
     GeneratorArgs(5, islice=(4,)),
     GeneratorArgs(10, islice=(0, 10)),
-    GeneratorArgs(10, islice=(5, 10)),
     GeneratorArgs(10, islice=(0, 5)),
     GeneratorArgs(10, islice=(0, 15)),
     GeneratorArgs(10, islice=(5, 15)),
@@ -25,12 +25,17 @@ squares_inputs = [
 
 
 exo_squares = ExerciseGenerator(
-    squares, squares_inputs, nb_examples=3)
+    squares, squares_inputs, nb_examples=4,
+    result_renderer=PPrintRenderer(width=30),
+)
 
 
 ### same with max_iterations
 exo_squares_maxed = ExerciseGenerator(
-    squares, squares_inputs, nb_examples=0, max_iterations=5)
+    squares, squares_inputs, 
+    nb_examples=0, max_iterations=5,
+    result_renderer=PPrintRenderer(width=30),
+)
 
 
 ###
@@ -43,12 +48,6 @@ simple_inputs = [
 
 exo_count_maxed = ExerciseGenerator(
     count, simple_inputs,
-    nb_examples=0, max_iterations=5)
-
-
-###
-def squares_count():
-    return (x**2 for x in count())
-
-exo_squares_count_maxed = ExerciseGenerator(
-    squares_count, [GeneratorArgs()], nb_examples=0, max_iterations=5)
+    nb_examples=0, max_iterations=5,
+    result_renderer=PPrintRenderer(width=30),
+)

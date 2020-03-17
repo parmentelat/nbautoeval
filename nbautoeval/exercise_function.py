@@ -5,43 +5,116 @@
 ############################################################
 # the low level interface - used to be used directly in the first exercises
 
-from IPython.display import HTML
+from ipywidgets import GridBox, Layout
 
+from .content import TextContent, CssContent, ResultContent
+from .callrenderer import Call, CallRenderer
+from .renderer import Renderer
+from .helpers import default_font_size, default_header_font_size
 from .log import log_correction
-from .rendering import (
-    Table, TableRow, TableCell, CellLegend,
-    font_style, default_font_size, default_header_font_size,
-    ok_style, ko_style,
-    center_text_style, left_text_style,
-    bottom_border_style, left_border_thick_style, left_border_thin_style,
-)
+
 
 DEBUG = False
 #DEBUG = True
 
-########## defaults for columns widths - for FUN
-# this historically was called 'columns' as it was used to specify
-# the width of the 3 columns (in correction mode)
-# or of the 2 columns (in example mode)
-# however when adding new layouts like 'text', the argument passed to the layout
-# function ceased to be a column width, so we call this layout_args instead
-# but in most cases this does represent column widths
-DEFAULT_LAYOUT_ARGS = (24, 28, 28)
+
+default_column_headers_visible_function_name = (
+    "appel", 
+    "attendu",
+    "obtenu",
+)
+default_column_headers_no_function_name = (
+    "arguments", 
+    "attendu",
+    "obtenu",
+)
+# same order
+column_span_classes = (
+    "", "", "span-3-to-4",
+)
+
+###
+css = """
+.nbae-fun {
+    width: max-content;
+    border-top: .1em solid black; 
+    border-bottom: .1em solid black;
+    padding: 0.1em 0em;
+    row-gap: 0.5em;
+    column-gap: .4em;
+}
+.nbae-fun .header {
+    padding: .6em;
+    background-color: #f1fcfc;
+    border-bottom: .1em solid #666;
+    font-weight: bold;
+    border-top-left-radius: .4em;
+    border-top-right-radius: .4em;
+}
+.nbae-fun .span-3-to-4 {
+    grid-column: 3 / span 2;
+}
+div.nbae-fun pre {
+    padding: 0px;
+    line-height: 1.15;
+    max-width: 100%;
+    overflow: hidden;
+}
+div.nbae-fun .cell span {
+    line-height: 1.15;
+}
+.nbae-fun .cell.ok, .nbae-fun .cell.ok code, .nbae-fun .result.ok {
+    background-color: #d4f8e8;
+} 
+.nbae-fun .cell.ok.even, .nbae-fun .cell.ok code.even, .nbae-fun .result.ok.even {
+    background-color: #c4f8d8;
+}
+.nbae-fun .cell.ko, .nbae-fun .cell.ko code, .nbae-fun .result.ko {
+    background-color: #ffc6c9;
+}
+.nbae-fun .cell.ko.even, .nbae-fun .cell.ko code.even, .nbae-fun .result.ko.even {
+    background-color: #ffb6b9;
+}
+.nbae-fun .cell {
+    padding: .2em .4em;
+    border-radius: .4em;
+    background-color: #f8f8f8;
+    max-width: 100%;
+}
+.nbae-fun .cell.even {
+    background-color: #f0f0f0;
+}
+.nbae-fun .ko.result {
+    font-weight: bold;
+    font-size: '130%';
+}
+.nbae-fun .result {
+    padding: 4px;
+}
+.nbae-fun div.widget-html-content {
+    display: flex;
+}
+"""
 
 ####################
-class ExerciseFunction:                                 # pylint: disable=r0902
+class ExerciseFunction:                                           # pylint: disable=r0902
     """The class for an exercise where students are asked to write a
     function The teacher version of that function is provided as
     'solution' and is used against datasets to generate an online
     correction or example.
-    A dataset is an instance of Args (or ArgsKeywords)
+    
+    A dataset is typically an instance of Args, it describes 
+    how the function is to be called (the arguments, both named and unnamed).
+
+    **NOTE** that the Args model predates keyword-only and a fortiori
+    positional-only parameters, so these might be a bit awkward to play with.
 
     The most useful method in this class is 'correction'; for each
     input in the dataset, we call both the teacher function and the
     student function, and compare the results using '==' to produce a
     table of green or red cells.
 
-    The class provides a few other utility methods, like 'example'
+    The class provides a few other utility methods, notably 'example'
     that can be used in the students notebook to show the expected
     result for some or all of the inputs.
 
@@ -52,55 +125,66 @@ class ExerciseFunction:                                 # pylint: disable=r0902
     be required to use shallow copy instead; in this case just pass
     copy_mode='shallow' to the constructor here.
 
-    Some more cosmetic settings are supported as well, for defining
-    the column widths in both the correction and example outputs. Also
-    nb_examples allows you to specify how many inputs should be
-    considered for generating the example table (starting of course at
-    the top of the list).
-    Finally render_name, if set to True, will cause the function name
-    to appear in the first column together with arguments
+    In terms of rendering, an ExerciseFunction object requires 2 renderer objects
+    
+    * call_renderer is used to compute the contents of the leftmost column in the output 
+      of both correction() and example(); 
+      this attribute should be a `CallRenderer` instance, that has a `render()` method
+      that works on `Call` instances, and that returns a `Content` object.
+    * result_renderer works similarly, it is used to render the results of the function
+      calls in the internal columns of the output of correction(), and the rightmost 
+      column of the output of example();
+
+    Typical uses of these 2 rendering attributes would be
+    
+    * ExerciseFunction(call_renderer=CallRenderer(show_function=False))  
+      allows to remove the function name, showing only arguments, to save space
+    * ExerciseFunction(call_renderer=PPrintRenderer(width=30))
+    * ExerciseFunction(result_renderer=PPrintRenderer(width=30)) allows to set
+      a fixed limit limit for either calls or results.
     """
     def __init__(self, solution, datasets,              # pylint: disable=r0913
+                 *,
                  copy_mode='deep',
-                 layout='pprint',
-                 call_layout=None,
-                 render_name=True,
                  nb_examples=1,
-                 layout_args=None,
+                 # how to render
+                 call_renderer=None,
+                 result_renderer=None,
+                 # 
                  column_headers=None,
                  font_size=default_font_size,
-                 header_font_size=default_header_font_size):
+                 header_font_size=default_header_font_size,
+                 # used for reports/logs, defaults computed from solution
+                 name=None):
         # the 'official' solution
         self.solution = solution
         # the inputs - actually Args instances
         self.datasets = datasets
         # how to copy args
         self.copy_mode = copy_mode
-        # applicable to all cells whose Args instance has not specified a layout
-        self.layout = layout
-        # supersedes the layout in the first column
-        self.call_layout = call_layout
-        # states if the function name should appear in the call cells
-        self.render_name = render_name
         # how many examples
         self.nb_examples = nb_examples
-        # column details - 3-tuples
-        # sizes - defaults should be fine in most cases
-        self.layout_args = layout_args
-        # header names - for some odd cases
-        self.column_headers = column_headers
-        # sizes for the table
-        self.font_size = font_size
+        # renderers
+        self.call_renderer = call_renderer or CallRenderer()
+        self.result_renderer = result_renderer or Renderer()
+        # header names: at this point, just remember any data passed
+        # it's too erly to compute the actual value, as show_function 
+        # could be turned off later on - see e.g. ExerciseRegexp
+        self._column_headers = column_headers
+        # 
         self.header_font_size = header_font_size
+        self.font_size = font_size
         ###
         # in some weird cases this won't exist
-        self.name = getattr(solution, '__name__', "no_name")
+        self.name = name or getattr(solution, '__name__', "no_name")
 
-    def set_call_layout(self):
-        "set layout on all Args if/as specified in call_layout"
-        if self.call_layout is not None:
-            for dataset in self.datasets:
-                dataset.set_layout(self.call_layout)
+
+    @property
+    def column_headers(self):
+        return (self._column_headers if self._column_headers is not None 
+            else default_column_headers_visible_function_name if self.call_renderer.show_function
+            else default_column_headers_no_function_name)
+
 
     def correction(self, student_function):             # pylint: disable=r0914
         """
@@ -108,38 +192,24 @@ class ExerciseFunction:                                 # pylint: disable=r0902
         copy_mode can be either None, 'shallow', or 'deep' (default)
         or 'tee' for generators
         """
-        self.set_call_layout()
         datasets = self.datasets
         copy_mode = self.copy_mode
-        columns = self.layout_args if self.layout_args \
-                  else DEFAULT_LAYOUT_ARGS
 
-        col1, col2, col3 = columns
-        #print(f"Using columns={columns}")
-
-        table = Table(style=font_style(self.font_size))
-        html = table.header()
-
-        if self.column_headers:
-            tit1, tit2, tit3 = self.column_headers
-        else:
-            tit1, tit2, tit3 = (
-                "Arguments" if not self.render_name else "Appel",
-                "Attendu",
-                "Obtenu")
-        html += TableRow(
-            cells=[TableCell(CellLegend(x), tag='th', style=center_text_style)
-                   for x in (tit1, tit2, tit3, '')],
-            style=font_style(self.header_font_size)).html()
+        # 
+        headers_props = {'font-size': self.header_font_size}
+        body_props = {'font-size': self.font_size}
+        contents = [TextContent(x, css_properties=headers_props)
+                    .add_classes(['header', span_class])
+                    for (x, span_class) in zip(self.column_headers, column_span_classes)]
+        
 
         overall = True
-        for dataset in datasets:
+
+        for index, dataset in enumerate(datasets):
             # will use original dataset for rendering to avoid any side-effects
             # during running
-            if self.render_name:
-                dataset.render_function_name(self.name)
+        
             # always clone all inputs
-            # quite hacky but I'm runing out of time here
             if copy_mode != 'tee':
                 student_dataset = dataset.clone(copy_mode)
                 ref_dataset = dataset.clone(copy_mode)
@@ -147,90 +217,105 @@ class ExerciseFunction:                                 # pylint: disable=r0902
                 student_dataset, ref_dataset = dataset.copy_for_tee('tee')
 
             # run both codes
+            ref_exc, stu_exc = False, False
             try:
                 expected = ref_dataset.call(self.solution, debug=DEBUG)
             except Exception as exc:
                 expected = exc
+                ref_exc = True
 
             try:
                 student_result = student_dataset.call(student_function, debug=DEBUG)
             except Exception as exc:
                 student_result = exc
+                stu_exc = True
 
             # compare results
             is_ok = self.validate(expected, student_result)
             if not is_ok:
                 overall = False
             # render that run
-            message = 'OK' if is_ok else 'KO'
-            style = ok_style if is_ok else ko_style
-            html += TableRow(
-                style=style + bottom_border_style,
-                cells=[TableCell(dataset, layout=self.layout, width=col1),
-                       TableCell(expected, layout=self.layout, width=col2,
-                                 style=left_text_style
-                                 +left_border_thick_style),
-                       TableCell(student_result, layout=self.layout, width=col3,
-                                 style=left_text_style
-                                 +left_border_thin_style),
-                       TableCell(CellLegend(message),
-                                 style=left_border_thick_style)]
-            ).html()
+            result_content = ResultContent(is_ok)
+            classes = ['cell']
+            if index % 2 == 0:
+                classes.append("even")
+            
+            call = Call(self.solution, dataset)
+            contents.append(self.call_renderer.render(call)
+                            .add_classes(classes)
+                            .add_css_properties(body_props))
+            contents.append(self.result_renderer.render(expected)
+                            .add_classes(classes).add_class('ok')
+                            .add_css_properties(body_props)
+                            .set_is_code(not ref_exc))
+            contents.append(self.result_renderer.render(student_result)
+                            .add_classes(classes)
+                            .add_class(result_content.the_class())
+                            .add_css_properties(body_props)
+                            .set_is_code(not stu_exc))
+            contents.append(result_content
+                            .add_classes(classes)
+                            .add_css_properties(body_props))
 
         log_correction(self.name, overall)
-        html += table.footer()
-        return HTML(html)
+        
+        contents.append(CssContent(css))
+
+        gridbox_layout  = Layout(grid_template_columns = 'max-content 1fr 1fr max-content',
+                                 max_width="100%")
+        grid = GridBox([content.widget() for content in contents],
+                       layout=gridbox_layout).add_class("nbae-fun")
+        return grid
+
 
     # public interface
     def example(self, how_many=None):
-
-        self.set_call_layout()
-
-        if how_many is None:
-            how_many = self.nb_examples
-        columns = self.layout_args if self.layout_args \
-                  else DEFAULT_LAYOUT_ARGS
 
         if how_many is None:
             how_many = self.nb_examples
         if how_many == 0:
             how_many = len(self.datasets)
 
-        # can provide 3 args (convenient when it's the same as correction) or just 2
-        columns = columns[:2]
-        col1, col2 = columns
-        #print(f"Using columns={columns}")
 
-        table = Table(style=font_style(self.font_size))
-        html = table.header()
+        headers_props = {'font-size': self.header_font_size}
+        body_props = {'font-size': self.font_size}
+        contents = [TextContent(x, css_properties=headers_props).add_class('header')
+                    for x in self.column_headers[:2]]
+        # 
 
-        title1 = "Arguments" if not self.render_name else "Appel"
-        # souci avec l'accent de 'Résultat Attendu'
-        html += TableRow(style=font_style(self.header_font_size),
-                         cells=[TableCell(CellLegend(x),
-                                          tag='th',
-                                          style=center_text_style)
-                                for x in (title1, 'Resultat Attendu')]).html()
-        for dataset in self.datasets[:how_many]:
+        for index, dataset in enumerate(self.datasets[:how_many]):
+            # clone enve in example() mode to avoid altering datasets
             if self.copy_mode != 'tee':
                 sample_dataset = dataset.clone(self.copy_mode)
             else:
                 sample_dataset, dataset = dataset.copy_for_tee(self.copy_mode)
-            if self.render_name:
-                dataset.render_function_name(self.name)
+
+            # run 
             try:
                 expected = sample_dataset.call(self.solution)
             except Exception as exc:                     # pylint:disable=w0703
                 expected = exc
-            html += TableRow(
-                cells=[TableCell(dataset,
-                                 layout=self.layout, width=col1),
-                       TableCell(expected, layout=self.layout, width=col2,
-                                 style=left_text_style+left_border_thick_style)
-                       ]).html()
 
-        html += table.footer()
-        return HTML(html)
+            # render that row
+            classes = ['cell', 'example']
+            if index % 2 == 0:
+                classes.append("even")
+
+            
+            call = Call(self.solution, dataset)
+            contents.append(self.call_renderer.render(call)
+                            .add_classes(classes)
+                            .add_css_properties(body_props))
+            contents.append(self.result_renderer.render(expected)
+                            .add_classes(classes)
+                            .add_css_properties(body_props))
+
+        contents.append(CssContent(css))
+
+        gridbox_layout  = Layout(grid_template_columns = 'max-content 1fr')
+        grid = GridBox([content.widget() for content in contents],
+                       layout=gridbox_layout).add_class("nbae-fun")
+        return grid
 
 
     def validate(self, expected, result):               # pylint: disable=r0201
@@ -261,13 +346,10 @@ try:
 
         def __init__(self, solution, datasets,
                      *args,
-                     layout='text',
-                     call_layout='pprint',
                      **kwds):
             ExerciseFunction.__init__(
                 self, solution, datasets,
-                layout=layout,
-                call_layout=call_layout,
+                # xxx check this again
                 *args, **kwds)
 
         # redefine validation function on numpy arrays

@@ -31,8 +31,9 @@ setuptools.setup(
     url              = "https://github.com/parmentelat/nbautoeval",
     packages         = setuptools.find_packages(),
     install_requires = [
-        ' numpy', 
         'ipython',
+        'ipywidgets',
+        'numpy', 
     ],
     classifiers      = [
         "Development Status :: 4 - Beta",

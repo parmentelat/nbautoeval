@@ -16,8 +16,8 @@ class ExerciseRegexp(ExerciseFunction):
     takes an input string and returns a boolean
     that says if the *whole* string matches or not
     """
-    @staticmethod
-    def regexp_to_solution(regexp, match_mode):
+    
+    def regexp_to_solution(self, regexp, match_mode):
         def solution(string):
             if match_mode in ('match', 'search'):
                 if match_mode == 'match':
@@ -49,19 +49,27 @@ class ExerciseRegexp(ExerciseFunction):
         . match_mode is either 'match', 'search' or 'findall'
         . additional settings from ExerciseFunction
         """
-        solution = ExerciseRegexp.regexp_to_solution(regexp, match_mode)
-        ExerciseFunction.__init__(self, solution, inputs, *args, **keywords)
+        solution = self.regexp_to_solution(regexp, match_mode)
+        super().__init__(solution, inputs, *args, **keywords)
         self.regexp = regexp
         self.name = name
         self.match_mode = match_mode
-        self.render_name = False
+        # it never makes sense to show the function name
+        # that would always be 'solution' anyways
+        self.call_renderer.show_function = False
 
     def correction(self, student_regexp):               # pylint: disable=w0221
-        student_solution = ExerciseRegexp.regexp_to_solution(student_regexp, self.match_mode)
+        student_solution = self.regexp_to_solution(student_regexp, self.match_mode)
         return ExerciseFunction.correction(self, student_solution)
+    
+    @property
+    def column_headers(self):
+        return (self._column_headers if self._column_headers is not None 
+            else ('chaîne', 'match ?', 'obtenu'))
+    
 
 ##############################
-class ExerciseRegexpGroups(ExerciseFunction):
+class ExerciseRegexpGroups(ExerciseRegexp):
     """
     With these exercises the students are asked to write a regexp
     with a set of specified named groups
@@ -80,8 +88,8 @@ class ExerciseRegexpGroups(ExerciseFunction):
         except Exception:
             return group, "Undefined"
 
-    @staticmethod
-    def regexp_to_solution(regexp, groups, match_mode):
+    def regexp_to_solution(self, regexp, match_mode):
+        groups = self.groups
         if match_mode != 'match':
             # only tested with 'match' so far
             print(f"WARNING: ExerciseRegexpGroups : "
@@ -106,16 +114,10 @@ class ExerciseRegexpGroups(ExerciseFunction):
 
     def __init__(self, name, regexp, groups, inputs,
                  *args, match_mode=DEFAULT_MATCH_MODE, **keywords):
-        solution = ExerciseRegexpGroups.regexp_to_solution(
-            regexp, groups, match_mode)
-        ExerciseFunction.__init__(self, solution, inputs, *args, **keywords)
-        self.name = name
-        self.regexp = regexp
         self.groups = groups
-        self.match_mode = match_mode
-        self.render_name = False
+        super().__init__(name, regexp, inputs, *args, match_mode=match_mode, **keywords)
 
-    def correction(self, student_regexp):               # pylint: disable=w0221
-        student_solution = ExerciseRegexpGroups.regexp_to_solution(
-            student_regexp, self.groups, match_mode=self.match_mode)
-        return ExerciseFunction.correction(self, student_solution)
+    @property
+    def column_headers(self):
+        return (self._column_headers if self._column_headers is not None 
+            else ('chaîne', 'groups', 'obtenu'))

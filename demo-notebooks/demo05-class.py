@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: all
 #     formats: py:percent
-#     notebook_metadata_filter: all,-language_info,-jupytext.text_representation.jupytext_version
+#     notebook_metadata_filter: all,-language_info,-toc,-jupytext.text_representation.jupytext_version
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -32,7 +33,7 @@ import sys
 sys.path.append("..")
 
 # %% [markdown]
-# ## intro
+# ## intro: scenario, expressions vs statements
 
 # %% [markdown]
 # creating a class-based exercise currently means:
@@ -47,97 +48,116 @@ sys.path.append("..")
 #   * `CLASS` is replaced with the class object under test
 
 # %% [markdown]
-# *****
-
-# %% [markdown]
-# ## comparing objects
-
-# %% [markdown]
-# ### using `repr()` in constructor and statements
+# Each part of a scenario is explicitly tagged as either expression or statement; for example :
 #
-# for the first step of a class scenario (calling the constructor), as well as for statement steps, the actual result that we get from code evaluation is `None`.  
-# so in these case, in order to check for correctness we **compare both objects `repr()`s**
+# ```python
+# scenario1 = ClassScenario(
+#     # arguments to the constructor
+#     Args(),
+#     # a list of expressions, with 
+#     # INSTANCE and CLASS replaced as appropriate
+#     ClassExpression("INSTANCE.incoming(1)"),
+#     ClassStatement("INSTANCE.incoming(1)"),
+# )
+# ```
 
 # %% [markdown]
-# ### using `repr()` when expression returns an object
+# ***What does that mean*** and how to choose between both ?  
 #
-# similarly, when the scenario expression returns an object (think of the addition of two objects), we cannot compare results using `==` because the two objects (one under reference implementation and one under student implementation) are of different classes and thus would not be considered equal by `==`
+# Well quite simply, with this example what would happen would be :
+# * in a first step (corresponding to the `Args()` line), the scenario creates an instance by calling the class with no argument
+# * in a second step we send the `incoming()` method on that object; because it is tagged as a **`ClassExpression`**, it is the **result of that method** that is used to compare the official solution with the student's code
+# * on the other hand in the last step, we send the same method, but because this is tagged as a **`ClassStatement`**, we will **ignore any result** (technically btw, using `exec` instead of `eval`, allowing for a wider spectrum of constructions), and instead **compare the object's status** after the statement.
 #
-# so in these situations again, the two objects are compared through their `repr()` textual representation.
+# hopefully we will see more meaningful examples below..
 
 # %% [markdown]
-# ### bottom line
+# ## a FIFO for newbies
+
+# %% [markdown]
+# we start by demonstrating how to write an assignement for total newbies, who have never heard about how to customize `repr()`. 
 #
-# this all means that students need to pay extra attention to have their `__repr__()` method work exactly as requested, otherwise they get a lot of false negative.
-
-# %% [markdown]
-# *****
-
-# %% [markdown]
-# ## a FIFO
-
-# %% [markdown]
-# This section demonstrates how to run a simple (expressions-only) class scenario.
-# Next section introduces the notion of statements-oriented scenariis, useful typically to deal with properties.
-
-# %% [markdown]
-# ### Assignment
-
-# %% [markdown]
-# Students are requested to write a `Fifo` class, that implements
-# * a constructor `Fifo()`
-# * an `incoming(obj)` method
-# * an `outgoing()` method
+# Let us demonstrate this with a `ExerciseClass` instance that
 #
-# that just returns the elements in the same order as they were stored.
-
-# %% [markdown]
-# ### Workflow
+# * is created with `check_init=False`, meaning the object's internal status is not checked after the constructor gets called, and
+# * its scenarios do not involve any statement, because in that case again we'd need the students to write a proper `__repr__()`
 
 # %%
+from exercises.fifoclass import exo_fifo_newbies
+
+exo_fifo_newbies.example()
+
+
+# %% [markdown]
+# And in order to validate this assignement it is enough to write this
+
+# %%
+class FifoNewbie:
+
+    def __init__(self):
+        self.items = []
+        
+    def incoming(self, incoming):
+        self.items.append(incoming)
+
+    def outgoing(self):
+        return None if not self.items else self.items.pop(0)
+
+
+# %%
+# this should be all green
+exo_fifo_newbies.correction(FifoNewbie)
+
+# %% [markdown]
+# ## a more advanced/realistic FIFO
+
+# %% [markdown]
+# as soon as the students have learned to write a `__repr__()`, the above limitations no longer hold; let us see an example with the same old Fifo example :
+
+# %%
+# now we can ask for more careful implementations
+# here we ask for len(), and also for repr()!
+
 from exercises.fifoclass import exo_fifo
 exo_fifo.example()
 
-
 # %% [markdown]
-# Students are then invited to write their code in a cell that initially could look like this&nbsp;:
+# Note that the above rustic implementation would not fit; not only because we had defined `__len__()`, but more centrally due to the absence of `__repr__()`; let us see how this first implementation would evaluate now
 
 # %%
-# write your code in this cell
-class Fifo:
-    def __init__(self):
-        pass
-    def __len__(self):
-        pass
-    def incoming(self, obj):
-        pass
-    def outgoing(self):
-        pass
+# the rustic version without __repr__ has no chance to pass
+# not even the firs step !
 
+exo_fifo.correction(FifoNewbie)
 
 # %% [markdown]
-# Then she changes it, let's imagine the outcome is this attempt - which is broken on purpose&nbsp;:
-
-# %%
-# code is BROKEN ON PURPOSE
-
-# write your code in this cell
-class Fifo:
-    def __init__(self):
-        self.items = []
-    def incoming(self, obj):
-        self.items.append(obj)
-    def outgoing(self):
-        if len(self.items)%2 == 0:
-            raise Exception(f"even length ->{self.items.pop()}")
-        return self.items.pop()
-
+# ## more notes on `repr()`
 
 # %% [markdown]
-# Then she can evaluate this correction cell
+# at the risk of repeating some of the material above :
 
-# %%
-exo_fifo.correction(Fifo)
+# %% [markdown]
+# ### why do we use `repr()` ? 
+#
+# Consider the case of an expression that returns an object (think e.g. about the addition of two objects).
+# We cannot compare results using `==`, because the two objects (one under reference implementation and one under student implementation) are **of different classes** and thus would not be considered equal by `==`
+
+# %% [markdown]
+# ### when do we use `repr()` ? 
+#
+# * in constructor and statements, because that does not return anything, so the only thing we can check is the subject object
+# * and, as mentioned above, in expressions that return an object.
+#
+# So in these cases, in order to check for correctness we **can only compare both objects `repr()`s**
+
+# %% [markdown]
+# ### get your `repr()` right
+#
+# This all means that students need to pay extra attention to have their `__repr__()` method work exactly as requested, otherwise they get a lot of false negative.
+#
+# if that's too big of a problem (a convoluted repr()) you can always provide the code yourself, although I have found this idea to be sometimes too intrusive, as it tends to suggest my implementation.
+#
+#
 
 # %% [markdown]
 # *********
@@ -148,51 +168,5 @@ exo_fifo.correction(Fifo)
 # %% [markdown]
 # as always, the python code here can be seen below:
 
-# %%
+# %% hide_input=false
 # %cat ../exercises/fifoclass.py
-
-# %% [markdown]
-# *****
-
-# %% [markdown]
-# ## a property-based class
-
-# %% [markdown]
-# ### assignment
-
-# %% [markdown]
-# students are requested to write a `Gauge` class that has a single `x` attribute that is guaranteed to be **between 0 and 100**; any attempt to set it otherwise should result in the attribute being set to 0 or 100, whichever is closest to the intended value.
-
-# %% [markdown]
-# ### workflow
-
-# %% [markdown]
-# this is quite similar but we need to write **statements** instead of just expressions
-#
-# * statements can be specified by creating a `ClassStep` object with the `statement=True` parameter
-# * statements are run with `exec()` instead of `eval()`, and so it does not make sense to compare the behaviour of the student's class with the reference class; a following expression should be used to check for compliance
-
-# %%
-from exercises.gaugeclass import exo_gauge
-exo_gauge.example()
-
-
-# %%
-# this class is broken too
-class Gauge:
-    
-    def __init__(self, x):
-        self.x = x
-        
-    def __repr__(self):
-        return f"{self.x}"
-
-
-# %%
-exo_gauge.correction(Gauge)
-
-# %% [markdown]
-# ### under the hood
-
-# %%
-# !cat ../exercises/gaugeclass.py

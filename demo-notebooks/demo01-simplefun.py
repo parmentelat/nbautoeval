@@ -4,7 +4,7 @@
 #   jupytext:
 #     cell_metadata_filter: all
 #     formats: py:percent
-#     notebook_metadata_filter: all,-language_info,-jupytext.text_representation.jupytext_version
+#     notebook_metadata_filter: all,-language_info,-toc,-jupytext.text_representation.jupytext_version
 #     text_representation:
 #       extension: .py
 #       format_name: percent
@@ -14,18 +14,6 @@
 #     language: python
 #     name: python3
 #   notebookname: NO HEADING 1 found
-#   toc:
-#     base_numbering: 1
-#     nav_menu: {}
-#     number_sections: true
-#     sideBar: true
-#     skip_h1_title: false
-#     title_cell: Table of Contents
-#     title_sidebar: Contents
-#     toc_cell: false
-#     toc_position: {}
-#     toc_section_display: true
-#     toc_window_display: false
 #   version: '1.0'
 # ---
 
@@ -39,11 +27,21 @@
 # ## For binder
 
 # %% [markdown]
-# So that Python can find the `nbautoeval` package, especially under binder:
+# So that Python can find the `nbautoeval` package, especially under binder :
 
 # %%
 import sys
 sys.path.append("..")
+
+# %% [markdown]
+# ## Convenience
+
+# %% [markdown]
+# This of course is not mandatory either in production :
+
+# %%
+# %load_ext autoreload
+# %autoreload 2
 
 # %% [markdown]
 # # A sample exercise with functions
@@ -98,6 +96,22 @@ def percentages(adn):
 # %%
 # validez votre code en évaluant cette cellule
 exo_percentages.correction(percentages)
+
+# %% [markdown]
+# # rendering
+
+# %% [markdown]
+# it is possible to alter the way the various columns are being rendered; the following 2 examples illustrate that :
+
+# %%
+from exercises.percentages import exo_percentages2
+
+exo_percentages2.correction(percentages)
+
+# %%
+from exercises.percentages import exo_percentages3
+
+exo_percentages3.correction(percentages)
 
 # %% [markdown]
 # # Under the hood

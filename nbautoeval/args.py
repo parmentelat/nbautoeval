@@ -2,13 +2,12 @@
 
 # pylint: disable=c0111, r1705
 
-
 import copy
 import pprint
 import itertools
 from collections.abc import Iterable, Iterator
 
-from nbautoeval.rendering import commas, truncate_str
+from .helpers import custom_repr
 
 ####################
 # From June 2016, this class should not need to be used directly
@@ -34,9 +33,7 @@ class ArgsTupleDict:
         # can be overridden later on using 'render_prefix'
         self.prefix = ""
         self.postfix = ""
-        # default - no way to set this on the constructor
-        # because layout=x is already captured in _keywords
-        self.layout = None
+
 
     def __repr__(self):
         result = f"<Args {self.prefix}{self.function_name}{self.args}{self.postfix} "
@@ -45,12 +42,6 @@ class ArgsTupleDict:
                        ",".join(f"{k}={v}" for (k, v) in self.keywords.items()))
         result += ">"
         return result
-
-    def set_layout(self, layout):
-        # used when rendering - in example or correction
-        # in general this is defined in the Exercise instance
-        # but can also be overridden here
-        self.layout = layout
 
     def call(self, function, debug=False):
         if debug:
@@ -76,78 +67,17 @@ class ArgsTupleDict:
             return copy.deepcopy(self)
         else:
             return self
-
-    def render_function_name(self, function_name):
+    
+    # # rendering  
+    def tokens(self):
         """
-        if called, arguments will be rendered like this
-        function_name (arg1, ... argn)
-        instead of just
-        arg1, .. argn
+        returns a list of strings
+        e.g. 
+        Args(1, 2, x=1).tokens -> ['1', '2', 'x=1']
         """
-        self.function_name = function_name
-
-    def render_prefix(self, prefix):
-        """
-        if called, arguments will be rendered with this prefix prepended
-        """
-        self.prefix = prefix
-
-    def render_postfix(self, postfix):
-        """
-        if called, arguments will be rendered with this postfix appended
-        """
-        self.postfix = postfix
-
-    def layout_void(self, width):                # pylint: disable=r0201, w0613
-        return ""
-
-    def layout_truncate(self, width):
-        """
-        render a list of arguments on a single line, truncated
-        remember that width <= 0 means no truncation
-        """
-        text = commas(self.args)
-        if self.args and self.keywords:
-            text += ", "
-        if self.keywords:
-            text += commas(self.keywords)
-        if self.function_name:
-            text = f"{self.function_name}({text})"
-        text = self.prefix + text + self.postfix
-        return truncate_str(text, width)
-
-    def layout_pprint(self, width):
-        """
-        render a list of arguments in pprint mode
-        """
-        # try to render with no width limit, if it fits it's OK
-        simple_case = self.layout_truncate(width=0)
-        if len(simple_case) <= width:
-            return simple_case
-        else:
-            pass
-        # else
-        indent = 2
-        sep = indent*' '
-        html = "<pre>"
-        html += self.prefix
-        if self.function_name:
-            html += self.function_name + "(\n"
-        def indent_pformat(pformat_result):
-            return sep + pformat_result.replace("\n", "\n"+sep)
-        args_tokens = [
-            pprint.pformat(arg, width=width-indent, indent=indent)
-            for arg in self.args]
-        keyword_tokens = [
-            f"{k}={pprint.pformat(v, width=width-indent, indent=indent)}"
-            for (k, v) in self.keywords.items()]
-        tokens = [indent_pformat(x) for x in args_tokens + keyword_tokens]
-        html += (",\n").join(tokens)
-        if self.function_name:
-            html += ")\n"
-        html += self.postfix
-        html += "</pre>"
-        return html
+        return ( [custom_repr(x) for x in self.args] 
+                +[f"{k}={custom_repr(v)}" for (k, v) in self.keywords.items()])
+        
 
 # simplified for when no keywords are required
 class Args(ArgsTupleDict):
@@ -161,8 +91,6 @@ class Args(ArgsTupleDict):
     would then return the result of
     foo(1, 2, 3)
 
-    Like for ArgKeywords it is preferable to set the layout
-    using the separate set_leyout method
     """
     def __init__(self, *args, **kwds):
         # it is NOT *args here, this is intentional
@@ -200,8 +128,7 @@ class GeneratorArgs(Args):
     # but it not used be default with 0.6.2 version
     def copy_for_tee(self, copy_mode):
         copy1, copy2 = type(self)(), type(self)()
-        for att in ('keywords', 'function_name', 'prefix', 'postfix',
-                    'layout'):
+        for att in ('keywords', 'function_name'):
             setattr(copy1, att, copy.copy(getattr(self, att)))
             setattr(copy2, att, copy.copy(getattr(self, att)))
         a1, a2 = [], [] 
@@ -216,32 +143,4 @@ class GeneratorArgs(Args):
         copy1.args = tuple(a1)
         copy2.args = tuple(a2)
         return copy1, copy2
-
-
-    def pretty_slice(self):
-        if not self.islice:
-            return "all results"
-        if len(self.islice) == 1:
-            end, = self.islice
-            return f"iters → {end}"
-        if len(self.islice) == 2:
-            beg, end = self.islice
-            return f"iters {beg} → {end}"
-        if len(self.islice) == 3:
-            beg, end, step = self.islice
-            return f"iters {beg} → {end} / {step}"
-        return f"ERROR: unknown islice {self.islice}"
-
-
-    def layout_islice(self, width):
-        inherited = super().layout_pprint(width)
-        if self.islice is None:
-            return inherited
-        if inherited.startswith("<pre>"):
-            patched = inherited.replace("<pre>", f"<pre> {self.pretty_slice()}\n")
-        else:
-            patched = "<pre>\n"
-            patched += inherited + "\n"
-            patched += self.pretty_slice() + "\n"
-            patched += "</pre>"
-        return patched
+    
