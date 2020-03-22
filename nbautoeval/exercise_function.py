@@ -34,7 +34,7 @@ column_span_classes = (
 )
 
 ###
-css = """
+CSS = """
 .nbae-fun {
     width: max-content;
     border-top: .1em solid black; 
@@ -259,7 +259,7 @@ class ExerciseFunction:                                           # pylint: disa
 
         log_correction(self.name, overall)
         
-        contents.append(CssContent(css))
+        contents.append(CssContent(CSS))
 
         gridbox_layout  = Layout(grid_template_columns = 'max-content 1fr 1fr max-content',
                                  max_width="100%")
@@ -310,7 +310,7 @@ class ExerciseFunction:                                           # pylint: disa
                             .add_classes(classes)
                             .add_css_properties(body_props))
 
-        contents.append(CssContent(css))
+        contents.append(CssContent(CSS))
 
         gridbox_layout  = Layout(grid_template_columns = 'max-content 1fr')
         grid = GridBox([content.widget() for content in contents],
