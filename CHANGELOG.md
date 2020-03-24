@@ -1,3 +1,7 @@
+# 0.6.5 - 2020 Mar 24
+
+* no new feature, just a minor cleanup before big rewrite
+
 # 0.6.4 - 2019 Dec 10
 
 * feature for issue #9: an ExerciseClass instance can be created with check_init=False
