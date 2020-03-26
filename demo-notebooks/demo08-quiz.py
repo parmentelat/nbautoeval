@@ -46,7 +46,7 @@ sys.path.append('..')
 # %% [markdown]
 # a Quiz object contains one or several questions; here is an example with a single question
 
-# %% {"scrolled": true}
+# %% {"scrolled": false}
 from exercises.quizsample import single_quiz
 single_quiz.widget()
 
@@ -58,9 +58,6 @@ single_quiz.widget()
 # %% {"hide_input": false, "scrolled": false}
 from exercises.quizsample import quiz
 quiz.widget()
-
-# %% {"scrolled": true}
-# test_math.widget()
 
 # %% [markdown]
 # ## under the hood

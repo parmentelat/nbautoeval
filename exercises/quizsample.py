@@ -11,7 +11,9 @@ question_basic_single = QuizQuestion(
         Option("apple", correct=True),
     ]
 )
-single_quiz = Quiz([question_basic_single])
+single_quiz = Quiz(
+    "quizsample-single",
+    [question_basic_single])
 
 
 questions = []
@@ -25,7 +27,8 @@ question_basic_multiple = QuizQuestion(
         Option("banana"),
         Option("pear"),
         Option("pineapple"),
-    ]
+    ],
+    score = 1,
 )
 questions.append(question_basic_multiple)
 
@@ -40,6 +43,7 @@ question_unshuffle = QuizQuestion(
         Option("pineapple"),
     ],
     shuffle=False,
+    score = 2,
 )
 questions.append(question_unshuffle)
 
@@ -55,7 +59,9 @@ question_math = QuizQuestion(
         MathOption(r"$\alpha = \beta^{p^k}$", correct=True),
         MathOption(r"$$\forall x_2\in\mathbb{R}, \alpha = \beta^{p^k}$$"),
         MathOption(r"$\forall x_1\in\mathbb{R}, \alpha = \beta^{p^k}$"),
+        MathOption(r"multiple double dollars $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$"),
     ],
+    score = 3,
 )
 questions.append(question_math)
 
@@ -66,7 +72,8 @@ no answer is valid""",
     options=[
         Option("banana"),
         Option("pear"),
-    ]
+    ],
+    score = 4,
 )
 questions.append(question_none)
 
@@ -79,25 +86,60 @@ question_code = QuizQuestion(
     [
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
-    ]
+    ],
+    score = 5,
 )
 questions.append(question_code)
 
 
 question_vertical = QuizQuestion(
     """code options should work on multiple-answers cases
-provided that CodeOption is used
+provided that <code>CodeOption</code> is used
 this is to illustrate a vertical layout that could be a better fit in some cases""",
     [
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
     vertical=True,
+    score = 6,
 )
 questions.append(question_vertical)
 
 
-quiz = Quiz(questions)
+question_vertical_code = QuizQuestion(
+    """we also need to be able to show large code fragments, 
+    using <code>CodeOption</code> and multi-line code, and it feels like vertical 
+    is what will best fit""",
+    [
+        CodeOption("""def multi(n, m):
+    # comments should be fine
+    x, y = some_fun(n, m)
+    message = ("an input string that has multi-line"
+               " pieces just for the fun of it")
+    comprehension = [foo(z) for z in x]
+    return sum(comprehension)**2"""),
+        CodeOption("""# a correct answer that 
+# badly looks like the other one but for the comment
+def multi(n, m):
+    # comments should be fine
+    x, y = some_fun(n, m)
+    message = ("an input string that has multi-line"
+               " pieces just for the fun of it")
+    comprehension = [foo(z) for z in x]
+    return sum(comprehension)**2""", correct=True),
+        CodeOption("b = sort(x for x in list if x.is_valid())"),
+    ],
+    vertical=True,
+    score = 7,
+)
+questions.append(question_vertical_code)
+
+
+quiz = Quiz(
+    "quizsample-multiple",
+    questions,
+    max_attempts=10,
+)    
 
 
 

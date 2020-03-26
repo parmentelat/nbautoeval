@@ -9,7 +9,7 @@ from .content import TextContent, CssContent, ResultContent
 from .callrenderer import Call, CallRenderer
 from .renderer import Renderer
 from .helpers import default_font_size, default_header_font_size
-from .log import log_correction
+from .storage import log_correction
 
 
 DEBUG = False

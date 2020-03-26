@@ -5,6 +5,7 @@ from typing import List
 from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
 from .content import Content, TextContent, CssContent
+from .storage import log_quiz, storage_read, storage_save
 
 
 """
@@ -28,7 +29,7 @@ class Option(GenericOption):
 
 class CodeOption(Option):
     def render(self):
-        return super().render().set_is_code(True)
+        return super().render().set_is_code(True).add_class("code")
     
 class MathOption(Option):
     def render(self):
@@ -55,19 +56,32 @@ CSS = """
     border: 1px solid black;
 }
 
-.nbae-question .question::before {
-    content: "⁇";
-    font-weight: bold;
-    font-size: 125%;
-/*    transform: translate(0, 10px); */
-    padding-right: 5px;
-}
 .nbae-question .question {
     border: 2px solid #084177;
     border-radius: 4px;
     width: max-content;
     max-width: 100%;
     padding: 4px 8px;
+}
+
+.nbae-question .score::before, .nbae-question .score::after {
+    content: "⁇";
+    font-weight: bold;
+    font-size: 125%;
+}
+.nbae-question .score::before {
+    padding-right: 5px;
+}
+.nbae-question .score::after {
+    padding-left: 5px;
+}
+
+.nbae-question .code pre {
+    line-height: 1.3;
+    padding: 5px;
+}
+.nbae-question .code {
+    border: 1px solid #aaa;
 }
 
 .nbae-question .widget-checkbox {
@@ -120,9 +134,11 @@ class QuizQuestion:
     
     def __init__(self, question: str, options: List, 
                  *,
+                 score = 1,
                  shuffle=True, vertical=False):
         self.question = question
         self.options_list = _OptionsList(options)
+        self.score = score
         if shuffle:
             self.options_list.shuffle()
         self.correct_indices = self.options_list.correct_indices()
@@ -136,7 +152,10 @@ class QuizQuestion:
         if self._widget_instance:
             return self._widget_instance
     
-        question = HTMLMath(self.question)
+        points = f"{self.score} {'pt' if self.score<=1 else 'pts'}"
+        points_question = f'<div class="score">{points}</div>{self.question}'
+
+        question = HTMLMath(points_question)
         question.add_class('question')
 
         self.checkboxes = [Checkbox(value=False, disabled=False, description='', indent=False)
@@ -149,7 +168,7 @@ class QuizQuestion:
         css_widget = CssContent(CSS).widget()
         
         if self.vertical:
-            self._widget_instance = VBox([question, 
+            self._widget_instance = VBox([question,
                              answers, 
                              css_widget])
         else:
@@ -191,13 +210,17 @@ class Quiz:
     one can only submit a full Quiz, not just one question at a time
     """    
     
-    def __init__(self, quiz_questions: List[QuizQuestion], max_attempts = 2):
+    def __init__(self,
+                 exoname, 
+                 quiz_questions: List[QuizQuestion], 
+                 max_attempts = 2):
+        self.exoname = exoname
         self.quiz_questions = quiz_questions
         self.answers = [None for question in self.quiz_questions]
         
         # needs to be saved somewhere
         self.max_attempts = max_attempts
-        self.current_attempts = 0
+        self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
 
         # for updates
         self.submit_button = None
@@ -219,15 +242,18 @@ class Quiz:
     
     def submit(self, _button):
         self.current_attempts += 1
+        storage_save(self.exoname, 'current_attempts', self.current_attempts)
         self.answers = [question.is_correct() 
                         for question in self.quiz_questions]
         self.update()
+        current_score, max_score = self.score()
+        log_quiz(self.exoname, current_score, max_score)
         
 
     def update(self):        
         # if game is over,
         attempted_answers = [answer for answer in self.answers if answer is not None]
-        right_answers = [answer for answer in self.answers if answer]
+        self.right_answers = [answer for answer in self.answers if answer]
         if all(self.answers) or self.current_attempts >= self.max_attempts:
             # materialize all questions
             for question in self.quiz_questions:
@@ -235,13 +261,12 @@ class Quiz:
             # disable submit button
             self.submit_button.disabled = True
             self.submit_button.description = "quiz over"
+            current_score, max_score = self.score()
+            self.submit_summary.value = (f"final score {current_score}/{max_score}")
             if all(self.answers):
                 self.submit_summary.add_class("ok")
-                self.submit_summary.value = f"all {len(self.quiz_questions)} answers OK"
             else:
                 self.submit_summary.add_class("ko")
-                self.submit_summary.value = (
-                    f"final score {len(right_answers)}/{len(self.quiz_questions)}")
         else:
             # so here we know that self.current_attempts < self.max_attempts:
             left = self.max_attempts - self.current_attempts
@@ -249,4 +274,13 @@ class Quiz:
                 f"submit ({left}/{self.max_attempts} attempts left)")
             if attempted_answers:
                 self.submit_summary.value = (
-                    f"{len(right_answers)}/{len(attempted_answers)} answers OK")
+                    f"{len(self.right_answers)}/{len(attempted_answers)} questions OK")
+
+    def score(self):
+        """
+        returns a tuple current_score, max_score
+        """
+        current_score = sum(q.score for q in self.quiz_questions if q.is_correct())
+        max_score = sum(q.score for q in self.quiz_questions)
+        return current_score, max_score
+
