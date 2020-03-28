@@ -53,6 +53,6 @@ of course they can be used together as well""",
         
 
     ],
-    max_attempts = 5,
+    max_attempts = 3,
     )
 

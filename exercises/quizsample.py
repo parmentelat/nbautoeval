@@ -130,5 +130,5 @@ questions.append(question_vertical_code)
 quiz = Quiz(
     "quizsample-multiple",
     questions,
-    max_attempts=10,
+    max_attempts=3,
 )
