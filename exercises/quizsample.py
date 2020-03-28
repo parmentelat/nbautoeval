@@ -9,7 +9,8 @@ question_basic_single = QuizQuestion(
         Option("banana"),
         Option("pear"),
         Option("apple", correct=True),
-    ]
+    ],
+    horizontal=True,
 )
 single_quiz = Quiz(
     "quizsample-single",
@@ -29,6 +30,7 @@ question_basic_multiple = QuizQuestion(
         Option("pineapple"),
     ],
     score = 1,
+    horizontal=True,
 )
 questions.append(question_basic_multiple)
 
@@ -44,6 +46,7 @@ question_unshuffle = QuizQuestion(
     ],
     shuffle=False,
     score = 2,
+    horizontal=True,
 )
 questions.append(question_unshuffle)
 
@@ -62,6 +65,7 @@ question_math = QuizQuestion(
         MathOption(r"multiple double dollars $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$"),
     ],
     score = 3,
+    horizontal=True,
 )
 questions.append(question_math)
 
@@ -74,6 +78,7 @@ no answer is valid""",
         Option("pear"),
     ],
     score = 4,
+    horizontal=True,
 )
 questions.append(question_none)
 
@@ -88,6 +93,7 @@ question_code = QuizQuestion(
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
     score = 5,
+    horizontal=True,
 )
 questions.append(question_code)
 
@@ -100,16 +106,17 @@ this is to illustrate a vertical layout that could be a better fit in some cases
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
-    vertical=True,
     score = 6,
 )
 questions.append(question_vertical)
 
 
 question_vertical_code = QuizQuestion(
+    
     """we also need to be able to show large code fragments, 
     using <code>CodeOption</code> and multi-line code, and it feels like vertical 
     is what will best fit""",
+
     [
         CodeOption("""def multi(n, m):
     # comments should be fine
@@ -118,6 +125,7 @@ question_vertical_code = QuizQuestion(
                " pieces just for the fun of it")
     comprehension = [foo(z) for z in x]
     return sum(comprehension)**2"""),
+
         CodeOption("""# a correct answer that 
 # badly looks like the other one but for the comment
 def multi(n, m):
@@ -127,9 +135,9 @@ def multi(n, m):
                " pieces just for the fun of it")
     comprehension = [foo(z) for z in x]
     return sum(comprehension)**2""", correct=True),
+
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
-    vertical=True,
     score = 7,
 )
 questions.append(question_vertical_code)
@@ -139,17 +147,4 @@ quiz = Quiz(
     "quizsample-multiple",
     questions,
     max_attempts=10,
-)    
-
-
-
-# test_math = QuizQuestion(
-#     """ideally options can contain math
-# here again single-choice tests
-# are problematic""",
-#     [
-#         MathOption(r"Some math and <i>HTML</i>: \(x^2\) and $$\frac{x+1}{x-1}$$", correct=True),
-#         MathOption(r"\foreach x\in\mathbb{R}, \exists y, x^{y^2} = \pi"),
-#     ],
-#     multiple_answers=True,
-# )
+)

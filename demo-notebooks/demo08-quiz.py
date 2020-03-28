@@ -62,5 +62,8 @@ quiz.widget()
 # %% [markdown]
 # ## under the hood
 
+# %% [markdown]
+# Here's the code that defines the above quizz
+
 # %% {"scrolled": true}
 # !cat ../exercises/quizsample.py

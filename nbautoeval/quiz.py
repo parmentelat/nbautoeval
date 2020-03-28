@@ -12,14 +12,15 @@ from .storage import log_quiz, storage_read, storage_save
 an Option instance represents one of the possible answers
 by default it is a wrong answer
 """
-class GenericOption:
+class GenericBooleanOption:
     def __init__(self, *, correct=False):
         self.correct = correct
+        self.selected = None
     def render(self):
         print(f"Option classes must implement render()")
         
         
-class Option(GenericOption):
+class Option(GenericBooleanOption):
     def __init__(self, text, **kwds):
         super().__init__(**kwds)
         self.text = text
@@ -38,14 +39,22 @@ class MathOption(Option):
 
      
 class _OptionsList:
-    def __init__(self, options):
+    def __init__(self, options: List[GenericBooleanOption]):
         self.options = options
-    def correct_indices(self):
-        return [i for (i, opt) in enumerate(self.options) if opt.correct]
     def __iter__(self):
         return iter(self.options)
-    def shuffle(self):
-        random.shuffle(self.options)
+    
+
+# usually options are displayed in some random order
+class _DisplayedOptionsList:
+    def __init__(self, options: List[GenericBooleanOption], shuffle=True):
+        self.displayed = options[:]
+        if shuffle:
+            random.shuffle(self.displayed)
+    def correct_indices(self):
+        return [i for (i, opt) in enumerate(self.displayed) if opt.correct]
+    def __iter__(self):
+        return iter(self.displayed)
 
 
 CSS = """
@@ -135,14 +144,12 @@ class QuizQuestion:
     def __init__(self, question: str, options: List, 
                  *,
                  score = 1,
-                 shuffle=True, vertical=False):
+                 shuffle=True, horizontal=False):
         self.question = question
         self.options_list = _OptionsList(options)
+        self.displayed = _DisplayedOptionsList(options)
         self.score = score
-        if shuffle:
-            self.options_list.shuffle()
-        self.correct_indices = self.options_list.correct_indices()
-        self.vertical = vertical
+        self.horizontal = horizontal
         self.feedback_area = None
         self._widget_instance = None
         
@@ -158,16 +165,16 @@ class QuizQuestion:
         question = HTMLMath(points_question)
         question.add_class('question')
 
-        self.checkboxes = [Checkbox(value=False, disabled=False, description='', indent=False)
-                           for option in self.options_list]
-        labels = [option.render().widget() for option in self.options_list]
+        self.checkboxes = [Checkbox(value=option.selected, disabled=False, description='', indent=False)
+                           for option in self.displayed]
+        labels = [option.render().widget() for option in self.displayed]
         answers = VBox([HBox([checkbox, label]) 
                         for (checkbox, label) in zip(self.checkboxes, labels)])
         answers.add_class("answers")
 
         css_widget = CssContent(CSS).widget()
         
-        if self.vertical:
+        if not self.horizontal:
             self._widget_instance = VBox([question,
                              answers, 
                              css_widget])
@@ -184,7 +191,7 @@ class QuizQuestion:
     def is_correct(self):
         selected = [i for (i, checkbox) in enumerate(self.checkboxes)
                     if checkbox.value]
-        return set(selected) == set(self.correct_indices)
+        return set(selected) == set(self.displayed.correct_indices())
 
 
     def feedback(self, none_or_true_or_false):
@@ -204,6 +211,19 @@ class QuizQuestion:
             self.feedback_area.remove_class(off)
 
 
+    def preserve(self) -> List[bool]:
+        for option, checkbox in zip(self.displayed, self.checkboxes):
+            option.selected = checkbox.value
+        return [option.selected for option in self.options_list]
+            
+    def restore(self, bools: List[bool]):
+        for option, boolean in zip(self.options_list, bools):
+            option.selected = boolean
+        if self._widget_instance:
+            for checkbox, option in zip(self.checkboxes, self.displayed):
+                checkbox.value = option.selected
+
+
 class Quiz:
     """
     a quiz is made of several questions
@@ -216,12 +236,14 @@ class Quiz:
                  max_attempts = 2):
         self.exoname = exoname
         self.quiz_questions = quiz_questions
-        self.answers = [None for question in self.quiz_questions]
         
         # needs to be saved somewhere
         self.max_attempts = max_attempts
         self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
-
+        preserved = storage_read(self.exoname, "answers", [])
+        if preserved: 
+            self.restore(preserved)
+            
         # for updates
         self.submit_button = None
         self.submit_summary = None
@@ -242,17 +264,25 @@ class Quiz:
     
     def submit(self, _button):
         self.current_attempts += 1
-        storage_save(self.exoname, 'current_attempts', self.current_attempts)
-        self.answers = [question.is_correct() 
-                        for question in self.quiz_questions]
         self.update()
+        storage_save(self.exoname, 'current_attempts', self.current_attempts)
+        storage_save(self.exoname, "answers", self.preserve())
         current_score, max_score = self.score()
         log_quiz(self.exoname, current_score, max_score)
         
+        
+        
+    def preserve(self) -> List[List[bool]]:
+        return [question.preserve() for question in self.quiz_questions]
+            
+    def restore(self, list_of_list_of_bools):
+        for question, list_of_bools in zip(self.quiz_questions, list_of_list_of_bools):
+            question.restore(list_of_bools)
+
 
     def update(self):        
-        # if game is over,
-        attempted_answers = [answer for answer in self.answers if answer is not None]
+        self.answers = [question.is_correct() 
+                        for question in self.quiz_questions]
         self.right_answers = [answer for answer in self.answers if answer]
         if all(self.answers) or self.current_attempts >= self.max_attempts:
             # materialize all questions
@@ -262,7 +292,10 @@ class Quiz:
             self.submit_button.disabled = True
             self.submit_button.description = "quiz over"
             current_score, max_score = self.score()
-            self.submit_summary.value = (f"final score {current_score}/{max_score}")
+            self.submit_summary.value = (
+                f"final score {current_score} / {max_score}"
+                f" -- after {self.current_attempts} attempts / {self.max_attempts}"
+            )
             if all(self.answers):
                 self.submit_summary.add_class("ok")
             else:
@@ -272,9 +305,9 @@ class Quiz:
             left = self.max_attempts - self.current_attempts
             self.submit_button.description = (
                 f"submit ({left}/{self.max_attempts} attempts left)")
-            if attempted_answers:
+            if self.current_attempts >= 1:
                 self.submit_summary.value = (
-                    f"{len(self.right_answers)}/{len(attempted_answers)} questions OK")
+                    f"{len(self.right_answers)}/{len(self.answers)} questions OK")
 
     def score(self):
         """
