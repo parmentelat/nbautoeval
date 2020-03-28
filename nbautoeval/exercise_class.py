@@ -124,7 +124,8 @@ class ClassExpression:
         self.statement = statement
         
     def __repr__(self):
-        return f"<{type(self).__name__} {self.statement=} {self.code=}>"
+        #  return f"<{type(self).__name__} {self.statement=} {self.code=}>"
+        return f"<{type(self).__name__} statement={self.statement} code={self.code}>"
         
         
     def replace(self, varname, classname):
