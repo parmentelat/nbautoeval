@@ -1,22 +1,5 @@
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
 
-### 
-# most basic single-answer
-
-question_basic_single = QuizQuestion(
-    "Pick the right fruit\n(one correct option)",
-    options=[
-        Option("banana"),
-        Option("pear"),
-        Option("apple", correct=True),
-    ],
-    horizontal=True,
-)
-single_quiz = Quiz(
-    "quizsample-single",
-    [question_basic_single])
-
-
 questions = []
 ### 
 question_basic_multiple = QuizQuestion(
@@ -30,7 +13,7 @@ question_basic_multiple = QuizQuestion(
         Option("pineapple"),
     ],
     score = 1,
-    horizontal=True,
+    horizontal_layout=True,
 )
 questions.append(question_basic_multiple)
 
@@ -46,7 +29,7 @@ question_unshuffle = QuizQuestion(
     ],
     shuffle=False,
     score = 2,
-    horizontal=True,
+    horizontal_layout=True,
 )
 questions.append(question_unshuffle)
 
@@ -65,7 +48,7 @@ question_math = QuizQuestion(
         MathOption(r"multiple double dollars $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$"),
     ],
     score = 3,
-    horizontal=True,
+    horizontal_layout=True,
 )
 questions.append(question_math)
 
@@ -78,7 +61,8 @@ no answer is valid""",
         Option("pear"),
     ],
     score = 4,
-    horizontal=True,
+    horizontal_layout=True,
+    horizontal_options=True,
 )
 questions.append(question_none)
 
@@ -93,7 +77,7 @@ question_code = QuizQuestion(
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
     score = 5,
-    horizontal=True,
+    horizontal_options=True,
 )
 questions.append(question_code)
 

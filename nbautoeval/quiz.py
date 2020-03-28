@@ -47,7 +47,7 @@ class _OptionsList:
 
 # usually options are displayed in some random order
 class _DisplayedOptionsList:
-    def __init__(self, options: List[GenericBooleanOption], shuffle=True):
+    def __init__(self, options: List[GenericBooleanOption], shuffle):
         self.displayed = options[:]
         if shuffle:
             random.shuffle(self.displayed)
@@ -126,6 +126,11 @@ CSS = """
 }
 """
 
+def points(score):
+    return f"{score} {'pt' if score<=1 else 'pts'}"
+
+
+
 class QuizQuestion:
     """
     question may include html tags and/or math content between '$$'
@@ -144,12 +149,15 @@ class QuizQuestion:
     def __init__(self, question: str, options: List, 
                  *,
                  score = 1,
-                 shuffle=True, horizontal=False):
+                 shuffle=True, 
+                 horizontal_layout=False,
+                 horizontal_options=False):
         self.question = question
         self.options_list = _OptionsList(options)
-        self.displayed = _DisplayedOptionsList(options)
+        self.displayed = _DisplayedOptionsList(options, shuffle)
         self.score = score
-        self.horizontal = horizontal
+        self.horizontal_layout = horizontal_layout
+        self.horizontal_options = horizontal_options
         self.feedback_area = None
         self._widget_instance = None
         
@@ -159,8 +167,7 @@ class QuizQuestion:
         if self._widget_instance:
             return self._widget_instance
     
-        points = f"{self.score} {'pt' if self.score<=1 else 'pts'}"
-        points_question = f'<div class="score">{points}</div>{self.question}'
+        points_question = f'<div class="score">{points(self.score)}</div>{self.question}'
 
         question = HTMLMath(points_question)
         question.add_class('question')
@@ -168,20 +175,17 @@ class QuizQuestion:
         self.checkboxes = [Checkbox(value=option.selected, disabled=False, description='', indent=False)
                            for option in self.displayed]
         labels = [option.render().widget() for option in self.displayed]
-        answers = VBox([HBox([checkbox, label]) 
-                        for (checkbox, label) in zip(self.checkboxes, labels)])
+        options_box = HBox if self.horizontal_options else VBox
+        answers = options_box(
+                  [HBox([checkbox, label]) 
+                   for (checkbox, label) in zip(self.checkboxes, labels)])
         answers.add_class("answers")
 
         css_widget = CssContent(CSS).widget()
         
-        if not self.horizontal:
-            self._widget_instance = VBox([question,
-                             answers, 
-                             css_widget])
-        else:
-            self._widget_instance = HBox([question,
-                             answers,
-                             css_widget])
+        layout_box = HBox if self.horizontal_layout else VBox
+        self._widget_instance = layout_box(
+            [question, answers, css_widget])
         self._widget_instance.add_class("nbae-question")
         self.feedback_area = self._widget_instance
         self.feedback(None)
@@ -293,8 +297,8 @@ class Quiz:
             self.submit_button.description = "quiz over"
             current_score, max_score = self.score()
             self.submit_summary.value = (
-                f"final score {current_score} / {max_score}"
-                f" -- after {self.current_attempts} attempts / {self.max_attempts}"
+                f"final score {current_score} / {points(max_score)} "
+                f" -- after {self.current_attempts} / {self.max_attempts} attempts"
             )
             if all(self.answers):
                 self.submit_summary.add_class("ok")

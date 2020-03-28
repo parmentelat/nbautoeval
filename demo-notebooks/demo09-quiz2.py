@@ -28,7 +28,7 @@
 # ---
 
 # %% [markdown]
-# # one sample quiz 
+# # another quiz
 
 # %% {"scrolled": true}
 # mostly for using under binder or in a devel tree
@@ -41,13 +41,14 @@ sys.path.append('..')
 # %autoreload 2
 
 # %% [markdown]
-# ## a quiz is made of questions
-#
-# in this notebook the correct answers are always the one starting with 'a'
+# ## a quizz is made of questions
 
-# %% {"hide_input": false, "scrolled": false}
-from exercises.quizsample import quiz
-quiz.widget()
+# %% [markdown]
+# a Quiz object contains one or several questions; here is an example with a single question
+
+# %% {"scrolled": false}
+from exercises.quizsample2 import quiz2
+quiz2.widget()
 
 # %% [markdown]
 # ## under the hood
@@ -56,4 +57,4 @@ quiz.widget()
 # Here's the code that defines the above quizz
 
 # %% {"scrolled": false}
-# !cat ../exercises/quizsample.py
+# !cat ../exercises/quizsample2.py
