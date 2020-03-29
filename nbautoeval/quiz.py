@@ -124,6 +124,10 @@ CSS = """
     padding: 5px 20px;
     width: fit-content;
 }
+
+.nbae-quiz .wrong {
+    background-color: red;
+}
 """
 
 def points(score):
@@ -176,9 +180,9 @@ class QuizQuestion:
                            for option in self.displayed]
         labels = [option.render().widget() for option in self.displayed]
         options_box = HBox if self.horizontal_options else VBox
-        answers = options_box(
-                  [HBox([checkbox, label]) 
-                   for (checkbox, label) in zip(self.checkboxes, labels)])
+        self.option_boxes = [HBox([checkbox, label]) 
+                             for (checkbox, label) in zip(self.checkboxes, labels)]
+        answers = options_box(self.option_boxes)
         answers.add_class("answers")
 
         css_widget = CssContent(CSS).widget()
@@ -213,6 +217,17 @@ class QuizQuestion:
         self.feedback_area.add_class(on)
         for off in offs:
             self.feedback_area.remove_class(off)
+
+
+    def individual_feedback(self):
+        for option, checkbox, option_box in zip(
+            self.displayed, self.checkboxes, self.option_boxes):
+            checkbox.disabled = True            
+            # good answer ?
+            if option.correct == checkbox.value:
+                option_box.remove_class("wrong")
+            else:
+                option_box.add_class("wrong")
 
 
     def preserve(self) -> List[bool]:
@@ -292,6 +307,7 @@ class Quiz:
             # materialize all questions
             for question in self.quiz_questions:
                 question.feedback(question.is_correct())
+                question.individual_feedback()
             # disable submit button
             self.submit_button.disabled = True
             self.submit_button.description = "quiz over"

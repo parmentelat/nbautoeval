@@ -46,8 +46,11 @@ sys.path.append('..')
 # in this notebook the correct answers are always the one starting with 'a'
 
 # %% {"hide_input": false, "scrolled": false}
-from exercises.quizsample import quiz
-quiz.widget()
+from exercises.quizsample import quiz1, quiz2
+quiz1.widget()
+
+# %%
+quiz2.widget()
 
 # %% [markdown]
 # ## under the hood

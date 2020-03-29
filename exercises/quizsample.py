@@ -1,6 +1,6 @@
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
 
-questions = []
+questions1 = []
 ### 
 question_basic_multiple = QuizQuestion(
     "Choose the right fruits<br>(several correct options)",
@@ -15,7 +15,7 @@ question_basic_multiple = QuizQuestion(
     score = 1,
     horizontal_layout=True,
 )
-questions.append(question_basic_multiple)
+questions1.append(question_basic_multiple)
 
 question_unshuffle = QuizQuestion(
     "Choose the right fruits<br>not shuffled",
@@ -31,7 +31,7 @@ question_unshuffle = QuizQuestion(
     score = 2,
     horizontal_layout=True,
 )
-questions.append(question_unshuffle)
+questions1.append(question_unshuffle)
 
 ### 
 question_math = QuizQuestion(
@@ -50,7 +50,7 @@ question_math = QuizQuestion(
     score = 3,
     horizontal_layout=True,
 )
-questions.append(question_math)
+questions1.append(question_math)
 
 # no correct answer
 question_none = QuizQuestion(
@@ -64,8 +64,17 @@ no answer is valid""",
     horizontal_layout=True,
     horizontal_options=True,
 )
-questions.append(question_none)
+questions1.append(question_none)
 
+quiz1 = Quiz(
+    "quizsample-one",
+    questions1,
+    max_attempts=3,
+)
+
+######
+
+questions2 = []
 
 # attempt to show code as options is currently broken
 question_code = QuizQuestion(
@@ -79,7 +88,7 @@ question_code = QuizQuestion(
     score = 5,
     horizontal_options=True,
 )
-questions.append(question_code)
+questions2.append(question_code)
 
 
 question_vertical = QuizQuestion(
@@ -92,7 +101,7 @@ this is to illustrate a vertical layout that could be a better fit in some cases
     ],
     score = 6,
 )
-questions.append(question_vertical)
+questions2.append(question_vertical)
 
 
 question_vertical_code = QuizQuestion(
@@ -124,11 +133,11 @@ def multi(n, m):
     ],
     score = 7,
 )
-questions.append(question_vertical_code)
+questions2.append(question_vertical_code)
 
 
-quiz = Quiz(
-    "quizsample-multiple",
-    questions,
+quiz2 = Quiz(
+    "quizsample-two",
+    questions2,
     max_attempts=3,
 )
