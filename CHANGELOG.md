@@ -1,3 +1,7 @@
+# 1.0.0dev0 - 2020 Mar 31
+
+* alpha release for 1.0
+
 # 0.6.5 - 2020 Mar 24
 
 * no new feature, just a minor cleanup before big rewrite
