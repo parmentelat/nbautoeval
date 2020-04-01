@@ -150,8 +150,9 @@ class QuizQuestion:
     one mode which is multiple_answers=True
     """
     
-    def __init__(self, question: str, options: List, 
-                 *,
+    def __init__(self, *,
+                 question: str, 
+                 options: List, 
                  score = 1,
                  shuffle=True, 
                  horizontal_layout=False,
@@ -251,10 +252,11 @@ class Quiz:
     
     def __init__(self,
                  exoname, 
-                 quiz_questions: List[QuizQuestion], 
+                 *,
+                 questions: List[QuizQuestion], 
                  max_attempts = 2):
         self.exoname = exoname
-        self.quiz_questions = quiz_questions
+        self.quiz_questions = questions
         
         # needs to be saved somewhere
         self.max_attempts = max_attempts

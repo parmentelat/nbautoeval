@@ -3,7 +3,7 @@ from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption
 questions1 = []
 ### 
 question_basic_multiple = QuizQuestion(
-    "Choose the right fruits<br>(several correct options)",
+    question="Choose the right fruits<br>(several correct options)",
     options=[ 
         Option("apple", correct=True),
         Option("apricot", correct=True),
@@ -18,7 +18,7 @@ question_basic_multiple = QuizQuestion(
 questions1.append(question_basic_multiple)
 
 question_unshuffle = QuizQuestion(
-    "Choose the right fruits<br>not shuffled",
+    question="Choose the right fruits<br>not shuffled",
     options=[
         Option("apple", correct=True),
         Option("apricot", correct=True),
@@ -54,7 +54,7 @@ questions1.append(question_math)
 
 # no correct answer
 question_none = QuizQuestion(
-    """It is possible that
+    question="""It is possible that
 no answer is valid""",
     options=[
         Option("banana"),
@@ -67,8 +67,8 @@ no answer is valid""",
 questions1.append(question_none)
 
 quiz1 = Quiz(
-    "quizsample-one",
-    questions1,
+    exoname="quizsample-one",
+    questions=questions1,
     max_attempts=3,
 )
 
@@ -78,10 +78,10 @@ questions2 = []
 
 # attempt to show code as options is currently broken
 question_code = QuizQuestion(
-    """code options should work
+    question="""code options should work
 <br>on multiple-answers cases
 <br>provided that <code>CodeOption</code> is used""",
-    [
+    options=[
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
@@ -92,10 +92,10 @@ questions2.append(question_code)
 
 
 question_vertical = QuizQuestion(
-    """code options should work on multiple-answers cases
+    question="""code options should work on multiple-answers cases
 provided that <code>CodeOption</code> is used
 this is to illustrate a vertical layout that could be a better fit in some cases""",
-    [
+    options=[
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
@@ -106,11 +106,10 @@ questions2.append(question_vertical)
 
 question_vertical_code = QuizQuestion(
     
-    """we also need to be able to show large code fragments, 
+    question="""we also need to be able to show large code fragments, 
     using <code>CodeOption</code> and multi-line code, and it feels like vertical 
     is what will best fit""",
-
-    [
+    options=[
         CodeOption("""def multi(n, m):
     # comments should be fine
     x, y = some_fun(n, m)
@@ -137,7 +136,7 @@ questions2.append(question_vertical_code)
 
 
 quiz2 = Quiz(
-    "quizsample-two",
-    questions2,
+    exoname="quizsample-two",
+    questions=questions2,
     max_attempts=3,
 )

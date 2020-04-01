@@ -5,11 +5,11 @@ from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption
 quiz2 = Quiz(
 
     # needs a unique name for storing progress and marks
-    "quizsample-horizontal",
+    exoname="quizsample-horizontal",
 
-    [
-        QuizQuestion("""
-horizontal_layout means to have
+    questions=[
+        QuizQuestion(
+            question="""horizontal_layout means to have
 <br>the questions and the options
 <br>in a horizontal box""",
             options=[
@@ -20,7 +20,7 @@ horizontal_layout means to have
         ),
 
 
-        QuizQuestion("""
+        QuizQuestion(question="""
 horizontal_options means the options appear side by side like here,
 because horizontal_layout is False the question spans 100% of page width
 """,
@@ -32,7 +32,7 @@ because horizontal_layout is False the question spans 100% of page width
         ),
         
 
-        QuizQuestion("""
+        QuizQuestion(question="""
 the default is to have none of these 2 horizontal flags 
 """,
             options=[
@@ -41,7 +41,7 @@ the default is to have none of these 2 horizontal flags
             ],  
         ),
         
-        QuizQuestion("""
+        QuizQuestion(question="""
 of course they can be used together as well""",
             options=[
                 Option('<img src="../media/image1.png">', correct=True),
@@ -55,4 +55,3 @@ of course they can be used together as well""",
     ],
     max_attempts = 3,
     )
-
