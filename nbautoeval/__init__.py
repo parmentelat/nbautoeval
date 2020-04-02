@@ -7,6 +7,7 @@ from .exercise_regexp import ExerciseRegexp, ExerciseRegexpGroups
 from .exercise_generator import ExerciseGenerator
 from .exercise_class import ExerciseClass, ClassScenario, ClassExpression, ClassStatement
 
-from .quiz import Quiz, QuizQuestion, Option, CodeOption, MathOption
+from .content import TextContent, MarkdownContent
+from .quiz import Quiz, QuizQuestion, Option, CodeOption, MathOption, MarkdownOption
 
 from .version import __version__

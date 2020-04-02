@@ -1,5 +1,5 @@
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
-
+from nbautoeval import TextContent
 questions1 = []
 ### 
 question_basic_multiple = QuizQuestion(

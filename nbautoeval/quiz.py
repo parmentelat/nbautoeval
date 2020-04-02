@@ -1,6 +1,6 @@
 import random
 
-from typing import List
+from typing import List, Union
 
 from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
@@ -36,6 +36,9 @@ class MathOption(Option):
     def render(self):
         return super().render().set_needs_math(True)
     
+class MarkdownOption(Option):
+    def render(self):
+        return super().render().set_has_markdown(True)
 
      
 class _OptionsList:
@@ -60,9 +63,9 @@ class _DisplayedOptionsList:
 CSS = """
 .widget-vbox.nbae-question, .widget-hbox.nbae-question {
     padding: 10px;
-    border-radius: 4px;
     background-color: #d1f5d3;
-    border: 1px solid black;
+/*    border-radius: 4px;
+    border: 1px solid black;*/
 }
 
 .nbae-question .question {
@@ -93,7 +96,7 @@ CSS = """
     border: 1px solid #aaa;
 }
 
-.nbae-question .widget-checkbox {
+.nbae-question .widget-checkbox, .nbae-question .question2 {
     width: auto;
     padding-left: 10px;
 }
@@ -134,6 +137,13 @@ def points(score):
     return f"{score} {'pt' if score<=1 else 'pts'}"
 
 
+QuestionType = Union[str, Content]
+def question_to_widget(question: QuestionType):
+    if isinstance(question, Content):
+        return question.widget()
+    else:
+        return HTMLMath(question)
+
 
 class QuizQuestion:
     """
@@ -151,39 +161,54 @@ class QuizQuestion:
     """
     
     def __init__(self, *,
-                 question: str, 
+                 question: QuestionType,
                  options: List, 
+                 # if defined, show up on top of the alternatives
+                 question2: str=None,
                  score = 1,
                  shuffle=True, 
                  horizontal_layout=False,
                  horizontal_options=False):
         self.question = question
         self.options_list = _OptionsList(options)
+        self.question2 = question2
         self.displayed = _DisplayedOptionsList(options, shuffle)
         self.score = score
         self.horizontal_layout = horizontal_layout
         self.horizontal_options = horizontal_options
         self.feedback_area = None
         self._widget_instance = None
+        # the rank in the Quiz object
+        self.index = None
         
+        
+    def set_index(self, index):
+        self.index = index
 
     def widget(self):
         
         if self._widget_instance:
             return self._widget_instance
-    
-        points_question = f'<div class="score">{points(self.score)}</div>{self.question}'
-
-        question = HTMLMath(points_question)
-        question.add_class('question')
-
+        
+        header_widget = (HTMLMath(f'Question # {self.index} - {points(self.score)}')
+                        .add_class("score"))
+        question_widget = question_to_widget(self.question)
+        question = VBox([header_widget,
+                         question_widget]).add_class('question')
+            
+        # it's important that we have as many checkboxes as option_boxes
         self.checkboxes = [Checkbox(value=option.selected, disabled=False, description='', indent=False)
                            for option in self.displayed]
         labels = [option.render().widget() for option in self.displayed]
         options_box = HBox if self.horizontal_options else VBox
         self.option_boxes = [HBox([checkbox, label]) 
                              for (checkbox, label) in zip(self.checkboxes, labels)]
-        answers = options_box(self.option_boxes)
+        if not self.question2:
+            actual_sons = self.option_boxes
+        else:
+            actual_sons = [question_to_widget(self.question2).add_class("question2")]
+            actual_sons += self.option_boxes
+        answers = options_box(actual_sons)
         answers.add_class("answers")
 
         css_widget = CssContent(CSS).widget()
@@ -268,6 +293,10 @@ class Quiz:
         # for updates
         self.submit_button = None
         self.submit_summary = None
+        
+        # set question rank
+        for index, question in enumerate(self.quiz_questions, 1):
+            question.set_index(index)
 
 
     def widget(self):

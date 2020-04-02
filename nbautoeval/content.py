@@ -1,3 +1,5 @@
+import markdown2
+
 from ipywidgets import HTML, HTMLMath, Layout
 
 class Content:
@@ -66,11 +68,14 @@ class Content:
     
 class TextContent(Content):
     
-    def __init__(self, text, is_code=False, needs_math=False, **kwds):
+    def __init__(self, text, 
+                 is_code=False, needs_math=False, has_markdown=False,
+                 **kwds):
         super().__init__(**kwds)
         self.text = text
         self.is_code = is_code
         self.needs_math = needs_math
+        self.has_markdown = has_markdown
         
     def set_is_code(self, is_code):
         self.is_code = is_code
@@ -80,9 +85,15 @@ class TextContent(Content):
         self.needs_math = needs_math
         return self
     
+    def set_has_markdown(self, has_markdown):
+        self.has_markdown = has_markdown
+        return self
+
     def _widget_(self):
 
         text = self.text
+        if self.has_markdown:
+            text = markdown2.Markdown().convert(text)
         if self.is_code:
             text = f"<pre>{text}</pre>"
         if self.css_properties:
@@ -92,6 +103,11 @@ class TextContent(Content):
         for cls in self.classes:
             result.add_class(cls)
         return result
+    
+class MarkdownContent(TextContent):
+    
+    def __init__(self, text, needs_math=False, **kwds):
+        super().__init__(text, needs_math=needs_math, has_markdown=True, **kwds)
             
 
 class CssContent(Content):
