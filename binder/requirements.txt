@@ -1,3 +1,4 @@
+markdown2
 ipython
 ipywidgets
 numpy
