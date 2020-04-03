@@ -40,7 +40,9 @@ class MarkdownOption(Option):
     def render(self):
         return super().render().set_has_markdown(True)
 
-     
+
+# this class captures the order in which options are provided
+# in the QuizQuestion object     
 class _OptionsList:
     def __init__(self, options: List[GenericBooleanOption]):
         self.options = options
@@ -48,7 +50,9 @@ class _OptionsList:
         return iter(self.options)
     
 
-# usually options are displayed in some random order
+# this class captures the order in which options are 
+# actually displayed, which is randomized from _OptionsList 
+# when shuffle is True
 class _DisplayedOptionsList:
     def __init__(self, options: List[GenericBooleanOption], shuffle):
         self.displayed = options[:]
@@ -63,11 +67,9 @@ class _DisplayedOptionsList:
 CSS = """
 .widget-vbox.nbae-question, .widget-hbox.nbae-question {
     padding: 10px;
-    background-color: #d1f5d3;
-/*    border-radius: 4px;
-    border: 1px solid black;*/
+    border-radius: 10px;
+/*    border: 1px solid black;*/
 }
-
 .nbae-question .question {
     border: 2px solid #084177;
     border-radius: 4px;
@@ -108,7 +110,10 @@ CSS = """
     background-color: #ffd6d9;
 }
 .nbae-question.ok-ko {
-    background-color: #f8f8f8;
+    background-color: #f0f0f0;
+}
+.nbae-question.ok-ko:nth-child(2n) {
+    background-color: #e8e8e8;
 }
 
 .nbae-quiz .submit {
@@ -137,6 +142,7 @@ def points(score):
     return f"{score} {'pt' if score<=1 else 'pts'}"
 
 
+# one can define a question from a plain str or a Content object
 QuestionType = Union[str, Content]
 def question_to_widget(question: QuestionType):
     if isinstance(question, Content):
@@ -165,7 +171,9 @@ class QuizQuestion:
                  options: List, 
                  # if defined, show up on top of the alternatives
                  question2: str=None,
+                 # for now, this is simple
                  score = 1,
+                 # do we want to shuffle the options
                  shuffle=True, 
                  horizontal_layout=False,
                  horizontal_options=False):

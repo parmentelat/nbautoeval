@@ -28,7 +28,7 @@
 # ---
 
 # %% [markdown]
-# # another quiz
+# # other quiz examples
 
 # %% {"scrolled": true}
 # mostly for using under binder or in a devel tree
@@ -41,14 +41,14 @@ sys.path.append('..')
 # %autoreload 2
 
 # %% [markdown]
-# ## a quizz is made of questions
+# ## quiz layout options
 
 # %% [markdown]
-# a Quiz object contains one or several questions; here is an example with a single question
+# here are a few examples that demonstrate the basics
 
 # %% {"scrolled": false}
-from exercises.quizsample2 import quiz2
-quiz2.widget()
+from exercises.quiz_layout import quiz_horizontal
+quiz_horizontal.widget()
 
 # %% [markdown]
 # ## under the hood
@@ -57,4 +57,4 @@ quiz2.widget()
 # Here's the code that defines the above quizz
 
 # %% {"scrolled": false}
-# !cat ../exercises/quizsample2.py
+# !cat ../exercises/quiz_layout.py

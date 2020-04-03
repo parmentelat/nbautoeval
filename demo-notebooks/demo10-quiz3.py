@@ -50,7 +50,7 @@ from nbautoeval.storage import storage_clear
 storage_clear("quiz-mines-sample")
 
 # %% {"scrolled": false}
-from exercises.quizmines import quiz
+from exercises.quiz_mines import quiz
 quiz.widget()
 
 # %% [markdown]
@@ -60,4 +60,4 @@ quiz.widget()
 # Here's the code that defines the above quizz
 
 # %% {"scrolled": false}
-# !cat ../exercises/quizmines.py
+# !cat ../exercises/quiz_mines.py

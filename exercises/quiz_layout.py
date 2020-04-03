@@ -1,17 +1,17 @@
-from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
+from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption, MarkdownContent
 
 
 ############
-quiz2 = Quiz(
+quiz_horizontal = Quiz(
 
     # needs a unique name for storing progress and marks
-    exoname="quizsample-horizontal",
+    exoname="quiz-sample-horizontal",
 
     questions=[
         QuizQuestion(
-            question="""horizontal_layout means to have
-<br>the questions and the options
-<br>in a horizontal box""",
+            question=MarkdownContent("""
+`horizontal_layout=True` means to have the question
+<br> and the options appear side by side (in a horizontal box)"""),
             options=[
                 Option('<img src="../media/image1.png">', correct=True),
                 Option('<img src="../media/image2.png" width="250px">'),
@@ -20,10 +20,10 @@ quiz2 = Quiz(
         ),
 
 
-        QuizQuestion(question="""
-horizontal_options means the options appear side by side like here,
-because horizontal_layout is False the question spans 100% of page width
-""",
+        QuizQuestion(question=MarkdownContent("""
+`horizontal_options` means the options appear side by side like here,
+because `horizontal_layout` is `False`, the question spans 100% of the page width
+"""),
             options=[
                 Option('<img src="../media/image1.png">', correct=True),
                 Option('<img src="../media/image2.png" width="250px">'),
@@ -55,3 +55,9 @@ of course they can be used together as well""",
     ],
     max_attempts = 3,
     )
+
+# this is demonstrate some quizzes that have something wrong
+broken_quiz1 = Quiz(
+    "broken-quiz-1",
+    
+)

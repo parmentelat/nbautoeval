@@ -1,5 +1,5 @@
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
-from nbautoeval import TextContent
+from nbautoeval import TextContent, MarkdownContent
 questions1 = []
 ### 
 question_basic_multiple = QuizQuestion(
@@ -12,7 +12,7 @@ question_basic_multiple = QuizQuestion(
         Option("pear"),
         Option("pineapple"),
     ],
-    score = 1,
+    score = 2,
     horizontal_layout=True,
 )
 questions1.append(question_basic_multiple)
@@ -28,7 +28,7 @@ question_unshuffle = QuizQuestion(
         Option("pineapple"),
     ],
     shuffle=False,
-    score = 2,
+    score = 4,
     horizontal_layout=True,
 )
 questions1.append(question_unshuffle)
@@ -47,27 +47,30 @@ question_math = QuizQuestion(
         MathOption(r"$\forall x_1\in\mathbb{R}, \alpha = \beta^{p^k}$"),
         MathOption(r"multiple double dollars $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$"),
     ],
-    score = 3,
+    score = 8,
     horizontal_layout=True,
 )
 questions1.append(question_math)
 
 # no correct answer
 question_none = QuizQuestion(
-    question="""It is possible that
-no answer is valid""",
+    question="""At least one option must be correct""",
     options=[
         Option("banana"),
         Option("pear"),
+        Option("none of the above", correct=True),
     ],
-    score = 4,
+    # for now if we want to make sure the last option 
+    # indeed appears last, we need to turn shuffle off
+    shuffle = False,
+    score = 16,
     horizontal_layout=True,
     horizontal_options=True,
 )
 questions1.append(question_none)
 
 quiz1 = Quiz(
-    exoname="quizsample-one",
+    exoname="quiz-sample-one",
     questions=questions1,
     max_attempts=3,
 )
@@ -77,7 +80,7 @@ quiz1 = Quiz(
 questions2 = []
 
 # attempt to show code as options is currently broken
-question_code = QuizQuestion(
+questions2.append(QuizQuestion(
     question="""code options should work
 <br>on multiple-answers cases
 <br>provided that <code>CodeOption</code> is used""",
@@ -85,10 +88,9 @@ question_code = QuizQuestion(
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
-    score = 5,
+    score = 32,
     horizontal_options=True,
-)
-questions2.append(question_code)
+))
 
 
 question_vertical = QuizQuestion(
@@ -99,7 +101,7 @@ this is to illustrate a vertical layout that could be a better fit in some cases
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
-    score = 6,
+    score = 64,
 )
 questions2.append(question_vertical)
 
@@ -130,13 +132,24 @@ def multi(n, m):
 
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
-    score = 7,
+    score = 128,
 )
 questions2.append(question_vertical_code)
 
+questions2.append(
+    QuizQuestion(
+question=MarkdownContent(
+        """a *question* can be written in **markdown**, 
+        with a `MarkdownContent` object."""),
+options=[
+    Option("yes"),
+    Option("no"),
+],
+))
+
 
 quiz2 = Quiz(
-    exoname="quizsample-two",
+    exoname="quiz-sample-two",
     questions=questions2,
     max_attempts=3,
 )

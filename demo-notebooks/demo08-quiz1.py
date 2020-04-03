@@ -45,18 +45,30 @@ sys.path.append('..')
 #
 # in this notebook the correct answers are always the one starting with 'a'
 
+# %%
+# this is for testing purposes only, it allows to 'reset' the history
+# about this particular exercise
+from nbautoeval.storage import storage_clear
+storage_clear("quiz-sample-one")
+
 # %% {"hide_input": false, "scrolled": false}
-from exercises.quizsample import quiz1, quiz2
+from exercises.quiz_sample import quiz1, quiz2
 quiz1.widget()
 
 # %%
+# this is for testing purposes only, it allows to 'reset' the history
+# about this particular exercise
+from nbautoeval.storage import storage_clear
+storage_clear("quiz-sample-two")
+
+# %% {"scrolled": false}
 quiz2.widget()
 
 # %% [markdown]
 # ## under the hood
 
 # %% [markdown]
-# Here's the code that defines the above quizz
+# Here's the code that defines the above quizzes
 
 # %% {"scrolled": false}
-# !cat ../exercises/quizsample.py
+# !cat ../exercises/quiz_sample.py
