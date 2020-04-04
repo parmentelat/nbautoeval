@@ -1,6 +1,7 @@
 import random
 
 from typing import List, Union
+from enum import Enum
 
 from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
@@ -8,11 +9,113 @@ from .content import Content, TextContent, CssContent
 from .storage import log_quiz, storage_read, storage_save
 from .helpers import truncate
 
+CSS = """
+.widget-vbox.nbae-question, .widget-hbox.nbae-question {
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+}
+.nbae-question .question {
+    border: 2px solid #084177;
+    border-radius: 4px;
+    width: max-content;
+    max-width: 100%;
+    padding: 4px 8px;
+}
+/* question in a QuizQuestion with a vertical layout */
+.nbae-question.widget-vbox>.question {
+    width: 100%;
+}
+
+.nbae-question .index {
+    font-weight: bold;
+}
+
+.nbae-question .question:not(.exactly-one) .header::after {
+    content: "♧";
+    align-self: center;
+    font-weight: bold;
+    font-size: 125%;
+}
+.nbae-question .score::before {
+    content: "⎯⎯";
+    align-self: center;
+    margin-right: 10px;
+}
+.nbae-question .score {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.nbae-question .code pre {
+    line-height: 1.3;
+    padding: 5px;
+}
+.nbae-question .code {
+    border: 1px solid #aaa;
+}
+
+.nbae-question .widget-checkbox, .nbae-question .question2 {
+    width: auto;
+    padding-left: 10px;
+}
+
+.nbae-question.right, .nbae-quiz .summary.ok {
+    background-color: #d4f8e8;
+}
+.nbae-question.wrong, .nbae-quiz .summary.ko {
+    background-color: #ffd6d9;
+}
+.nbae-question.unanswered {
+    background-color: #f0f0f0;
+}
+.nbae-question.unanswered:nth-child(2n) {
+    background-color: #e8e8e8;
+}
+
+.nbae-quiz .submit {
+    margin: 10px;
+    border-radius: 10px;
+    background-color: #c2f0fc;
+    border: 2px solid #084177;
+    width: max-content;
+}
+
+.nbae-quiz .result-area {
+    align-items: center;
+}
+
+.nbae-quiz .summary {
+    padding: 5px 20px;
+    width: fit-content;
+}
+
+.nbae-quiz .wrong-answer {
+    background-color: #ff2e63;
+}
+
+.nbae-quiz .final {
+    font-weight: bold;
+    font-size: larger;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.nbae-question.unanswered span.unanswered,
+.nbae-question.right span.right,
+.nbae-question.wrong span.wrong {
+    font-weight: bold;
+    font-size: larger;    
+}
 """
-an Option instance represents one of the possible answers
-by default it is a wrong answer
-"""
+
+
+
 class GenericBooleanOption:
+    """
+    an Option instance represents one of the possible answers
+    by default it is not a correct answer
+    """
     def __init__(self, *, correct=False):
         self.correct = correct
         self.selected = None
@@ -39,7 +142,7 @@ class Option(GenericBooleanOption):
 
 class CodeOption(Option):
     def render(self):
-        return super().render().set_is_code(True).add_class("code")
+        return super().render().set_is_code(True).add_class('code')
     
 class MathOption(Option):
     def render(self):
@@ -73,94 +176,6 @@ class _DisplayedOptionsList:
         return iter(self.displayed)
 
 
-CSS = """
-.widget-vbox.nbae-question, .widget-hbox.nbae-question {
-    padding: 10px;
-    border-radius: 10px;
-/*    border: 1px solid black;*/
-}
-.nbae-question .question {
-    border: 2px solid #084177;
-    border-radius: 4px;
-    width: max-content;
-    max-width: 100%;
-    padding: 4px 8px;
-}
-
-.nbae-question .index {
-    font-weight: bold;
-}
-
-.nbae-question .question:not(.exactly-one) .header::after {
-    content: "♧";
-    align-self: center;
-    font-weight: bold;
-    font-size: 125%;
-    margin-left: 10px;
-    margin-right: 10px;
-}
-.nbae-question .score::before {
-    content: "⎯⎯⎯";
-    align-self: center;
-    margin-right: 10px;
-}
-.nbae-question .score {
-    margin-left: 10px;
-    margin-right: 10px;
-}
-
-.nbae-question .code pre {
-    line-height: 1.3;
-    padding: 5px;
-}
-.nbae-question .code {
-    border: 1px solid #aaa;
-}
-
-.nbae-question .widget-checkbox, .nbae-question .question2 {
-    width: auto;
-    padding-left: 10px;
-}
-
-.nbae-question.ok, .nbae-quiz .summary.ok {
-    background-color: #d4f8e8;
-}
-.nbae-question.ko, .nbae-quiz .summary.ko {
-    background-color: #ffd6d9;
-}
-.nbae-question.ok-ko {
-    background-color: #f0f0f0;
-}
-.nbae-question.ok-ko:nth-child(2n) {
-    background-color: #e8e8e8;
-}
-
-.nbae-quiz .submit {
-    margin: 10px 0px 0px 0px;
-    border-radius: 10px;
-    background-color: #c2f0fc;
-    border: 2px solid #084177;
-    width: max-content;
-}
-
-.nbae-quiz .result-area {
-    align-items: center;
-}
-
-.nbae-quiz .summary {
-    padding: 5px 20px;
-    width: fit-content;
-}
-
-.nbae-quiz .wrong {
-    background-color: red;
-}
-"""
-
-def points(score):
-    return f"{score} {'pt' if score<=1 else 'pts'}"
-
-
 # one can define a question from a plain str or a Content object
 QuestionType = Union[str, Content]
 def question_to_widget(question: QuestionType):
@@ -169,6 +184,50 @@ def question_to_widget(question: QuestionType):
     else:
         return HTMLMath(question)
     
+
+class Answer(Enum):
+    UNANSWERED = -1
+    WRONG = 0
+    RIGHT = 1
+
+
+def points(score):
+    return f"{score} {'pt' if score<=1 else 'pts'}"
+
+# to allow for QuizQuestion(... score=1)
+# or           QuizQuestion(... score=(6, -1))
+# or           QuizQuestion(... score=(6, -3, 1))
+class Score:
+    # in points
+    def __init__(self, single_arg=None):
+        self.if_right = 1
+        self.if_wrong = -1
+        self.if_unanswered = 0
+        if single_arg is None:
+            pass
+        elif isinstance(single_arg, int):
+            self.if_right = single_arg
+        elif isinstance(single_arg, tuple) and len(single_arg) == 2:
+            self.if_right, self.if_wrong = single_arg
+        elif isinstance(single_arg, tuple) and len(single_arg) == 3:
+            self.if_right, self.if_wrong, self.if_unanswered = single_arg
+        else:
+            raise ValueError("Score constructor expects an int or a tuple of 2/3 ints")
+
+
+    def score(self, answer):
+        return (self.if_right if answer == Answer.RIGHT
+                else self.if_wrong if answer == Answer.WRONG
+                else self.if_unanswered)
+
+    def html(self):
+        return (f"<span class='right'>{points(self.if_right)}</span>"
+                f" / <span class='wrong'>{points(self.if_wrong)}</span>"
+                f" / <span class='unanswered'>{points(self.if_unanswered)}</span>")
+    def __str__(self):
+        return f"{self.if_right}/{self.if_wrong}/{self.if_unanswered}"
+        
+
 class QuizQuestion:
     """
     question can be a str, or a Content object for more complex inputs; 
@@ -210,7 +269,7 @@ class QuizQuestion:
         self.question2 = question2
         self.displayed = _DisplayedOptionsList(options, shuffle)
         self.exactly_one_option = exactly_one_option
-        self.score = score
+        self._score_object = Score(score)
         self.horizontal_layout = horizontal_layout
         self.horizontal_options = horizontal_options
         self.feedback_area = None
@@ -237,10 +296,20 @@ class QuizQuestion:
         self.index = index
 
 
-    def is_correct(self):
+    def answer(self):
         selected = [i for (i, checkbox) in enumerate(self.checkboxes)
                     if checkbox.value]
-        return set(selected) == set(self.displayed.correct_indices())
+        if not selected:
+            return Answer.UNANSWERED
+        else:
+            return (Answer.RIGHT if set(selected) == set(self.displayed.correct_indices())
+                    else Answer.WRONG)
+
+
+    def score(self):
+        return self._score_object.score(self.answer())
+    def max_score(self):
+        return self._score_object.if_right
 
 
     def widget(self):
@@ -250,7 +319,7 @@ class QuizQuestion:
         
         header_widget = HBox([
             HTML(f'Question # {self.index}').add_class('index'),
-            HTML(f'{points(self.score)}').add_class('score')
+            HTML(f'{self._score_object.html()}').add_class('score')
         ]).add_class('header')
         question_widget = question_to_widget(self.question)
         question = VBox([header_widget,
@@ -271,19 +340,19 @@ class QuizQuestion:
         if not self.question2:
             actual_sons = self.option_boxes
         else:
-            actual_sons = [question_to_widget(self.question2).add_class("question2")]
+            actual_sons = [question_to_widget(self.question2).add_class('question2')]
             actual_sons += self.option_boxes
         answers = options_box(actual_sons)
-        answers.add_class("answers")
+        answers.add_class('answers')
 
         css_widget = CssContent(CSS).widget()
         
         layout_box = HBox if self.horizontal_layout else VBox
         self._widget_instance = layout_box(
             [question, answers, css_widget])
-        self._widget_instance.add_class("nbae-question")
+        self._widget_instance.add_class('nbae-question')
         self.feedback_area = self._widget_instance
-        self.feedback(None)
+        self.feedback(Answer.UNANSWERED)
         return self._widget_instance            
 
 
@@ -306,18 +375,18 @@ class QuizQuestion:
                 other.value = False
         
 
-    def feedback(self, none_or_true_or_false):
+    def feedback(self, answer: Answer):
         """
         assuming the widget was created already, of course
         """
         if self.feedback_area is None:
             return
-        if none_or_true_or_false is None:
-            on, offs = ("ok-ko", ["ok", "ko"])
-        elif none_or_true_or_false is True:
-            on, offs = ("ok", ["ok-ko", "ko"])
+        if answer == Answer.UNANSWERED:
+            on, offs = ('unanswered', ['right', 'wrong'])
+        elif answer == Answer.RIGHT:
+            on, offs = ('right', ['unanswered', 'wrong'])
         else:
-            on, offs = ("ko", ["ok", "ok-ko"])
+            on, offs = ('wrong', ['right', 'unanswered'])
         self.feedback_area.add_class(on)
         for off in offs:
             self.feedback_area.remove_class(off)
@@ -329,9 +398,9 @@ class QuizQuestion:
             checkbox.disabled = True            
             # good answer ?
             if option.correct == checkbox.value:
-                option_box.remove_class("wrong")
+                option_box.remove_class('wrong-answer')
             else:
-                option_box.add_class("wrong")
+                option_box.add_class('wrong-answer')
 
 
     def preserve(self) -> List[bool]:
@@ -380,12 +449,12 @@ class Quiz:
     def widget(self):
         sons = [question.widget() for question in self.quiz_questions]
 
-        self.submit_button = Button(description='submit').add_class("submit")
-        self.submit_summary = HTML('no result yet').add_class("summary")
+        self.submit_button = Button(description='submit').add_class('submit')
+        self.submit_summary = HTML('no result yet').add_class('summary')
         self.submit_button.on_click(lambda button: self.submit(button))
         sons.append(HBox([self.submit_button, self.submit_summary])
-                    .add_class("result-area"))
-        toplevel = VBox(sons).add_class("nbae-quiz")
+                    .add_class('result-area'))
+        toplevel = VBox(sons).add_class('nbae-quiz')
         self.update()
         return toplevel
 
@@ -395,7 +464,7 @@ class Quiz:
         self.update()
         storage_save(self.exoname, 'current_attempts', self.current_attempts)
         storage_save(self.exoname, "answers", self.preserve())
-        current_score, max_score = self.score()
+        current_score, max_score = self.total_score()
         log_quiz(self.exoname, current_score, max_score)
         
         
@@ -408,27 +477,28 @@ class Quiz:
             question.restore(list_of_bools)
 
 
-    def update(self):        
-        self.answers = [question.is_correct() 
+    def update(self):
+        self.answers = [question.answer() 
                         for question in self.quiz_questions]
-        self.right_answers = [answer for answer in self.answers if answer]
-        if all(self.answers) or self.current_attempts >= self.max_attempts:
+        right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
+        all_right = (len(right_answers) == len(self.answers))
+        if all_right or self.current_attempts >= self.max_attempts:
             # materialize all questions
             for question in self.quiz_questions:
-                question.feedback(question.is_correct())
+                question.feedback(question.answer())
                 question.individual_feedback()
             # disable submit button
             self.submit_button.disabled = True
             self.submit_button.description = "quiz over"
-            current_score, max_score = self.score()
+            current_score, max_score = self.total_score()
             self.submit_summary.value = (
-                f"final score {current_score} / {points(max_score)} "
-                f" -- after {self.current_attempts} / {self.max_attempts} attempts"
+                f"final score <span class='final'>{current_score}</span> / {points(max_score)} "
+                f" ⎯⎯⎯ after {self.current_attempts} / {self.max_attempts} attempts"
             )
-            if all(self.answers):
-                self.submit_summary.add_class("ok")
+            if all_right:
+                self.submit_summary.add_class('ok')
             else:
-                self.submit_summary.add_class("ko")
+                self.submit_summary.add_class('ko')
         else:
             # so here we know that self.current_attempts < self.max_attempts:
             left = self.max_attempts - self.current_attempts
@@ -436,13 +506,12 @@ class Quiz:
                 f"submit ({left}/{self.max_attempts} attempts left)")
             if self.current_attempts >= 1:
                 self.submit_summary.value = (
-                    f"{len(self.right_answers)}/{len(self.answers)} questions OK")
+                    f"{len(right_answers)}/{len(self.answers)} questions OK")
 
-    def score(self):
+    def total_score(self):
         """
         returns a tuple current_score, max_score
         """
-        current_score = sum(q.score for q in self.quiz_questions if q.is_correct())
-        max_score = sum(q.score for q in self.quiz_questions)
+        current_score = sum(q.score() for q in self.quiz_questions)
+        max_score = sum(q.max_score() for q in self.quiz_questions)
         return current_score, max_score
-

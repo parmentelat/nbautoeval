@@ -29,7 +29,7 @@ options=[
     Option("La fréquence des bits est beaucoup plus basse que la fréquence du signal physique transmis"),  
     Option("La communication peut être affectée par les pertes de synchronisation", correct=True),  
     ],
-    score=6,
+    score=(6, -2),
 ),
 
         QuizQuestion(question="Lors d'un codage en modulation :",
@@ -40,7 +40,7 @@ options=[
     Option("On transmet l'information grâce à la composante continue"),
     ],
     horizontal_layout=True,
-    score=6,
+    score=(6, -3, -1),
 ),
         
         QuizQuestion(question="Lors d'un codage en modulation :",
