@@ -77,6 +77,10 @@ class TextContent(Content):
         self.needs_math = needs_math
         self.has_markdown = has_markdown
         
+    # used in particular in quiz's sanity checks    
+    def __str__(self):
+        return self.text
+
     def set_is_code(self, is_code):
         self.is_code = is_code
         return self

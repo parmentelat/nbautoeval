@@ -6,7 +6,7 @@ from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
 from .content import Content, TextContent, CssContent
 from .storage import log_quiz, storage_read, storage_save
-
+from .helpers import truncate
 
 """
 an Option instance represents one of the possible answers
@@ -21,6 +21,15 @@ class GenericBooleanOption:
         
         
 class Option(GenericBooleanOption):
+    """
+    the most basic kind of Option allows to enter a simple text
+    see more specialized classes for other kinds of inputs, 
+    like CodeOption, MathOption and MarkdownOption
+
+    correct=True should be set on options that are valid and 
+    that students should check as such
+    
+    """
     def __init__(self, text, **kwds):
         super().__init__(**kwds)
         self.text = text
@@ -159,21 +168,26 @@ def question_to_widget(question: QuestionType):
         return question.widget()
     else:
         return HTMLMath(question)
-
-
+    
 class QuizQuestion:
     """
-    question may include html tags and/or math content between '$$'
+    question can be a str, or a Content object for more complex inputs; 
+    it may include html tags and/or math content between '$$'
+
+    options is a list of Option objects; if exactly_one_option is set, 
+    then obviously exactly one of these options must have correct=True
+    (this needs to be explicit, an options list with one correct option 
+    is not deemed enough a condition)
+    when exactly_one_option is set, the checkboxes behave like radio buttons
     
-    initially planned on supporting 2 flavours of selection
-    * multiple_answers=False would mean to enforce exactly one answer
-      i.e. using radio buttons to unselect any previously selected answer
-      upon a user's click
-    * multiple_answers=True would mean, user selects exactly how many
-      options she wishes (including 0 btw)
-    however, due to limitations with ipywidgets' RadioButtons that
-    only takes plain text as options, for now we only have
-    one mode which is multiple_answers=True
+    shuffle is a boolean indicating if the options must be shuffled 
+    around for each student
+    
+    when horizontal_layout is set, the answers appear on the right of the question, 
+    otherwise they appear below
+    
+    when horizontal_options is set, the answers are displayed in a horizontal box
+    instead of a vertical one    
     """
     
     def __init__(self, *,
@@ -203,7 +217,21 @@ class QuizQuestion:
         self._widget_instance = None
         # the rank in the Quiz object
         self.index = None
+        self.sanity_check()
         
+
+    def sanity_check(self):
+        def report(*messages):
+            print(f"question {truncate(str(self.question), 70)}\n\t", *messages)
+        nb_correct_options = len(self.displayed.correct_indices())
+        if self.exactly_one_option:
+            if  nb_correct_options != 1:
+                report(f"has {nb_correct_options} correct answers, expected 1 b/c exactly_one_option")
+        else:
+            if  nb_correct_options == 0:
+                report(f"has no correct answers, this is not supported,\n"
+                       f"\tplease add an option like 'none of the other answers'")
+
         
     def set_index(self, index):
         self.index = index

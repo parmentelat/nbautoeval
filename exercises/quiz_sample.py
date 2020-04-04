@@ -1,7 +1,9 @@
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
 from nbautoeval import TextContent, MarkdownContent
-questions1 = []
+
 ### 
+questions1 = []
+
 question_basic_multiple = QuizQuestion(
     question="Choose the right fruits<br>(several correct options)",
     options=[ 
@@ -72,7 +74,7 @@ questions1.append(question_none)
 questions1.append(
     QuizQuestion(
 question=MarkdownContent("""a question can be created with
-<br>`exactly_one_answer=True`, in which case
+<br>`exactly_one_option=True`, in which case
 <br>you get a radio buttons behaviour
 <br>and the question has no ♧"""),
 options=[
