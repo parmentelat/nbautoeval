@@ -69,6 +69,23 @@ question_none = QuizQuestion(
 )
 questions1.append(question_none)
 
+questions1.append(
+    QuizQuestion(
+question=MarkdownContent("""a question can be created with
+<br>`exactly_one_answer=True`, in which case
+<br>you get a radio buttons behaviour
+<br>and the question has no ♧"""),
+options=[
+    Option("yes", correct=True),
+    Option("no"),
+    Option("don't know")
+],
+    exactly_one_option=True,
+    horizontal_layout=True,
+))
+
+
+
 quiz1 = Quiz(
     exoname="quiz-sample-one",
     questions=questions1,
@@ -142,7 +159,7 @@ question=MarkdownContent(
         """a *question* can be written in **markdown**, 
         with a `MarkdownContent` object."""),
 options=[
-    Option("yes"),
+    Option("yes", correct=True),
     Option("no"),
 ],
 ))

@@ -78,16 +78,26 @@ CSS = """
     padding: 4px 8px;
 }
 
-.nbae-question .score::before, .nbae-question .score::after {
-    content: "⁇";
+.nbae-question .index {
+    font-weight: bold;
+}
+
+.nbae-question .question:not(.exactly-one) .header::after {
+    content: "♧";
+    align-self: center;
     font-weight: bold;
     font-size: 125%;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 .nbae-question .score::before {
-    padding-right: 5px;
+    content: "⎯⎯⎯";
+    align-self: center;
+    margin-right: 10px;
 }
-.nbae-question .score::after {
-    padding-left: 5px;
+.nbae-question .score {
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .nbae-question .code pre {
@@ -171,16 +181,21 @@ class QuizQuestion:
                  options: List, 
                  # if defined, show up on top of the alternatives
                  question2: str=None,
-                 # for now, this is simple
-                 score = 1,
                  # do we want to shuffle the options
                  shuffle=True, 
+                 # set this to True to mak it plain 
+                 # that there is exactly one option to select
+                 exactly_one_option = False,
+                 # how to display 
+                 # for now, this is simple
+                 score = 1,
                  horizontal_layout=False,
                  horizontal_options=False):
         self.question = question
         self.options_list = _OptionsList(options)
         self.question2 = question2
         self.displayed = _DisplayedOptionsList(options, shuffle)
+        self.exactly_one_option = exactly_one_option
         self.score = score
         self.horizontal_layout = horizontal_layout
         self.horizontal_options = horizontal_options
@@ -193,20 +208,34 @@ class QuizQuestion:
     def set_index(self, index):
         self.index = index
 
+
+    def is_correct(self):
+        selected = [i for (i, checkbox) in enumerate(self.checkboxes)
+                    if checkbox.value]
+        return set(selected) == set(self.displayed.correct_indices())
+
+
     def widget(self):
         
         if self._widget_instance:
             return self._widget_instance
         
-        header_widget = (HTMLMath(f'Question # {self.index} - {points(self.score)}')
-                        .add_class("score"))
+        header_widget = HBox([
+            HTML(f'Question # {self.index}').add_class('index'),
+            HTML(f'{points(self.score)}').add_class('score')
+        ]).add_class('header')
         question_widget = question_to_widget(self.question)
         question = VBox([header_widget,
                          question_widget]).add_class('question')
+        if self.exactly_one_option:
+            question.add_class('exactly-one')
             
         # it's important that we have as many checkboxes as option_boxes
         self.checkboxes = [Checkbox(value=option.selected, disabled=False, description='', indent=False)
                            for option in self.displayed]
+        if self.exactly_one_option:
+            for checkbox in self.checkboxes:
+                checkbox.observe(lambda event: self.radio_button_callback(event))
         labels = [option.render().widget() for option in self.displayed]
         options_box = HBox if self.horizontal_options else VBox
         self.option_boxes = [HBox([checkbox, label]) 
@@ -230,11 +259,24 @@ class QuizQuestion:
         return self._widget_instance            
 
 
-    def is_correct(self):
-        selected = [i for (i, checkbox) in enumerate(self.checkboxes)
-                    if checkbox.value]
-        return set(selected) == set(self.displayed.correct_indices())
-
+    # this will be bound to the checkbox widgets through observe()
+    # which passes along an event object 
+    def radio_button_callback(self, event):
+        # only interested in that sort of events
+        if event['name'] != 'value':
+            return
+        # locate the checkbox that is being changed
+        checkbox = event['owner']
+        # we only react on changes that set value=True
+        if checkbox.value == False:
+            return
+        if checkbox not in self.checkboxes:
+            print("WHOOPS - s/t wrong !")
+            return
+        for other in self.checkboxes:
+            if other is not checkbox:
+                other.value = False
+        
 
     def feedback(self, none_or_true_or_false):
         """
