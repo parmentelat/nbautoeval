@@ -33,6 +33,23 @@ Of course that artificial bullet is not always correct"""),
             horizontal_layout=True,
         ),
 
+        QuizQuestion(
+            question=MarkdownContent("""
+by default the questions in a Quiz are shuffled
+so that each student gets them in a different order
+
+same for options in a question btw; in both cases you can turn off
+that feature by setting `shuffle=False` on the `QuizQuestion` or `Quiz` objects.
+
+so for example this one is the last one in the present quiz.
+"""),
+            options=[
+                Option("this will come out"),
+                Option("in the right order"),
+            ],
+            shuffle=False,
+        )
     ],
     max_attempts = 3,
-    )
+    shuffle=False,
+)

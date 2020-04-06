@@ -164,21 +164,25 @@ class _TeacherOptions:
         return iter(self.options)
     
 
-# this class captures the order in which options are 
-# actually displayed, which is randomized from _TeacherOptions 
-# when shuffle is True
-class _DisplayedOptions:
-    def __init__(self, options: List[GenericBooleanOption], shuffle):
-        self.displayed = options[:]
+# this class captures the order in which options or questions 
+# actually displayed, which is randomized from the input list
+# (as defined in the Python code) when shuffle is True
+class _DisplayedItems:
+    def __init__(self, input_list, shuffle):
+        self.displayed = input_list[:]
         if shuffle:
             random.shuffle(self.displayed)
     def append(self, option_none):
         self.displayed.append(option_none)
     def __iter__(self):
         return iter(self.displayed)
+
+class _DisplayedOptions(_DisplayedItems):
     def correct_indices(self):
         return [i for (i, opt) in enumerate(self.displayed) if opt.correct]
 
+class _DisplayedQuestions(_DisplayedItems):
+    pass
 
 # one can define a question from a plain str or a Content object
 QuestionType = Union[str, Content]
@@ -296,7 +300,7 @@ class QuizQuestion:
 
     def sanity_check(self):
         def report(*messages):
-            print(f"question {truncate(str(self.question), 70)}\n\t", *messages)
+            print(f"**WARNING** : question `{truncate(str(self.question), 70)}`\n\t", *messages)
         nb_correct_options = len(self._displayed_options.correct_indices())
         if self.exactly_one_option:
             if  nb_correct_options != 1:
@@ -441,9 +445,11 @@ class Quiz:
                  exoname, 
                  *,
                  questions: List[QuizQuestion], 
+                 shuffle=True,
                  max_attempts = 2):
         self.exoname = exoname
         self.quiz_questions = questions
+        self.displayed_questions = _DisplayedQuestions(questions, shuffle)
         
         # needs to be saved somewhere
         self.max_attempts = max_attempts
@@ -457,12 +463,12 @@ class Quiz:
         self.submit_summary = None
         
         # set question rank
-        for index, question in enumerate(self.quiz_questions, 1):
+        for index, question in enumerate(self.displayed_questions, 1):
             question.set_index(index)
 
 
     def widget(self):
-        sons = [question.widget() for question in self.quiz_questions]
+        sons = [question.widget() for question in self.displayed_questions]
 
         self.submit_button = Button(description='submit').add_class('submit')
         self.submit_summary = HTML('no result yet').add_class('summary')
@@ -494,12 +500,12 @@ class Quiz:
 
     def update(self):
         self.answers = [question.answer() 
-                        for question in self.quiz_questions]
+                        for question in self.displayed_questions]
         right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
         all_right = (len(right_answers) == len(self.answers))
         if all_right or self.current_attempts >= self.max_attempts:
             # materialize all questions
-            for question in self.quiz_questions:
+            for question in self.displayed_questions:
                 question.feedback(question.answer())
                 question.individual_feedback()
             # disable submit button

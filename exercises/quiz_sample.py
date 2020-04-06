@@ -15,6 +15,22 @@ options=[
 ],
 ))
 
+
+questions1.append(
+    QuizQuestion(
+question=MarkdownContent("""a question can be created with
+<br>`exactly_one_option=True`, in which case
+<br>you get a radio buttons behaviour
+<br>and the question has no ♧"""),
+options=[
+    Option("yes", correct=True),
+    Option("no"),
+    Option("don't know")
+],
+    exactly_one_option=True,
+    horizontal_layout=True,
+))
+
 # questions can be phrased as a raw str as well
 question_basic_multiple = QuizQuestion(
     question="Choose the right fruits<br>(several correct options)",
@@ -83,27 +99,13 @@ question_none = QuizQuestion(
 )
 questions1.append(question_none)
 
-questions1.append(
-    QuizQuestion(
-question=MarkdownContent("""a question can be created with
-<br>`exactly_one_option=True`, in which case
-<br>you get a radio buttons behaviour
-<br>and the question has no ♧"""),
-options=[
-    Option("yes", correct=True),
-    Option("no"),
-    Option("don't know")
-],
-    exactly_one_option=True,
-    horizontal_layout=True,
-))
-
-
 
 quiz1 = Quiz(
     exoname="quiz-sample-one",
     questions=questions1,
     max_attempts=3,
+    # shuffling can be disturbing for this intro
+    shuffle=False,
 )
 
 ######
@@ -112,9 +114,8 @@ questions2 = []
 
 # attempt to show code as options is currently broken
 questions2.append(QuizQuestion(
-    question="""code options should work
-<br>on multiple-answers cases
-<br>provided that <code>CodeOption</code> is used""",
+    question="""it is easy to create an option that contains
+<br>code - and only code - with a <code>CodeOption</code> instance""",
     options=[
         CodeOption("a = sorted(x for x in list if x.is_valid())", correct=True),
         CodeOption("b = sort(x for x in list if x.is_valid())"),
@@ -123,8 +124,7 @@ questions2.append(QuizQuestion(
     horizontal_options=True,
 ))
 
-
-question_vertical = QuizQuestion(
+questions2.append(QuizQuestion(
     question="""code options should work on multiple-answers cases
 provided that <code>CodeOption</code> is used
 this is to illustrate a vertical layout that could be a better fit in some cases""",
@@ -133,11 +133,10 @@ this is to illustrate a vertical layout that could be a better fit in some cases
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
     score = 64,
-)
-questions2.append(question_vertical)
+))
 
 
-question_vertical_code = QuizQuestion(
+questions2.append(QuizQuestion(
     
     question="""we also need to be able to show large code fragments, 
     using <code>CodeOption</code> and multi-line code, and it feels like vertical 
@@ -164,11 +163,12 @@ def multi(n, m):
         CodeOption("b = sort(x for x in list if x.is_valid())"),
     ],
     score = 128,
-)
-questions2.append(question_vertical_code)
+))
 
 quiz2 = Quiz(
     exoname="quiz-sample-two",
     questions=questions2,
+    # again, it's hard to write a tutorial quiz if shuffled
+    shuffle=False,
     max_attempts=3,
 )

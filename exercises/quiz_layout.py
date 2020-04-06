@@ -2,7 +2,7 @@ from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption, Markd
 
 
 ############
-quiz_horizontal = Quiz(
+quiz_layout = Quiz(
 
     # needs a unique name for storing progress and marks
     exoname="quiz-sample-layout",

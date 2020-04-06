@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -41,9 +42,9 @@ sys.path.append('..')
 # %autoreload 2
 
 # %% [markdown]
-# ## a quiz is made of questions
+# ## quiz basics : markdown, text and math
 #
-# in this notebook the correct answers are always the one starting with 'a'
+# in this notebook the correct answers are always the one starting with 'a' or $\alpha$
 
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
@@ -54,6 +55,9 @@ storage_clear("quiz-sample-one")
 # %% {"hide_input": false, "scrolled": false}
 from exercises.quiz_sample import quiz1, quiz2
 quiz1.widget()
+
+# %% [markdown]
+# ## made for code
 
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
