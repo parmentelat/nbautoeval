@@ -60,12 +60,14 @@ def log_correction(exoname, success):
     _log_message(exoname, "OK" if success else "KO")
     
 
-def log_quiz(exoname, score, max_score):
+def log_quiz(exoname, score, max_score, normalized_score, normalized_max_score):
     """
     this is adapted to quiz-like exercices that 
     come out with a score like 14 / 20
     """
-    _log_message(exoname, f"{score}/{max_score}")
+    _log_message(exoname,
+                 (f"{score}/{max_score} "
+                  f"{normalized_score:.2f}/{normalized_max_score:.2f}"))
 
 
 # ----------

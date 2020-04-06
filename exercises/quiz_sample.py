@@ -23,7 +23,7 @@ question=MarkdownContent("""a question can be created with
 <br>you get a radio buttons behaviour
 <br>and the question has no ♧"""),
 options=[
-    Option("yes", correct=True),
+    Option("a yes", correct=True),
     Option("no"),
     Option("don't know")
 ],
@@ -165,10 +165,21 @@ def multi(n, m):
     score = 128,
 ))
 
+questions2.append(QuizQuestion(
+    question="you can provide your own scale, here we want grades / 20",
+    options = [
+        Option("a yes", correct=True),
+        Option("no"),
+    ],
+    exactly_one_option=True,
+))
+
 quiz2 = Quiz(
     exoname="quiz-sample-two",
     questions=questions2,
     # again, it's hard to write a tutorial quiz if shuffled
     shuffle=False,
     max_attempts=3,
+    # we want a grade / 20
+    max_grade=20,
 )

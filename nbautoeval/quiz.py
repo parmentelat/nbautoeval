@@ -446,19 +446,21 @@ class Quiz:
                  *,
                  questions: List[QuizQuestion], 
                  shuffle=True,
-                 max_attempts = 2):
+                 max_attempts=2,
+                 max_grade=None):
         self.exoname = exoname
         self.quiz_questions = questions
-        self.displayed_questions = _DisplayedQuestions(questions, shuffle)
-        
-        # needs to be saved somewhere
         self.max_attempts = max_attempts
+        self.max_grade = max_grade
+        
+        self.displayed_questions = _DisplayedQuestions(questions, shuffle)
+        # needs to be saved somewhere
         self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
         preserved = storage_read(self.exoname, "answers", [])
         if preserved: 
             self.restore(preserved)
             
-        # for updates
+        # private - for updating the UI
         self.submit_button = None
         self.submit_summary = None
         
@@ -485,8 +487,10 @@ class Quiz:
         self.update()
         storage_save(self.exoname, 'current_attempts', self.current_attempts)
         storage_save(self.exoname, "answers", self.preserve())
-        current_score, max_score = self.total_score()
-        log_quiz(self.exoname, current_score, max_score)
+        (current_score, max_score,
+         normalized_score, normalized_max_score) = self.total_score()
+        log_quiz(self.exoname, current_score, max_score,
+                 normalized_score, normalized_max_score)
         
         
         
@@ -497,6 +501,17 @@ class Quiz:
         for question, list_of_bools in zip(self.quiz_questions, list_of_list_of_bools):
             question.restore(list_of_bools)
 
+
+    def final_score_html(self):
+        s, m, ns, nm = self.total_score()
+        final = "final score "
+        if self.max_grade is None:
+            final += f"<span class='final'>{s}</span> / {points(m)}"
+        else:
+            final += f"{s} / {m}"
+            final += f" = <span class='final'>{ns:.2f}</span> / {points(nm)}"
+        return final
+        
 
     def update(self):
         self.answers = [question.answer() 
@@ -511,9 +526,7 @@ class Quiz:
             # disable submit button
             self.submit_button.disabled = True
             self.submit_button.description = "quiz over"
-            current_score, max_score = self.total_score()
-            summary = (f"final score <span class='final'>{current_score}</span>"
-                       f" / {points(max_score)}")
+            summary = self.final_score_html()
             if self.max_attempts > 1:
                 summary += (f" ⎯⎯⎯ after {self.current_attempts}"
                             f" / {self.max_attempts} attempts")
@@ -537,4 +550,9 @@ class Quiz:
         """
         current_score = sum(q.score() for q in self.quiz_questions)
         max_score = sum(q.max_score() for q in self.quiz_questions)
-        return current_score, max_score
+        if self.max_grade is not None:
+            normalized_max_score = self.max_grade
+            normalized_score = current_score/max_score * normalized_max_score
+        else:
+            normalized_max_score, normalized_score = max_score, current_score
+        return current_score, max_score, normalized_score, normalized_max_score

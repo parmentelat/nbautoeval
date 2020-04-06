@@ -61,7 +61,7 @@ class Content:
         each subclass should provide their _widget_(self) method
         """      
         if self._widget_instance is None:
-            self._widget_instance = self._widget_()
+            self._widget_instance = self._widget_()           # pylint: disable=no-member
         return self._widget_instance
 
 
