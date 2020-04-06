@@ -4,6 +4,18 @@ from nbautoeval import TextContent, MarkdownContent
 ### 
 questions1 = []
 
+questions1.append(
+    QuizQuestion(
+question=MarkdownContent(
+        """a *question* can be written in **markdown**, 
+        with a `MarkdownContent` object."""),
+options=[
+    Option("a correct option", correct=True),
+    Option("nope"),
+],
+))
+
+# questions can be phrased as a raw str as well
 question_basic_multiple = QuizQuestion(
     question="Choose the right fruits<br>(several correct options)",
     options=[ 
@@ -37,10 +49,10 @@ questions1.append(question_unshuffle)
 
 ### 
 question_math = QuizQuestion(
-    question="""Choose the right fruit
-<br>only one correct answer
-<br>but you don't want 
-<br>to give that away""",
+    question=MarkdownContent("""Easy math
+<br>just use `MathOption`
+<br>to create the options
+"""),
      options=[
         MathOption(r"some code and then double dollars $$\forall x\in\mathbb{R}$$"),
         MathOption(r"idem with single dollars $\forall x\in\mathbb{R}$"),
@@ -154,18 +166,6 @@ def multi(n, m):
     score = 128,
 )
 questions2.append(question_vertical_code)
-
-questions2.append(
-    QuizQuestion(
-question=MarkdownContent(
-        """a *question* can be written in **markdown**, 
-        with a `MarkdownContent` object."""),
-options=[
-    Option("yes", correct=True),
-    Option("no"),
-],
-))
-
 
 quiz2 = Quiz(
     exoname="quiz-sample-two",

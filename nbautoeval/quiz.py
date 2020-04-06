@@ -155,25 +155,29 @@ class MarkdownOption(Option):
 
 # this class captures the order in which options are provided
 # in the QuizQuestion object     
-class _OptionsList:
+class _TeacherOptions:
     def __init__(self, options: List[GenericBooleanOption]):
         self.options = options
+    def append(self, option_none):
+        self.options.append(option_none)
     def __iter__(self):
         return iter(self.options)
     
 
 # this class captures the order in which options are 
-# actually displayed, which is randomized from _OptionsList 
+# actually displayed, which is randomized from _TeacherOptions 
 # when shuffle is True
-class _DisplayedOptionsList:
+class _DisplayedOptions:
     def __init__(self, options: List[GenericBooleanOption], shuffle):
         self.displayed = options[:]
         if shuffle:
             random.shuffle(self.displayed)
-    def correct_indices(self):
-        return [i for (i, opt) in enumerate(self.displayed) if opt.correct]
+    def append(self, option_none):
+        self.displayed.append(option_none)
     def __iter__(self):
         return iter(self.displayed)
+    def correct_indices(self):
+        return [i for (i, opt) in enumerate(self.displayed) if opt.correct]
 
 
 # one can define a question from a plain str or a Content object
@@ -239,6 +243,10 @@ class QuizQuestion:
     is not deemed enough a condition)
     when exactly_one_option is set, the checkboxes behave like radio buttons
     
+    if option_none is provided, it should be an Option object, that will
+    be guaranteed to appear last even when options are shuffled; it is designed
+    so that a teacher can create a 'none of the above' option
+    
     shuffle is a boolean indicating if the options must be shuffled 
     around for each student
     
@@ -258,20 +266,27 @@ class QuizQuestion:
                  shuffle=True, 
                  # set this to True to mak it plain 
                  # that there is exactly one option to select
-                 exactly_one_option = False,
+                 exactly_one_option=False,
+                 option_none=None,
                  # how to display 
                  # for now, this is simple
-                 score = 1,
+                 score=1,
                  horizontal_layout=False,
                  horizontal_options=False):
         self.question = question
-        self.options_list = _OptionsList(options)
+        self.teacher_options = _TeacherOptions(options)
         self.question2 = question2
-        self.displayed = _DisplayedOptionsList(options, shuffle)
         self.exactly_one_option = exactly_one_option
         self._score_object = Score(score)
         self.horizontal_layout = horizontal_layout
         self.horizontal_options = horizontal_options
+        # shuffle if requested
+        self._displayed_options = _DisplayedOptions(options, shuffle)
+        # add 'none of the above' option as last option if requested
+        if option_none is not None:
+            self.teacher_options.append(option_none)
+            self._displayed_options.append(option_none)
+        #
         self.feedback_area = None
         self._widget_instance = None
         # the rank in the Quiz object
@@ -282,7 +297,7 @@ class QuizQuestion:
     def sanity_check(self):
         def report(*messages):
             print(f"question {truncate(str(self.question), 70)}\n\t", *messages)
-        nb_correct_options = len(self.displayed.correct_indices())
+        nb_correct_options = len(self._displayed_options.correct_indices())
         if self.exactly_one_option:
             if  nb_correct_options != 1:
                 report(f"has {nb_correct_options} correct answers, expected 1 b/c exactly_one_option")
@@ -302,7 +317,7 @@ class QuizQuestion:
         if not selected:
             return Answer.UNANSWERED
         else:
-            return (Answer.RIGHT if set(selected) == set(self.displayed.correct_indices())
+            return (Answer.RIGHT if set(selected) == set(self._displayed_options.correct_indices())
                     else Answer.WRONG)
 
 
@@ -329,11 +344,11 @@ class QuizQuestion:
             
         # it's important that we have as many checkboxes as option_boxes
         self.checkboxes = [Checkbox(value=option.selected, disabled=False, description='', indent=False)
-                           for option in self.displayed]
+                           for option in self._displayed_options]
         if self.exactly_one_option:
             for checkbox in self.checkboxes:
                 checkbox.observe(lambda event: self.radio_button_callback(event))
-        labels = [option.render().widget() for option in self.displayed]
+        labels = [option.render().widget() for option in self._displayed_options]
         options_box = HBox if self.horizontal_options else VBox
         self.option_boxes = [HBox([checkbox, label]) 
                              for (checkbox, label) in zip(self.checkboxes, labels)]
@@ -394,7 +409,7 @@ class QuizQuestion:
 
     def individual_feedback(self):
         for option, checkbox, option_box in zip(
-            self.displayed, self.checkboxes, self.option_boxes):
+            self._displayed_options, self.checkboxes, self.option_boxes):
             checkbox.disabled = True            
             # good answer ?
             if option.correct == checkbox.value:
@@ -404,15 +419,15 @@ class QuizQuestion:
 
 
     def preserve(self) -> List[bool]:
-        for option, checkbox in zip(self.displayed, self.checkboxes):
+        for option, checkbox in zip(self._displayed_options, self.checkboxes):
             option.selected = checkbox.value
-        return [option.selected for option in self.options_list]
+        return [option.selected for option in self.teacher_options]
             
     def restore(self, bools: List[bool]):
-        for option, boolean in zip(self.options_list, bools):
+        for option, boolean in zip(self.teacher_options, bools):
             option.selected = boolean
         if self._widget_instance:
-            for checkbox, option in zip(self.checkboxes, self.displayed):
+            for checkbox, option in zip(self.checkboxes, self._displayed_options):
                 checkbox.value = option.selected
 
 

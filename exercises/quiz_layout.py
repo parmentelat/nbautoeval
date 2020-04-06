@@ -5,7 +5,7 @@ from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption, Markd
 quiz_horizontal = Quiz(
 
     # needs a unique name for storing progress and marks
-    exoname="quiz-sample-horizontal",
+    exoname="quiz-sample-layout",
 
     questions=[
         QuizQuestion(
@@ -54,10 +54,4 @@ of course they can be used together as well""",
 
     ],
     max_attempts = 3,
-    )
-
-# this is demonstrate some quizzes that have something wrong
-broken_quiz1 = Quiz(
-    "broken-quiz-1",
-    
 )

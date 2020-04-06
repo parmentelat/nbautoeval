@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -41,17 +42,53 @@ sys.path.append('..')
 # %autoreload 2
 
 # %% [markdown]
+# ## shuffling and randomizing
+
+# %% [markdown]
+# about shuffling and randomizing of contents :
+#
+# * shuffling options within a question is a fairly straightforward feature and is the default in our model;
+# * shuffling questions within a quiz is rather standard as well; it is not the default at this point, 
+#   but can easily be turned on when creating a `Quiz` instance with `shuffle=True`
+# * randomizing questions within a quiz is available as well as an experimental feature; for now you would need to define the number of questions to ask with random_questions=<n>
+#
+# one thing that is maybe **not optimal yet** is that in our model a quiz is a flat list of questions, there is no additional structure there, so e.g. if you want to say 'pick 4 questions among these 6, and then 3 among these 5' it is going to require 2 separate `Quiz` instances just to materialize this grouping
+#
+
+# %%
+# this is for testing purposes only, it allows to 'reset' the history
+# about this particular exercise
+from nbautoeval.storage import storage_clear
+storage_clear("quiz-sample-extras")
+
+# %%
+from exercises.quiz_extras import quiz_extras
+quiz_extras.widget()
+
+# %% [markdown]
+# ### under the hood
+
+# %% {"scrolled": false}
+# !cat ../exercises/quiz_extras.py
+
+# %% [markdown]
 # ## quiz layout options
 
 # %% [markdown]
 # here are a few examples that demonstrate the basics
 
+# %%
+# this is for testing purposes only, it allows to 'reset' the history
+# about this particular exercise
+from nbautoeval.storage import storage_clear
+storage_clear("quiz-sample-layout")
+
 # %% {"scrolled": false}
-from exercises.quiz_layout import quiz_horizontal
-quiz_horizontal.widget()
+from exercises.quiz_layout import quiz_layout
+quiz_layout.widget()
 
 # %% [markdown]
-# ## under the hood
+# ### under the hood
 
 # %% [markdown]
 # Here's the code that defines the above quizz
