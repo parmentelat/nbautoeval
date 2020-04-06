@@ -491,10 +491,12 @@ class Quiz:
             self.submit_button.disabled = True
             self.submit_button.description = "quiz over"
             current_score, max_score = self.total_score()
-            self.submit_summary.value = (
-                f"final score <span class='final'>{current_score}</span> / {points(max_score)} "
-                f" ⎯⎯⎯ after {self.current_attempts} / {self.max_attempts} attempts"
-            )
+            summary = (f"final score <span class='final'>{current_score}</span>"
+                       f" / {points(max_score)}")
+            if self.max_attempts > 1:
+                summary += (f" ⎯⎯⎯ after {self.current_attempts}"
+                            f" / {self.max_attempts} attempts")
+            self.submit_summary.value = summary
             if all_right:
                 self.submit_summary.add_class('ok')
             else:
