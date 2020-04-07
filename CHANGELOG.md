@@ -1,6 +1,13 @@
-# 1.0.0dev1 - 2020 Apr 7
+# 1.0.0 - 2020 Apr 7
 
-* alpha release for 1.0
+* this version is ***not backward-compatible** with 0.6 and below
+* rendering engine entirely rewritten to take advantage of ipywidgets
+* as a consequence all 4 flavours of `Exercise` have a different 
+  interface for tweaking how results are being shown up;  
+  as an example, `ExerciseFunction` accepts a `call_renderer` 
+  and a `result_renderer` attribute, that decide how to format
+  the call column (1st) and result columns (2nd and 3rd)
+* new Quiz feature to define multiple-choice tests
 
 # 0.6.5 - 2020 Mar 24
 
