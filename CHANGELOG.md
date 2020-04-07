@@ -1,4 +1,4 @@
-# 1.0.0dev0 - 2020 Mar 31
+# 1.0.0dev1 - 2020 Apr 7
 
 * alpha release for 1.0
 
