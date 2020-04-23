@@ -38,7 +38,7 @@ CSS = """
     font-size: 125%;
 }
 .nbae-question .score::before {
-    content: "⎯⎯";
+    content: "|";
     align-self: center;
     margin-right: 10px;
 }
