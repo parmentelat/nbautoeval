@@ -96,6 +96,7 @@ CSS = """
 
 .nbae-quiz .wrong-answer {
     background-color: #ff2e63;
+    border-radius: 6px;
 }
 
 .nbae-quiz .final {
