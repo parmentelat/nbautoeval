@@ -51,6 +51,10 @@ CSS = """
     line-height: 1.3;
     padding: 5px;
 }
+.nbae-question hr {
+    height: 1px;
+    background-color: #202020;
+}
 .nbae-question .code {
     border: 1px solid #aaa;
 }
