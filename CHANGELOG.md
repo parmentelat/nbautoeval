@@ -1,3 +1,7 @@
+# 1.0.1 - 2020 Apr 23
+
+* cosmetic tweaks
+
 # 1.0.0 - 2020 Apr 7
 
 * this version is ***not backward-compatible** with 0.6 and below
