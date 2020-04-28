@@ -310,12 +310,11 @@ class QuizQuestion:
     def post_init(self):
         if self._post_inited:
             return
-        self.teacher_options = _TeacherOptions(self.options)
         # shuffle if requested
         self._displayed_options = _DisplayedOptions(self.options, self.shuffle)
         # add 'none of the above' option as last option if requested
         if self.option_none is not None:
-            self.teacher_options.append(self.option_none)
+            self.options.append(self.option_none)
             self._displayed_options.append(self.option_none)
         self.sanity_check()
         self._post_inited = True
@@ -450,10 +449,10 @@ class QuizQuestion:
     def preserve(self) -> List[bool]:
         for option, checkbox in zip(self._displayed_options, self.checkboxes):
             option.selected = checkbox.value
-        return [option.selected for option in self.teacher_options]
+        return [option.selected for option in self.options]
             
     def restore(self, bools: List[bool]):
-        for option, boolean in zip(self.teacher_options, bools):
+        for option, boolean in zip(self.options, bools):
             option.selected = boolean
         if self._widget_instance:
             for checkbox, option in zip(self.checkboxes, self._displayed_options):
@@ -492,6 +491,13 @@ class Quiz:
     def post_init(self):
         if self._post_inited:
             return
+        # this is tricky and not quite right
+        # we need to have the questions post-init'ed
+        # this early because of the restoration below
+        # otherwise questions won't have their option_none appended
+        # and restore would fail to restore the option_none option
+        for question in self.questions:
+            question.post_init()
         self.displayed_questions = _DisplayedQuestions(self.questions, self.shuffle)
         # needs to be saved somewhere
         self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
