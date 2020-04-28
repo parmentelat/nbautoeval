@@ -447,8 +447,8 @@ class Quiz:
     """    
     
     def __init__(self,
-                 exoname, 
                  *,
+                 exoname, 
                  questions: List[QuizQuestion], 
                  shuffle=True,
                  max_attempts=2,
