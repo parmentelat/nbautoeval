@@ -6,7 +6,7 @@ from nbautoeval import TextContent, MarkdownContent
 quiz = Quiz(
 
     # needs a unique name for storing progress and grades
-    "quiz-sample-mines",
+    exoname="quiz-sample-mines",
 
     questions=[
         QuizQuestion(question="Lors d'un codage en bande de base :",

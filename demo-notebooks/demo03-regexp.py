@@ -24,9 +24,6 @@
 import sys
 sys.path.append("..")
 
-# %load_ext autoreload
-# %autoreload 2
-
 # %% [markdown]
 # # A sample regular expression exercise
 
@@ -103,9 +100,21 @@ exo_at_least_two.correction(at_least_two)
 # It can be tedious to close and re-open a notebook each time that a change is made. A few options in these situations&nbsp;:
 #
 #
-# * use autoreload, as we do at the beginning of each of these demo notebooks
+# * use autoreload
+#   * either explicitly in (at the top of) your notebook 
+#     ```
+#     %load_ext autoreload
+#     %autoreload 2
+#     ```
+#   * or automatically by tweaking your ipython profile
+#     ```
+#     $ cat ~/.ipython/profile_default/ipython_config.py
+#     c.InteractiveShellApp.exec_lines = []
+#     c.InteractiveShellApp.exec_lines.append('%load_ext autoreload')
+#     c.InteractiveShellApp.exec_lines.append('%autoreload 2')
+#     ```
 # * In my environment I have a keyboard shortcut to restart the kernel - no questions asked.
-# * You can also do it in python itself (here for python3), but you need to recall that this must be cleaned up 
+# * You can also do it in native python itself (here for python3), but you need to recall to clean it up, it is not recommended
 
 # %%
 import exercises

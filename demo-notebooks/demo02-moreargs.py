@@ -24,9 +24,6 @@
 import sys
 sys.path.append("..")
 
-# %load_ext autoreload
-# %autoreload 2
-
 # %% [markdown]
 # # Functions with more arguments
 

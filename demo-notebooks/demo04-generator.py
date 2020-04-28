@@ -20,10 +20,6 @@
 # # A sample generator exercise
 
 # %%
-# %load_ext autoreload
-# %autoreload 2
-
-# %%
 # just so that it runs smoothly under binder
 import sys
 sys.path.append('..')

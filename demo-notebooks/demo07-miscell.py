@@ -84,5 +84,3 @@ exo_curve_noname.correction(curve)
 
 # %%
 # !cat exercises/curve.py
-
-# %%

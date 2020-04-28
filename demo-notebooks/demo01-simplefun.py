@@ -39,10 +39,6 @@ sys.path.append("..")
 # %% [markdown]
 # This of course is not mandatory either in production :
 
-# %%
-# %load_ext autoreload
-# %autoreload 2
-
 # %% [markdown]
 # # A sample exercise with functions
 

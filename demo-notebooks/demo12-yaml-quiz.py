@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
 #     cell_metadata_filter: all
-#     cell_metadata_json: true
 #     formats: py:percent
 #     notebook_metadata_filter: all,-language_info,-jupytext.text_representation.jupytext_version
 #     text_representation:
@@ -29,36 +27,49 @@
 # ---
 
 # %% [markdown]
-# # mimicking an older quiz
+# # writing a quiz in YAML
 
-# %% {"scrolled": true}
+# %%
 # mostly for using under binder or in a devel tree
 import sys
 sys.path.append('..')
 
 # %% [markdown]
-# Starting from a sample quiz provided by C. Joly, we demonstrate a couple features and show how that initial sample could be approximated within the nbautoeval model.
-#
-# About shuffling and randomizing : see also [./demo09-quiz2.py](this other demo notebook] for more examples about this.
+# ## example #1
 
 # %% [markdown]
-# ## the quiz
+# mostly the same contents as the one from demo notebook #8, but this time the quiz is written using YAML
+#
+# clearly this is a much nicer approach
 
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
 # about this particular exercise
 from nbautoeval.storage import storage_clear
-storage_clear("quiz-sample-mines")
+storage_clear("yaml-sample-one")
 
-# %% {"scrolled": false}
-from exercises.quiz_mines import quiz
-quiz.widget()
-
-# %% [markdown]
-# ## under the hood
+# %% scrolled=false
+from nbautoeval import run_yaml_quiz
+run_yaml_quiz("../yaml/quiz-sample.yaml", "quiz1", # debug=True
+             )
 
 # %% [markdown]
-# Here's the code that defines the above quizz
+# ## example #2
 
-# %% {"scrolled": false}
-# !cat ../exercises/quiz_mines.py
+# %% [markdown]
+# from the same YAML file (see below for code)
+
+# %%
+# dittofrom nbautoeval.storage import storage_clear
+storage_clear("yaml-sample-two")
+
+# %% scrolled=false
+from nbautoeval import run_yaml_quiz
+run_yaml_quiz("../yaml/quiz-sample.yaml", "quiz2", # debug=True
+             )
+
+# %% [markdown]
+# # under the hood
+
+# %%
+# !cat ../yaml/quiz-sample.yaml

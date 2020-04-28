@@ -36,11 +36,6 @@
 import sys
 sys.path.append('..')
 
-# %% {"scrolled": true}
-# for convenience in development
-# %load_ext autoreload
-# %autoreload 2
-
 # %% [markdown]
 # ## shuffling and randomizing
 

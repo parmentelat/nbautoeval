@@ -24,10 +24,6 @@
 # # class-based exercises
 
 # %%
-# %load_ext autoreload
-# %autoreload 2
-
-# %%
 # just so that it runs smoothly under binder
 import sys
 sys.path.append("..")
