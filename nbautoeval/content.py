@@ -112,7 +112,12 @@ class MarkdownContent(TextContent):
     
     def __init__(self, text, needs_math=False, **kwds):
         super().__init__(text, needs_math=needs_math, has_markdown=True, **kwds)
-            
+
+class CodeContent(TextContent):
+    
+    def __init__(self, text, **kwds):
+        super().__init__(text, **kwds)
+        self.is_code = True
 
 class CssContent(Content):
 
