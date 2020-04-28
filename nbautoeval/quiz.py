@@ -216,16 +216,19 @@ class Score:
         self.if_right = 1
         self.if_wrong = -1
         self.if_unanswered = 0
+        # accept lists for the yaml loader
+        ok_types = (tuple, list)
         if single_arg is None:
             pass
         elif isinstance(single_arg, int):
             self.if_right = single_arg
-        elif isinstance(single_arg, tuple) and len(single_arg) == 2:
+        elif isinstance(single_arg, ok_types) and len(single_arg) == 2:
             self.if_right, self.if_wrong = single_arg
-        elif isinstance(single_arg, tuple) and len(single_arg) == 3:
+        elif isinstance(single_arg, ok_types) and len(single_arg) == 3:
             self.if_right, self.if_wrong, self.if_unanswered = single_arg
         else:
-            raise ValueError("Score constructor expects an int or a tuple of 2/3 ints")
+            raise ValueError(f"Score constructor expects a single int\n"
+                             f"or a {ok_types} of 2 or 3 ints")
 
 
     def score(self, answer):
@@ -266,6 +269,9 @@ class QuizQuestion:
     instead of a vertical one    
     """
     
+    # constructor is kept as slight as possible for the yaml loader
+    # in that context options is not yet a list of Options objects
+    # but just plain Python dicts as outcome from yaml
     def __init__(self, *,
                  question: QuestionType,
                  options: List, 
@@ -283,24 +289,36 @@ class QuizQuestion:
                  horizontal_layout=False,
                  horizontal_options=False):
         self.question = question
-        self.teacher_options = _TeacherOptions(options)
+        self.options = options
         self.question2 = question2
+        self.shuffle = shuffle
         self.exactly_one_option = exactly_one_option
         self._score_object = Score(score)
         self.horizontal_layout = horizontal_layout
         self.horizontal_options = horizontal_options
-        # shuffle if requested
-        self._displayed_options = _DisplayedOptions(options, shuffle)
-        # add 'none of the above' option as last option if requested
-        if option_none is not None:
-            self.teacher_options.append(option_none)
-            self._displayed_options.append(option_none)
+        self.option_none = option_none
         #
         self.feedback_area = None
         self._widget_instance = None
         # the rank in the Quiz object
         self.index = None
+        # 
+        self._post_inited = False
+        
+
+    # post-processing once options has been elaborated
+    def post_init(self):
+        if self._post_inited:
+            return
+        self.teacher_options = _TeacherOptions(self.options)
+        # shuffle if requested
+        self._displayed_options = _DisplayedOptions(self.options, self.shuffle)
+        # add 'none of the above' option as last option if requested
+        if self.option_none is not None:
+            self.teacher_options.append(option_none)
+            self._displayed_options.append(option_none)
         self.sanity_check()
+        self._post_inited = True
         
 
     def sanity_check(self):
@@ -337,6 +355,8 @@ class QuizQuestion:
 
 
     def widget(self):
+        
+        self.post_init()
         
         if self._widget_instance:
             return self._widget_instance
@@ -446,6 +466,9 @@ class Quiz:
     one can only submit a full Quiz, not just one question at a time
     """    
     
+    # same approach to hyper-light constructor
+    # the questions attribute might temporarily be a list of
+    # plain Python objects, not QuizQuestion instances yet
     def __init__(self,
                  *,
                  exoname, 
@@ -454,27 +477,35 @@ class Quiz:
                  max_attempts=2,
                  max_grade=None):
         self.exoname = exoname
-        self.quiz_questions = questions
+        self.questions = questions
+        self.shuffle = shuffle
         self.max_attempts = max_attempts
         self.max_grade = max_grade
         
-        self.displayed_questions = _DisplayedQuestions(questions, shuffle)
+        # private - for updating the UI
+        self.submit_button = None
+        self.submit_summary = None
+        #
+        self._post_inited = False        
+
+
+    def post_init(self):
+        if self._post_inited:
+            return
+        self.displayed_questions = _DisplayedQuestions(self.questions, self.shuffle)
         # needs to be saved somewhere
         self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
         preserved = storage_read(self.exoname, "answers", [])
         if preserved: 
             self.restore(preserved)
-            
-        # private - for updating the UI
-        self.submit_button = None
-        self.submit_summary = None
-        
         # set question rank
         for index, question in enumerate(self.displayed_questions, 1):
             question.set_index(index)
+        self._post_inited = True
 
 
     def widget(self):
+        self.post_init()
         sons = [question.widget() for question in self.displayed_questions]
 
         self.submit_button = Button(description='submit').add_class('submit')
@@ -500,10 +531,10 @@ class Quiz:
         
         
     def preserve(self) -> List[List[bool]]:
-        return [question.preserve() for question in self.quiz_questions]
+        return [question.preserve() for question in self.questions]
             
     def restore(self, list_of_list_of_bools):
-        for question, list_of_bools in zip(self.quiz_questions, list_of_list_of_bools):
+        for question, list_of_bools in zip(self.questions, list_of_list_of_bools):
             question.restore(list_of_bools)
 
 
@@ -553,8 +584,8 @@ class Quiz:
         """
         returns a tuple current_score, max_score
         """
-        current_score = sum(q.score() for q in self.quiz_questions)
-        max_score = sum(q.max_score() for q in self.quiz_questions)
+        current_score = sum(q.score() for q in self.questions)
+        max_score = sum(q.max_score() for q in self.questions)
         if self.max_grade is not None:
             normalized_max_score = self.max_grade
             normalized_score = current_score/max_score * normalized_max_score

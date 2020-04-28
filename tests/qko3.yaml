@@ -1,0 +1,63 @@
+# sample quiz file 
+#
+# rules to comply with:
+# * all entry points (like globals, g1, quiz) are clustered into 3 categories
+#   * it can have type: quiz
+#   * it can have type: QuizQuestion
+#   * otherwise, it should be called globals
+
+# this is a placeholder, it has no type, it's ok
+globals:
+  score: &score 4
+
+# this is a question
+# the name - here 'q1' - can be used to build a quiz object
+q1:
+  # this is how we declare this object will be a question
+  type: QuizQuestion
+  # this is the default; but here's how one could decide to use 
+  # an alternative class to create the content for the main question
+  question_type: MarkdownContent
+  text: |
+    On a besoin d'écrire un programme très gourmand en calcul;
+    le problème se découpe bien en morceaux indépendant les uns des autres;
+    on veut absolument utiliser Python pour écrire ce programme;
+    on dispose d'une machine avec 64 processeurs, et on essaie de se débrouiller
+    pour les utiliser au mieux.
+    <br>Cochez les options qui sont raisonnables dans ce contexte :  
+  # of course it's similar for question2
+  # for here on 
+  score: *score
+  options:
+    - 
+      correct: true
+      # again this is the default
+      option_type: MardownOption
+      text: |
+        on crée autant de processus que
+        de morceaux, en assemblant les résultats à la fin
+    -
+      option_type: MardownOption
+      text: |
+        on crée autant de threads que
+        de morceaux, en assemblant les résultats à la fin
+    -
+      option_type: MardownOption
+      option: |
+        on crée autant de coroutines que de morceaux, on synchronise les résultats
+        grâce à `asyncio.gather` et ainsi on peut assembler les résultats        
+
+
+# so obviously this is a quiz
+# the notebook that wants to display this quiz would do
+#
+# nbautoeval.run_yaml_quiz("quiz.yaml", "quiz1")
+#
+# which returns a ipywidget
+
+quiz1:
+  # this is mandatory
+  type: Quiz
+  exoname: nbae-id
+  # q1 here refers to the question above
+  questions: [q1, q2]

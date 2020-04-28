@@ -72,6 +72,11 @@ class TextContent(Content):
                  is_code=False, needs_math=False, has_markdown=False,
                  **kwds):
         super().__init__(**kwds)
+        # make yaml more robust, especially with answers like 'no' 
+        # that, when not quoted in yaml, produce False that is a bool
+        if not isinstance(text, str):
+            print(f"WARNING: building a TextContent from non-str {text}")
+            text = str(text)
         self.text = text
         self.is_code = is_code
         self.needs_math = needs_math

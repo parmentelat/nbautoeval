@@ -1,0 +1,26 @@
+# broken quiz
+# q1 undefined
+
+# this is a question
+# the name - here 'q1' - can be used to build a quiz object
+q1:
+  # this is how we declare this object will be a question
+#  type: QuizQuestion
+  # this is the default; but here's how one could decide to use 
+  # an alternative class to create the content for the main question
+  question_type: MarkdownContent
+
+
+# so obviously this is a quiz
+# the notebook that wants to display this quiz would do
+#
+# nbautoeval.run_yaml_quiz("quiz.yaml", "quiz1")
+#
+# which returns a ipywidget
+
+quiz1:
+  # this is mandatory
+  type: Quiz
+  exoname: nbae-id
+  # q1 here refers to the question above
+  questions: [q1]

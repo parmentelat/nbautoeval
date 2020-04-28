@@ -9,5 +9,6 @@ from .exercise_class import ExerciseClass, ClassScenario, ClassExpression, Class
 
 from .content import TextContent, MarkdownContent, CodeContent
 from .quiz import Quiz, QuizQuestion, Option, CodeOption, MathOption, MarkdownOption
+from .quiz_loader import run_yaml_quiz
 
 from .version import __version__

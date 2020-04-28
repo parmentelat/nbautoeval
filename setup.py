@@ -35,6 +35,7 @@ setuptools.setup(
         'ipywidgets',
         'numpy', 
         'markdown2',
+        'PyYAML',
     ],
     classifiers      = [
         "Development Status :: 4 - Beta",

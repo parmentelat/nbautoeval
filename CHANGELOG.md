@@ -1,3 +1,7 @@
+# 1.1.0.dev0 - 2020 Apr 28
+
+* teachers can define their quiz in yaml
+
 # 1.0.1 - 2020 Apr 23
 
 * cosmetic tweaks
