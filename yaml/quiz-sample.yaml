@@ -1,0 +1,266 @@
+# if you know nothing about YAML check this up
+# https://www.youtube.com/watch?v=cdLNKUoMc6c
+#
+# YAML allows us to create a pure Python data structure
+# that the wuiz loader will transform into proper Quiz instances
+# 
+# some conveniences are offered by the loader such as
+#
+# * giving questions a name, that a Quiz object can refer to
+# * allowing to chose alternative types for leaves
+#   i.e. displayeable material can be tagged as CodeContent 
+#   or similar variants
+# 
+# for the rest the structure maps the attributes of the 
+# Quiz, QuizQuestion and Option classes
+
+##### 
+# this is a rough translation of a quiz initially written in Python
+# in exercises/quiz_sample.py
+# we're just using different ids to avoid any screwup with
+# the storage a test-time
+
+# nothing magical about the 'globals' name
+# because it has no 'type' field it is ignored by the loader
+# but defining it allows us to take advantage of YAML variables in
+# the rest of the file
+globals:
+  # in shorter words here we define a globale variable 'score'
+  score: &score 4
+  # note that you can define all 3 parts of a score
+  # in the order good answer - wrong answer - no answer
+  elaborate_score: &elaborate [6, -3, 1] 
+
+
+# this is the name that you use in run_yaml_quiz
+quiz1:
+  type: Quiz
+  # if you don't specify an exoname it will be derived
+  # from the yaml name (here quiz1)
+  # remember though that it is probably best to pick another exoname
+  # b/c otherwise it becomes really trivial to cheat as soon as you 
+  # are aware of storage_clear
+  exoname: yaml-sample-one
+  questions: 
+    - q-simplest
+    - q-exactly-one
+    - q-basic-multiple
+    - q-unshuffle
+    - q-math
+    - q-none
+  # the default is to shuffle questions but it's sometimes confusing
+  # especially for this tutorial-oriented one
+  shuffle: false
+  max_attempts: 3
+
+q-simplest:
+  type: QuizQuestion
+  score: *score
+  question:
+    text: | 
+      a **question** can be written *in markdown* with `code inside`
+  options:
+    # see yaml syntax; the dash can be on its own line or not
+    - text: a correct option
+      correct: true
+    - 
+      text: nope
+
+q-exactly-one:
+  type: QuizQuestion
+  score: *elaborate
+  exactly_one_option: true
+  question:
+    # most of the time it does not matter to use | or > to enter texts
+    text: >
+      a question can be created with
+      <br>`exactly_one_option=True`, in which case
+      <br>you get a radio buttons behaviour
+      <br>and the question has no ♧
+  options:
+      - text: a yes
+        correct: true
+      # beware that 'no' apparently is some sort of YAML keyword
+      # fortunately for me vscode knew about that and was using another color
+      # othrewise I'd still be looking for the issue here
+      # maybe it's safer to always use quoted text
+      - text: "no"
+      - text: don't know
+
+q-basic-multiple:
+  type: QuizQuestion
+  score: *score
+  horizontal_layout: true
+  question:
+    text: >
+      Choose the right fruits
+      <br>(several correct options)
+      <br>this one has `horizontal_layout=True`
+      <br> so that the options appear on the right
+  options:
+    - text: apple
+      correct: True
+    - text: apricot
+      correct: True
+    - text: azur
+      correct: True
+    - text: bananas
+    - text: pear
+    - text: pineapple
+
+q-unshuffle:
+  type: QuizQuestion
+  # without a score it will have the default -1 / 1 / 0 score
+  shuffle: false
+  horizontal_layout: true
+  question:
+    text: >
+      Choose the right fruits
+      <br>`shuffle=false` means, well
+      <br> that options are not shuffled
+  options:
+    - text: apple
+      correct: True
+    - text: apricot
+      correct: True
+    - text: azur
+      correct: True
+    - text: bananas
+    - text: pear
+    - text: pineapple
+
+q-math:
+  type: QuizQuestion
+  horizontal_layout: true
+  question:
+    text: >
+      Easy math
+      <br>just use `MathOption`
+      <br>to create the options
+  options:
+    - type: MathOption
+      text: some code and then double dollars $$\forall x\in\mathbb{R}$$
+    - type: MathOption
+      text: idem with single dollars $\forall x\in\mathbb{R}$
+    - type: MathOption
+      text: $\alpha = \beta^{p^k}$
+      correct: true
+    - type: MathOption
+      text: $$\forall x_2\in\mathbb{R}, \alpha = \beta^{p^k}$$
+    - type: MathOption
+      text: $\forall x_1\in\mathbb{R}, \alpha = \beta^{p^k}$
+    - type: MathOption
+      text: >
+        multiple double dollars $$\forall x\in\mathbb{R}$$ 
+        $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$
+
+q-none:
+  type: QuizQuestion
+  shuffle: false
+  score: 16
+  horizontal_layout: true
+  horizontal_options: true
+  question:
+    text: At least one option must be correct
+  options:
+    - text: banana
+    - text: pear
+    - text: none of the above
+      correct: true
+
+
+quiz2:
+  type: Quiz
+  exoname: yaml-sample-two
+  shuffle: false
+  max_attempts: 3
+  # specifying max_grade causes the final grade to be scaled accordingly
+  max_grade: 20
+  questions: 
+    - q-code-options-1
+    - q-code-options-2
+    - q-code-options-multilines
+    - q-max-grade
+
+q-code-options-1:
+  type: QuizQuestion
+  score: 32
+  # note this new attribute
+  # it means the options go in a horizontal box
+  horizontal_options: true
+  question:
+    text: >
+      it is easy to create an option that contains
+      <br>code - and only code - with a <code>CodeOption</code> instance
+  options:
+    - text: a = sorted(x for x in list if x.is_valid())
+      type: CodeOption
+      correct: true
+    # again it's maybe safer to quote this 
+    - text: "b = sort(x for x in list if x.is_valid())"
+      type: CodeOption
+
+
+q-code-options-2:
+  type: QuizQuestion
+  score: 32
+  question:
+    text: >
+      code options should work on multiple-answers cases
+      provided that <code>CodeOption</code> is used
+      <br>this is to illustrate a vertical layout 
+      that could be a better fit in some cases
+  options:
+    - text: a = sorted(x for x in list if x.is_valid())
+      type: CodeOption
+      correct: true
+    # again it's maybe safer to quote this 
+    - text: "b = sort(x for x in list if x.is_valid())"
+      type: CodeOption
+
+q-code-options-multilines:
+  type: QuizQuestion
+  score: 128
+  question:
+    text: >
+      we also need to be able to show large code fragments, 
+      using <code>CodeOption</code> and multi-line code,
+      and it feels like vertical is what will best fit
+  options:
+    - type: CodeOption
+      text: >
+        def multi(n, m):
+            # comments should be fine
+            x, y = some_fun(n, m)
+            message = ("an input string that has multi-line"
+                      " pieces just for the fun of it")
+            comprehension = [foo(z) for z in x]
+            return sum(comprehension)**2
+    - type: CodeOption
+      correct: true
+      text: >
+        # a correct answer that 
+        # badly looks like the other one but for the comment
+        def multi(n, m):
+            # comments should be fine
+            x, y = some_fun(n, m)
+            message = ("an input string that has multi-line"
+                      " pieces just for the fun of it")
+            comprehension = [foo(z) for z in x]
+            return sum(comprehension)**2
+    - type: CodeOption
+      text: >
+        b = sort(x for x in list if x.is_valid())
+
+
+q-max-grade:
+  type: QuizQuestion
+  exactly_one_option: true
+  question:
+    text: you can provide your own scale, here we want grades / 20
+  options:
+    - text: a yes
+      correct: True
+    # Aw! this just bit me again
+    # let's protect TextContent against bool content
+    - text: "no"

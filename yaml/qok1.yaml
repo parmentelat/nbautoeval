@@ -33,17 +33,17 @@ q1:
     - 
       correct: true
       # again this is the default
-      type: MardownOption
+      type: MarkdownOption
       text: |
         on crée autant de processus que
         de morceaux, en assemblant les résultats à la fin
     -
-      type: MardownOption
+      type: MarkdownOption
       text: |
         on crée autant de threads que
         de morceaux, en assemblant les résultats à la fin
     -
-      type: MardownOption
+      type: MarkdownOption
       text: |
         on crée autant de coroutines que de morceaux, on synchronise les résultats
         grâce à `asyncio.gather` et ainsi on peut assembler les résultats        

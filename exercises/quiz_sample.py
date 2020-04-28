@@ -1,3 +1,11 @@
+#
+# see also yaml/quiz-sample.yaml that builds the same quizzes
+# but much more conveniently imho if you are ok with yaml
+# if not - like me before I wrote this - 
+# you may want to spend 10' learning YAML 
+# thanks to this awesome and super effective tuto
+# https://www.youtube.com/watch?v=cdLNKUoMc6c
+#
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
 from nbautoeval import TextContent, MarkdownContent
 
