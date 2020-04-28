@@ -48,6 +48,7 @@ quiz1:
     - q-unshuffle
     - q-math
     - q-none
+    - q-none2
   # the default is to shuffle questions but it's sometimes confusing
   # especially for this tutorial-oriented one
   shuffle: false
@@ -154,19 +155,50 @@ q-math:
         multiple double dollars $$\forall x\in\mathbb{R}$$ 
         $$\forall x\in\mathbb{R}$$ $$\forall x\in\mathbb{R}$$
 
+# the 'manual' way to add a 'none of the above' option
+# thing is, we want this option to always be last
+# so here we unshuffle
 q-none:
   type: QuizQuestion
   shuffle: false
   score: 16
   horizontal_layout: true
-  horizontal_options: true
   question:
-    text: At least one option must be correct
+    text: >
+      At least one option must be correct
+      <br> here we add one manually
+      <br> but have to use `shuffle=False`
+      <br> if we want the *none of the above*
+      <br> to show up last
   options:
     - text: banana
+    - text: orange
     - text: pear
+    - text: pineapple
     - text: none of the above
       correct: true
+
+
+q-none2:
+  type: QuizQuestion
+  score: 16
+  horizontal_layout: true
+  question:
+    text: >
+      At least one option must be correct
+      <br> same as above but using `option_none`
+      <br> we can shuffle the regular options
+  options:
+    - text: banana
+    - text: orange
+    - text: pear
+    - text: pineapple
+  # with this special attribute, the option 
+  # will always be last and so we can still shuffle
+  # the other options
+  option_none:
+    text: none of the above
+    correct: true
 
 
 quiz2:

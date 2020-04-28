@@ -315,8 +315,8 @@ class QuizQuestion:
         self._displayed_options = _DisplayedOptions(self.options, self.shuffle)
         # add 'none of the above' option as last option if requested
         if self.option_none is not None:
-            self.teacher_options.append(option_none)
-            self._displayed_options.append(option_none)
+            self.teacher_options.append(self.option_none)
+            self._displayed_options.append(self.option_none)
         self.sanity_check()
         self._post_inited = True
         

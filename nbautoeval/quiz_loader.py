@@ -87,6 +87,10 @@ class YamlLoader:
             question.options = [self.object_from_dict(
                 option, MarkdownOption, "type"
             ) for option in question.options]
+            # and option_none if present
+            if question.option_none:
+                question.option_none = self.object_from_dict(
+                    question.option_none, MarkdownOption, "type")
         
         # artificially inject exoname from YAML id
         if 'exoname' not in yaml_quiz:
