@@ -6,7 +6,7 @@ from enum import Enum
 from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
 from .content import Content, TextContent, CssContent
-from .storage import log_quiz, storage_read, storage_save
+from .storage import log2_quiz, storage_read, storage_save
 from .helpers import truncate
 
 CSS = """
@@ -538,10 +538,15 @@ class Quiz:
         storage_save(self.exoname, "answers", self.preserve())
         (current_score, max_score,
          normalized_score, normalized_max_score) = self.total_score()
-        log_quiz(self.exoname, current_score, max_score,
-                 normalized_score, normalized_max_score)
-        
-        
+        log_kwds = {}
+        if self.max_grade:
+            log_kwds = dict(normalized_score=normalized_score,
+                            normalized_max_score=normalized_max_score)
+        log2_quiz(self.exoname, 
+                  attempt=self.current_attempts, max_attempts=self.max_attempts,
+                  score=current_score, max_score=max_score,
+                  **log_kwds)
+
         
     def preserve(self) -> List[List[bool]]:
         return [question.preserve() for question in self.questions]

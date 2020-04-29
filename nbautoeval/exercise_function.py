@@ -11,7 +11,7 @@ from .content import TextContent, CssContent, ResultContent
 from .callrenderer import Call, CallRenderer
 from .renderer import Renderer
 from .helpers import default_font_size, default_header_font_size
-from .storage import log_correction
+from .storage import log_correction, log2_correction
 
 
 DEBUG = False
@@ -258,6 +258,8 @@ class ExerciseFunction:                                           # pylint: disa
                             .add_css_properties(body_props))
 
         log_correction(self.name, overall)
+        # xxx would make sense to expose how many examples were right or wrong
+        log2_correction(self.name, success=overall)
         
         contents.append(CssContent(CSS))
 

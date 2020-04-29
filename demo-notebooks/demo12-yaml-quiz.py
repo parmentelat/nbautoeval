@@ -73,7 +73,9 @@ run_yaml_quiz("quiz-sample", "quiz1", # debug=True
 # from the same YAML file (see below for code)
 
 # %%
-# dittofrom nbautoeval.storage import storage_clear
+# ditto - this is for testing purposes only, it allows to 'reset' the history
+# about this particular exercise
+
 storage_clear("yaml-sample-two")
 
 # %% scrolled=false
