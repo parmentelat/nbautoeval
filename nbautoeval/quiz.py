@@ -17,7 +17,7 @@ CSS = """
 }
 .nbae-question .question {
     border: 2px solid #084177;
-    border-radius: 4px;
+    border-radius: 6px;
     width: max-content;
     max-width: 100%;
     padding: 4px 8px;
@@ -31,11 +31,14 @@ CSS = """
     font-weight: bold;
 }
 
-.nbae-question .question:not(.exactly-one) .header::after {
+.nbae-question .question:not(.exactly-one) .question-header::after {
     content: "♧";
     align-self: center;
     font-weight: bold;
     font-size: 125%;
+}
+.nbae-question .question-header {
+    border-bottom: 1px solid #084177;
 }
 .nbae-question .score::before {
     content: "|";
@@ -363,7 +366,7 @@ class QuizQuestion:
         header_widget = HBox([
             HTML(f'Question # {self.index}').add_class('index'),
             HTML(f'{self._score_object.html()}').add_class('score')
-        ]).add_class('header')
+        ]).add_class('question-header')
         question_widget = question_to_widget(self.question)
         question = VBox([header_widget,
                          question_widget]).add_class('question')
