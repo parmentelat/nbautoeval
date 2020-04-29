@@ -1,10 +1,11 @@
-# 1.1.0-dev0 - 2020 Apr 28
+# 1.1.0-dev1 - 2020 Apr 29
 
 * teachers can define their quiz in yaml
 * and display them with run_yaml_quiz()
 * which creates a new dependency PyYAML
 * new class CodeContent exposed for consistency
 * rough tool for grading quizzes
+* improved traces kept when students validate their work
 
 # 1.0.1 - 2020 Apr 23
 
