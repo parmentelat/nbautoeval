@@ -2,7 +2,7 @@
 # https://www.youtube.com/watch?v=cdLNKUoMc6c
 #
 # YAML allows us to create a pure Python data structure
-# that the wuiz loader will transform into proper Quiz instances
+# that the quiz loader will transform into proper Quiz instances
 # 
 # some conveniences are offered by the loader such as
 #

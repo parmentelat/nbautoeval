@@ -38,9 +38,11 @@ sys.path.append('..')
 # ## example #1
 
 # %% [markdown]
-# mostly the same contents as the one from demo notebook #8, but this time the quiz is written using YAML
+# mostly the same contents as the one from demo notebook #8, but this time the quiz is written using YAML  
+# clearly this is a much nicer approach  
 #
-# clearly this is a much nicer approach
+# here the rdical `quiz-sample` refers to the source for the quiz, which is searched along a built-in heuristic so as to avoid exposing the source in too conspicuous a way  
+# turns out here the actual file is `../yaml/quiz-sample.yaml`
 
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
@@ -50,7 +52,7 @@ storage_clear("yaml-sample-one")
 
 # %% scrolled=false
 from nbautoeval import run_yaml_quiz
-run_yaml_quiz("../yaml/quiz-sample.yaml", "quiz1", # debug=True
+run_yaml_quiz("quiz-sample", "quiz1", # debug=True
              )
 
 # %% [markdown]
@@ -64,12 +66,19 @@ run_yaml_quiz("../yaml/quiz-sample.yaml", "quiz1", # debug=True
 storage_clear("yaml-sample-two")
 
 # %% scrolled=false
+# from the same source file as above, but another quiz
+
 from nbautoeval import run_yaml_quiz
-run_yaml_quiz("../yaml/quiz-sample.yaml", "quiz2", # debug=True
+run_yaml_quiz("quiz-sample", "quiz2", # debug=True
              )
 
 # %% [markdown]
 # # under the hood
 
 # %%
+# that's where the actual source code is in our example
+# searches in . .. ../.. HOME
+# for files named in radical / radical.yml / radical.yaml
+# and in subdirs . ./yaml/ ./.yaml/ ./.quiz/
+# you can use dirs named .yaml to be even more stealthy
 # !cat ../yaml/quiz-sample.yaml

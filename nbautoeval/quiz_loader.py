@@ -103,22 +103,93 @@ class YamlLoader:
         ]
 
         return quiz            
-        
-            
+
+#
+# a little salt to make it not completey obvious
+# how to cheat by looking into the quiz source
+# typically using $HOME/.yaml to store source might be 
+# a good idea
+# typically search {radical}, {radical}.yaml {radical}.yml
+# in the following dirs (if under HOME)
+# .  ./yaml  ./.yaml 
+# .. ../yaml ../.yaml
+# ../.. ../../yaml ../../.yaml
+# HOME HOME/yaml HOME/.yaml
+# 
+def locate_from_radical(filename_or_path, debug):
     
+    # skip heuristics if its an existing filename
+    checking = Path(filename_or_path)
+    if checking.exists():
+        return checking
+    if checking.is_absolute():
+        if debug:
+            print(f"cannot use absolute but non existing path {filename_or_path}")
+        return None
+    
+    # if provided a relative path, use only basename
+    radical = checking.parts[-1]
+
+    def is_under(root, potential_subdir):
+        return root in potential_subdir.parents    
+    
+    home = Path.home()
+    # main locations where to start searching
+    anchors = [
+        Path.cwd(),
+        Path.cwd().parent,
+        Path.cwd().parent.parent,
+        Path.home()
+    ]
+    # the subdirs where to search from the anchors
+    def iter_derivatives(path):
+        yield path
+        yield path / "yaml"
+        yield path / ".yaml"
+        yield path / ".quiz"
+
+    # possible extensions added to the radical
+    extensions = ["", ".yaml", ".yml" ]
+    
+    # search it
+    anchors = [ path for path in anchors if is_under(home, path) ]
+    
+    paths = [ d for path in anchors for d in iter_derivatives(path)]
+    
+    failed = []
+    for path in paths:
+        for extension in extensions:
+            candidate = path / (radical + extension)
+            if candidate.exists():
+                return candidate
+            elif debug:
+                failed.append(candidate)
+    
+    print(f"could not spot quiz {filename_or_path}")
+    if debug:
+        for candidate in failed:
+            print(f"have tried {candidate}")
+
+
 def run_yaml_quiz(filename_or_path, exoname, debug=False):
     """
     one-liner convenience helper function, and main entry point
 
     in a single pass:
+    * locate quiz from just its name, see heuristics above
     * parse the file (or Path)
     * build a Quiz object corresponding to exoname
     * create and return widget
     
     use debug=True until you get the YAML file right
     """
+
+    actual_path = locate_from_radical(filename_or_path, debug)
+    if not actual_path:
+        raise ValueError(f"could not spot quiz {filename_or_path}")
+
     try:
-        loader = YamlLoader(filename_or_path)
+        loader = YamlLoader(actual_path)
         loader.rain_check()
         return loader.build_quiz(exoname, debug).widget()
     except yaml.parser.ParserError as exc:
