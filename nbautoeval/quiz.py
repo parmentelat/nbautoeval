@@ -529,6 +529,10 @@ class Quiz:
     
     def submit(self, _button):
         self.current_attempts += 1
+        # because of possible load/network latency,
+        #  we need to disable this until the event is processed
+        # update() will re-enable it later on if needed
+        self.submit_button.disabled = True
         self.update()
         storage_save(self.exoname, 'current_attempts', self.current_attempts)
         storage_save(self.exoname, "answers", self.preserve())
@@ -559,6 +563,7 @@ class Quiz:
         
 
     def update(self):
+        # there may be latency if the host is loaded
         self.answers = [question.answer() 
                         for question in self.displayed_questions]
         right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
@@ -569,7 +574,6 @@ class Quiz:
                 question.feedback(question.answer())
                 question.individual_feedback()
             # disable submit button
-            self.submit_button.disabled = True
             self.submit_button.description = "quiz over"
             summary = self.final_score_html()
             if self.max_attempts > 1:
@@ -580,6 +584,9 @@ class Quiz:
                 self.submit_summary.add_class('ok')
             else:
                 self.submit_summary.add_class('ko')
+            # not really needed (it's been disable already in submit)
+            # but for consistency
+            self.submit_button.disabled = True
         else:
             # so here we know that self.current_attempts < self.max_attempts:
             left = self.max_attempts - self.current_attempts
@@ -588,6 +595,7 @@ class Quiz:
             if self.current_attempts >= 1:
                 self.submit_summary.value = (
                     f"{len(right_answers)}/{len(self.answers)} questions OK")
+            self.submit_button.disabled = False
 
     def total_score(self):
         """

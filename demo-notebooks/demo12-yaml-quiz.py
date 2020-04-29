@@ -35,14 +35,25 @@ import sys
 sys.path.append('..')
 
 # %% [markdown]
-# ## example #1
+# ## YAML
 
 # %% [markdown]
-# mostly the same contents as the one from demo notebook #8, but this time the quiz is written using YAML  
+# examples below mostly carry the same contents as the one from demo notebook #8, but this time the tests are written using YAML  
 # clearly this is a much nicer approach  
 #
-# here the rdical `quiz-sample` refers to the source for the quiz, which is searched along a built-in heuristic so as to avoid exposing the source in too conspicuous a way  
-# turns out here the actual file is `../yaml/quiz-sample.yaml`
+# see this nice video tuto if you have 10' to learn about YAML
+# https://www.youtube.com/watch?v=cdLNKUoMc6c
+
+# %% [markdown]
+# ## single entry point
+#
+# `run_yaml_quiz(radical, exoname)`
+#
+# * **first argument** *radical* refers to the source filename  
+#   in our example radical is `"quiz-sample"` and it refers to the source for the quiz, which is searched along a built-in heuristic so as to avoid exposing the source in too conspicuous a way  
+#   turns out here the actual file is `../yaml/quiz-sample.yaml`
+#
+# * **second argument** is the name of a quiz inside the YAML code; in this instance the sample YAML defines 2 quizzes named `quiz1` and `quiz2`
 
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
@@ -75,7 +86,7 @@ run_yaml_quiz("quiz-sample", "quiz2", # debug=True
 # %% [markdown]
 # # under the hood
 
-# %%
+# %% scrolled=false
 # that's where the actual source code is in our example
 # searches in . .. ../.. HOME
 # for files named in radical / radical.yml / radical.yaml
