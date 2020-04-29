@@ -22,6 +22,5 @@ def test_exoname1():
 
 # black box testing
 def test_all_in_one():
-    w = run_yaml_quiz(yamldir / "qok1.yaml", "quiz1")
+    w = run_yaml_quiz("qok1", "quiz1")
     assert isinstance(w, Widget)
-    
