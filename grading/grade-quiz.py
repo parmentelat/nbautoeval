@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+# NOTE : tweak before use !!!
+
+# this script was used once but is now obsolete
+# as the traces now have gone to a json format
+# overall logic should be mostly ok though
+
+
 import re
 import json
 from pathlib import Path
@@ -11,7 +18,6 @@ Student = str                           # plain text from filename
 Grade = Union[int, float]               # final output
 Attempt = Tuple[Keyword, List[Grade]]   # temp data structure
 
-# stupid me... next time let's use a json format...
 
 UID = r"[0-9]+"
 KWD = r"[a-zA-Z0-9_-]+"
