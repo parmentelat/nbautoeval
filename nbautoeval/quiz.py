@@ -197,8 +197,11 @@ QuestionType = Union[str, Content]
 def question_to_widget(question: QuestionType):
     if isinstance(question, Content):
         return question.widget()
-    else:
+    elif isinstance(question, str):
         return HTMLMath(question)
+    else:
+        raise ValueError(f"unexpected type {type(question).__name__}"
+                         f" for question {question}")
     
 
 class Answer(Enum):
@@ -547,7 +550,7 @@ class Quiz:
                   score=current_score, max_score=max_score,
                   **log_kwds)
 
-        
+
     def preserve(self) -> List[List[bool]]:
         return [question.preserve() for question in self.questions]
             

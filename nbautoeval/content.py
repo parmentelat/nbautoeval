@@ -1,4 +1,5 @@
-import markdown2
+# an earlier version was relying on markdown2
+from myst_parser.main import to_html
 
 from ipywidgets import HTML, HTMLMath, Layout
 
@@ -102,7 +103,7 @@ class TextContent(Content):
 
         text = self.text
         if self.has_markdown:
-            text = markdown2.Markdown().convert(text)
+            text = to_html(text)
         if self.is_code:
             text = f"<pre>{text}</pre>"
         if self.css_properties:

@@ -34,8 +34,8 @@ setuptools.setup(
         'ipython',
         'ipywidgets',
         'numpy', 
-        'markdown2',
         'PyYAML',
+        'myst_parser',
     ],
     classifiers      = [
         "Development Status :: 4 - Beta",

@@ -29,7 +29,7 @@ globals:
   score: &score 4
   # note that you can define all 3 parts of a score
   # in the order good answer - wrong answer - no answer
-  elaborate_score: &elaborate [6, -3, 1] 
+  elaborate_score: &elaborate [6, -3, 1]
 
 
 # this is the name that you use in run_yaml_quiz
@@ -259,18 +259,20 @@ q-code-options-multilines:
       using <code>CodeOption</code> and multi-line code,
       and it feels like vertical is what will best fit
   options:
+  # it's important to use | and not > 
+  # for code fragments of course
     - type: CodeOption
-      text: >
+      text: |
         def multi(n, m):
             # comments should be fine
             x, y = some_fun(n, m)
             message = ("an input string that has multi-line"
-                      " pieces just for the fun of it")
+                       " pieces just for the fun of it")
             comprehension = [foo(z) for z in x]
             return sum(comprehension)**2
     - type: CodeOption
       correct: true
-      text: >
+      text: |
         # a correct answer that 
         # badly looks like the other one but for the comment
         def multi(n, m):
@@ -296,3 +298,66 @@ q-max-grade:
     # Aw! this just bit me again
     # let's protect TextContent against bool content
     - text: "no"
+
+markdown-globals:
+  markdown_sample: &markdown_sample |
+    in fact you can use markdown wherever you want
+
+    ### title level 3 
+
+    although titles are probably too much
+
+    > a quotation (although our css still sucks on blockquotes)
+
+    * some
+    * bullets
+
+    and both flavours of code insertion
+
+    ```python
+    # this code fenced with triple backticks
+    # here tagged as python
+    # check for coloring (not supported at first)
+    def foo(n):
+        return f"{n}**2 = {n**2}"
+    ```
+
+    *** 
+    here we try the same but with a 4-space indentation which is
+    less intuitive but well
+
+        # this code is 4-space indented
+        def bar(n):
+            return f"{n}**3 = {n**3}"
+
+
+quiz3:
+  type: Quiz
+  exoname: yaml-sample-three
+  shuffle: false
+  max_attempts: 3
+  # specifying max_grade causes the final grade to be scaled accordingly
+  max_grade: 20
+  questions: 
+    - q-markdown-in-question
+    - q-markdown-in-options
+
+q-markdown-in-question:
+  type: QuizQuestion
+  score: 256
+  question:
+    text: *markdown_sample
+  options:
+    - text: "a option 1"
+      correct: yes
+    - text: "option 2"
+
+q-markdown-in-options:
+  type: QuizQuestion
+  score: 256
+  question:
+    text: a simple question
+  options:
+    - text: *markdown_sample
+    - text: *markdown_sample
+      correct: yes      

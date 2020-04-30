@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -55,6 +56,9 @@ sys.path.append('..')
 #
 # * **second argument** is the name of a quiz inside the YAML code; in this instance the sample YAML defines 2 quizzes named `quiz1` and `quiz2`
 
+# %% [markdown]
+# ## first example : basics, and math
+
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
 # about this particular exercise
@@ -67,7 +71,7 @@ run_yaml_quiz("quiz-sample", "quiz1", # debug=True
              )
 
 # %% [markdown]
-# ## example #2
+# ## example #2 - code
 
 # %% [markdown]
 # from the same YAML file (see below for code)
@@ -83,6 +87,25 @@ storage_clear("yaml-sample-two")
 
 from nbautoeval import run_yaml_quiz
 run_yaml_quiz("quiz-sample", "quiz2", # debug=True
+             )
+
+# %% [markdown]
+# ## example #3 - markdown
+
+# %% [markdown]
+# from the same YAML file (see below for code)
+
+# %%
+# ditto - this is for testing purposes only, it allows to 'reset' the history
+# about this particular exercise
+
+storage_clear("yaml-sample-three")
+
+# %% scrolled=false
+# from the same source file as above, but another quiz
+
+from nbautoeval import run_yaml_quiz
+run_yaml_quiz("quiz-sample", "quiz3", # debug=True
              )
 
 # %% [markdown]

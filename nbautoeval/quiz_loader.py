@@ -36,7 +36,9 @@ class YamlLoader:
         
         for _, quiz in self.iterate_on('Quiz'):
             for qname in quiz['questions']:
-                assert qname in self.raw
+                if qname not in self.raw:
+                    raise ValueError(f"question `{qname}` not defined in YAML")
+
         # xxx 
         # check for the class names used in the various _type fields
 

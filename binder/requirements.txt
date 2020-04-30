@@ -1,5 +1,8 @@
-markdown2
+# run-time
 ipython
 ipywidgets
 numpy
+PyYAML
+myst_parser
+# for the demo notebooks 
 jupytext
