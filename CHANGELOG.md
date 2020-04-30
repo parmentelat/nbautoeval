@@ -1,4 +1,4 @@
-# 1.1.0-dev1 - 2020 Apr 29
+# 1.1.0-dev2 - 2020 Apr 30
 
 * teachers can define their quiz in yaml
 * and display them with run_yaml_quiz()
@@ -6,6 +6,8 @@
 * new class CodeContent exposed for consistency
 * rough tool for grading quizzes
 * improved traces kept when students validate their work
+* markdown engine replacement for issue #16  
+  MyST a.k.a. myst_parser replaces markdown2
 
 # 1.0.1 - 2020 Apr 23
 
