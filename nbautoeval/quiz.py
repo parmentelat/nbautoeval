@@ -115,6 +115,16 @@ CSS = """
     font-weight: bold;
     font-size: larger;    
 }
+ 
+/*   this is how to outline each option 
+   but that is too intrusive though */
+.nbae-question div.options.widget-vbox>div {
+    border-bottom: 0.8px solid #d0d0d0;
+}
+.nbae-question div.options.widget-hbox>div {
+    border-right: 0.8px solid #d0d0d0;
+}
+
 """
 
 
@@ -391,14 +401,14 @@ class QuizQuestion:
         else:
             actual_sons = [question_to_widget(self.question2).add_class('question2')]
             actual_sons += self.option_boxes
-        answers = options_box(actual_sons)
-        answers.add_class('answers')
+        options = options_box(actual_sons)
+        options.add_class('options')
 
         css_widget = CssContent(CSS).widget()
         
         layout_box = HBox if self.horizontal_layout else VBox
         self._widget_instance = layout_box(
-            [question, answers, css_widget])
+            [question, options, css_widget])
         self._widget_instance.add_class('nbae-question')
         self.feedback_area = self._widget_instance
         self.feedback(Answer.UNANSWERED)
