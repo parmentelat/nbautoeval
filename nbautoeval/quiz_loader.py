@@ -6,8 +6,37 @@ import yaml
 from .content import TextContent, MarkdownContent, CodeContent, CssContent
 from .quiz import (
     Option, CodeOption, MathOption, MarkdownOption,
-    QuizQuestion, Quiz,
+    QuizQuestion, Quiz, Explanation,
 )
+
+# quite straightforward, we build Python objects 
+# from a YAML regular Python object
+# the purpose of object_from_dict to build 
+# is to create Python objects from the YAML (dict) data
+# so the `type` field allows to chose the Python class name
+# 
+# 
+# for more convenience some components in the Quiz structure
+# may be entered as either a plain str, or a Content object
+# example
+# the-quiz:
+#   type: Quiz
+#   # one can either do 
+#   explanation: some text right here
+#   # -- or --
+#   explanation:
+#     type: MarkdownContent
+#     text: |
+#       here you have specified the content type
+# 
+# this goes for
+# . QuizQuestion.question            - the main question asked
+# . QuizQuestion.question2           - optional auxiliary question
+# . quizQuestion.option_none         - optional option object for 'none of the others'
+# . QuizQuestion.explanation         - optional related explanation
+# . all the QuizQuestion.option's              - the main text of the option
+#   all the QuizQuestion.option.explanation's  - optional related explanation
+
 
 class YamlLoader:
     
@@ -48,6 +77,8 @@ class YamlLoader:
     # chose another class than the default
     # use opt_type_field_name=None if that's not a flexible option
     def object_from_dict(self, yaml_dict, default_class, opt_type_field_name):
+        if not isinstance(yaml_dict, dict):
+            print(f"WARNING: expecting a dict, got object {yaml_dict} instead")
         args = yaml_dict.copy()
         cls = default_class
         if opt_type_field_name in args:
@@ -58,41 +89,84 @@ class YamlLoader:
         # not only when opt_type_field_name == 'type'
         if 'type' in args:
             del args['type']
-        # what remains is passed as parameters to the constructor
+        # troubleshoot - we have no line number to offer, so
+        # try to be helpful so users can pinpoint their mistake
         if self.debug:
-            print(f"building a {cls.__name__} instance, attributes {list(args.keys())}")
+            if cls.__name__ == 'QuizQuestion':
+                print(f"building a {cls.__name__} : "
+                      f"question={args['question'].text[:20]}...")
+            elif 'Option' in cls.__name__:
+                print(f"building a {cls.__name__} : "
+                      f"text={args['text'][:20]}...")
+            elif self.debug == 2:
+                print(f"building a {cls.__name__} from "
+                      f"attributes {list(args.keys())}")
+        # what remains is passed as parameters to the constructor
         return cls(**args)
 
+    def flexible_object(self, str_or_dict, cls):
+        if isinstance(str_or_dict, str):
+            return cls(str_or_dict)
+        elif isinstance(str_or_dict, dict):
+            return self.object_from_dict(str_or_dict, cls, "type")
+        else:
+            raise TypeError(f"expecting str or dict, "
+                            f"got {type(str_or_dict.__name__)} {str_or_dict}")
+
+    # recursively browse a yaml structure to apply the transformation to objects
+    # logic is depth-first scan, and when coming back up apply any additional 
+    # change
+    def process(self, yaml_dict):
+        if not isinstance(yaml_dict, dict):
+            return yaml_dict
+        for k, v in yaml_dict.items():
+            if isinstance(v, dict):
+                self.process(v)
+            elif isinstance(v, list):
+                yaml_dict[k] = [self.process(x) for x in v]
+            if k == 'explanation':
+                # try this
+                explanation = self.flexible_object(v, Explanation)
+                # but if there was a type specified we still need the Explanation
+                if not isinstance(explanation, Explanation):
+                    explanation = Explanation(explanation)
+                yaml_dict[k] = explanation
+            elif k in ('question', 'question2'):
+                yaml_dict[k] = self.flexible_object(v, MarkdownContent)
+            elif k in ('option_none'):
+                yaml_dict[k] = self.flexible_object(v, MarkdownOption)
+            elif k in ('options'):
+                yaml_dict[k] = [
+                    self.flexible_object(opt, MarkdownOption)
+                    for opt in v                    
+                ]
+            elif k in ('questions'):
+                yaml_dict[k] = [
+                    self.object_from_dict(self.process(q), QuizQuestion, 'type')
+                    for q in v
+                ]
+            elif isinstance(v, dict) and 'type' in v:
+                yaml_dict[k] = self.object_from_dict(v, None, 'type')
+        return yaml_dict
+
+
     def build_quiz(self, exoname, debug):
+        import pdb
+        # pdb.set_trace()
         self.debug = debug
         # first make sure the exoname makes sense
         yaml_quiz = self.raw[exoname]
         
         # stage1 on questions: build QuizQuestion instances
         processed_questions = {
-            name: self.object_from_dict(
-                yaml_question, QuizQuestion, None)
-            for name, yaml_question in self.iterate_on('QuizQuestion')
+            name: self.object_from_dict(self.process(yaml_question), QuizQuestion, None)
+            for (name, yaml_question) in self.iterate_on('QuizQuestion')
         }
-        for question in processed_questions.values():
-            # stage2: post-process 'question' and 'question2' 
-            # attributes
-            for attribute in ('question', 'question2'):
-                if getattr(question, attribute):
-                    setattr(question, attribute,
-                            self.object_from_dict(
-                                getattr(question, attribute),
-                                MarkdownContent,
-                                "type"
-                            ))
-            # also process the options attribute
-            question.options = [self.object_from_dict(
-                option, MarkdownOption, "type"
-            ) for option in question.options]
-            # and option_none if present
-            if question.option_none:
-                question.option_none = self.object_from_dict(
-                    question.option_none, MarkdownOption, "type")
+        """
+        for qname, question in processed_questions.items():
+            print(f"question {qname} -> {question}")
+            break
+        """
         
         # artificially inject exoname from YAML id
         if 'exoname' not in yaml_quiz:

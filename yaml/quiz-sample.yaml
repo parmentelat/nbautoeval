@@ -52,7 +52,7 @@ quiz1:
   # the default is to shuffle questions but it's sometimes confusing
   # especially for this tutorial-oriented one
   shuffle: false
-  max_attempts: 10
+  max_attempts: 4
 
 q-simplest:
   type: QuizQuestion

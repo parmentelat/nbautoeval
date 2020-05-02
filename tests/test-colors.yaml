@@ -1,0 +1,83 @@
+color-quiz:
+  type: Quiz
+  shuffle: no
+  max_attempts: 1
+  questions:
+  - q-unanswered-odd
+  - q-unanswered-even
+  - q-answered-right
+  - q-answered-wrong
+
+q-unanswered-odd:
+  type: QuizQuestion
+  shuffle: no
+  question:
+    text: unanswered on an **odd** index
+  explanation: one can define the explanation on a single line
+  options:
+  - correct: yes
+    text: a box that must be checked
+    explanation: "some simple text"
+  - text: no need to check this box
+    explanation: "mere markdown **text**"
+
+q-unanswered-even:
+  type: QuizQuestion
+  shuffle: no
+  question:
+    text: unanswered on an **even** index
+  explanation:
+    type: CodeContent
+    text: |
+      # it should be possible to define an explanation
+      # as being a CodeContent
+  options:
+  - correct: yes
+    text: a box that must be checked
+    explanation:
+      text: |
+        # some
+        # code
+      type: CodeContent
+  - text: no need to check this box
+    explanation: 
+      text: |
+        ### a markdown title even
+
+        ```c++
+        /* some embedded
+          code */
+        ```
+
+q-answered-right:
+  type: QuizQuestion
+  shuffle: no
+  question:
+    text: all right answers
+  options:
+  - correct: yes
+    text: a box that must be checked
+    explanation: "mere markdown **text**"
+  - text: no need to check this box
+    explanation: |
+      markdown **text** on several lines
+
+      > a quotation
+
+      ```
+      /* as well as 
+         some code */
+      ```
+
+q-answered-wrong:
+  type: QuizQuestion
+  question: 
+    text: overall wrong question, with a combo or right and wrong answers
+  shuffle: no
+  options:
+  - correct: yes
+    text: a box that must be checked
+    explanation: "mere markdown **text**"
+    # explanation: some text here
+  - text: no need to check this box
+    explanation: "mere markdown **text**"

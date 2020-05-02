@@ -67,7 +67,8 @@ storage_clear("yaml-sample-one")
 
 # %% scrolled=false
 from nbautoeval import run_yaml_quiz
-run_yaml_quiz("quiz-sample", "quiz1", # debug=True
+run_yaml_quiz("quiz-sample", "quiz1", # debug=True 
+                                      # debug=2 # for even more
              )
 
 # %% [markdown]
@@ -118,3 +119,5 @@ run_yaml_quiz("quiz-sample", "quiz3", # debug=True
 # and in subdirs . ./yaml/ ./.yaml/ ./.quiz/
 # you can use dirs named .yaml to be even more stealthy
 # !cat ../yaml/quiz-sample.yaml
+
+# %%

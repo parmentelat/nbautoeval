@@ -6,7 +6,7 @@
 # thanks to this awesome and super effective tuto
 # https://www.youtube.com/watch?v=cdLNKUoMc6c
 #
-from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption 
+from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption, Explanation
 from nbautoeval import TextContent, MarkdownContent
 
 ### 
@@ -17,9 +17,19 @@ questions1.append(
 question=MarkdownContent(
         """a *question* can be written in **markdown**, 
         with a `MarkdownContent` object."""),
+explanation=Explanation(MarkdownContent("""
+There is no reason why a question could not be attached am explanation
+
+#### level 4 title
+
+markdown should **work** *out* `of` ***the box***; note however that ~~strike-through~~ 
+does not seem to be supported
+""")),
 options=[
-    Option("a correct option", correct=True),
-    Option("nope"),
+    Option("a correct option, with explanation", correct=True,
+            explanation=Explanation("some words about why it is so")),
+    Option("not right, with explanation",
+           explanation=Explanation("some words about why it is not")),
 ],
 ))
 
@@ -31,10 +41,13 @@ question=MarkdownContent("""a question can be created with
 <br>you get a radio buttons behaviour
 <br>and the question has no ♧"""),
 options=[
-    Option("a yes", correct=True),
-    Option("no"),
-    Option("don't know")
-],
+    Option("a yes", correct=True,
+            explanation=Explanation(MarkdownContent("some words about why it is so"))),
+    Option("no",
+            explanation=Explanation(TextContent(r"\forall x\in\mathbb{R}"))),
+    Option("don't know",
+            explanation=Explanation("this question can only have one option selected")),
+    ],
     exactly_one_option=True,
     horizontal_layout=True,
 ))

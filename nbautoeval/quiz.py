@@ -5,22 +5,43 @@ from enum import Enum
 
 from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
-from .content import Content, TextContent, CssContent
+from .content import Content, TextContent, CssContent, MarkdownContent
 from .storage import log2_quiz, storage_read, storage_save
 from .helpers import truncate
 
 CSS = """
+:root {
+    /* these two are for unanswered */
+    --question-bg-odd: #d6e4f0; 
+    --question-bg-even: #ddebf8;
+    --question-bg-right: #dafcf0;
+    --question-bg-wrong: #ffd6d9;
+    /* individual options after revealed */
+    --option-wrong: #ff2e63;
+    --explanation-right: #f8f8f8;
+    --explanation-wrong: #f0f0f0;
+    /* misc */
+    --question-header-bg: white;
+    --submit-bg: #c2f0fc;
+    /* borders */
+    --border-question: 2px solid #084177;
+    --border-code: 1px solid #a0a0a0;
+    --border-explanation: 1px solid #b0b0b0;
+    --border-submit: 2px solid #084177;
+}
+
 .widget-vbox.nbae-question, .widget-hbox.nbae-question {
     padding: 10px;
     border-radius: 10px;
     margin-bottom: 5px;
 }
 .nbae-question .question {
-    border: 2px solid #084177;
+    border: var(--border-question);
     border-radius: 6px;
     width: max-content;
     max-width: 100%;
     padding: 4px 8px;
+    background-color: var(--question-header-bg);
 }
 /* question in a QuizQuestion with a vertical layout */
 .nbae-question.widget-vbox>.question {
@@ -59,7 +80,7 @@ CSS = """
     background-color: #202020;
 }
 .nbae-question .code {
-    border: 1px solid #aaa;
+    border: var(--border-code);
 }
 
 .nbae-question .widget-checkbox, .nbae-question .question2 {
@@ -68,23 +89,23 @@ CSS = """
 }
 
 .nbae-question.right, .nbae-quiz .summary.ok {
-    background-color: #d4f8e8;
+    background-color: var(--question-bg-right);
 }
 .nbae-question.wrong, .nbae-quiz .summary.ko {
-    background-color: #ffd6d9;
+    background-color: var(--question-bg-wrong);
 }
 .nbae-question.unanswered {
-    background-color: #f0f0f0;
+    background-color: var(--question-bg-odd);
 }
 .nbae-question.unanswered:nth-child(2n) {
-    background-color: #e8e8e8;
+    background-color: var(--question-bg-even);
 }
 
 .nbae-quiz .submit {
     margin: 10px;
     border-radius: 10px;
-    background-color: #c2f0fc;
-    border: 2px solid #084177;
+    background-color: var(--submit-bg);
+    border: var(--border-submit);
     width: max-content;
 }
 
@@ -98,7 +119,7 @@ CSS = """
 }
 
 .nbae-quiz .wrong-answer {
-    background-color: #ff2e63;
+    background-color: var(--option-wrong);
     border-radius: 6px;
 }
 
@@ -114,10 +135,24 @@ CSS = """
 .nbae-question.wrong span.wrong {
     font-weight: bold;
     font-size: larger;    
+    padding: 4px;
+}
+.nbae-question.unanswered span.unanswered {
+    background-color: var(--question-bg-odd);
+}
+.nbae-question.unanswered:nth-child(2n) span.unanswered {
+    background-color: var(--question-bg-even);
+}
+.nbae-question.right span.right {
+    background-color: var(--question-bg-right);
+}
+.nbae-question.wrong span.wrong {
+    background-color: var(--question-bg-wrong);
 }
  
-/*   this is how to outline each option 
-   but that is too intrusive though */
+.nbae-question div.options>div.wrong-answer {
+    margin-top: 8px;
+}
 .nbae-question div.options.widget-vbox>div {
     border-bottom: 0.8px solid #d0d0d0;
 }
@@ -125,8 +160,57 @@ CSS = """
     border-right: 0.8px solid #d0d0d0;
 }
 
+.nbae-question .explanation::before {
+    content: "☛";
+    margin-right: 10px;
+    font-size: 150%;
+}
+.nbae-question .explanation {
+    border-radius: 6px;
+    padding: 10px;
+    background-color: var(--explanation-right);
+    display: none;
+    border: var(--border-explanation);
+}
+
+.nbae-question .wrong-answer .explanation {
+    background-color: var(--explanation-wrong);
+}
+
+.nbae-question:not(.revealed) .explanation {
+    display: none;
+}
+.nbae-question.revealed .explanation {
+    display: inherit;
+}
+.nbae-question /*div.widget-html-content*/ pre {
+    line-height: 1.2;
+}
 """
 
+
+# a flexible content can be defined either with a plain str
+# or with a Content object
+FlexibleContent = Union[str, Content]
+
+class Flexible:
+    # it's important for the YAML loader that this parameter be called text
+    def __init__(self, text: FlexibleContent):
+        if isinstance(text, Content):
+            self.content = text
+        elif isinstance(text, str):
+            self.content = MarkdownContent(text)
+        else:
+            raise ValueError(f"unexpected type {type(text).__name__}"
+                             f" for flexible {text}")
+    def widget(self):
+        return self.content.widget()
+
+
+class Explanation(Flexible):
+    def widget(self):
+        w = super().widget()
+        return w.add_class('explanation') if w else None
 
 
 class GenericBooleanOption:
@@ -151,11 +235,14 @@ class Option(GenericBooleanOption):
     that students should check as such
     
     """
-    def __init__(self, text, **kwds):
+    def __init__(self, text, explanation=None, **kwds):
         super().__init__(**kwds)
         self.text = text
+        self.explanation = explanation
     def render(self):
         return TextContent(self.text)
+    def explanation_widget(self):
+        return None if not self.explanation else self.explanation.widget()
     
 
 class CodeOption(Option):
@@ -184,7 +271,7 @@ class _TeacherOptions:
 
 # this class captures the order in which options or questions 
 # actually displayed, which is randomized from the input list
-# (as defined in the Python code) when shuffle is True
+# (as defined in the YAML code) when shuffle is True
 class _DisplayedItems:
     def __init__(self, input_list, shuffle):
         self.displayed = input_list[:]
@@ -202,17 +289,7 @@ class _DisplayedOptions(_DisplayedItems):
 class _DisplayedQuestions(_DisplayedItems):
     pass
 
-# one can define a question from a plain str or a Content object
-QuestionType = Union[str, Content]
-def question_to_widget(question: QuestionType):
-    if isinstance(question, Content):
-        return question.widget()
-    elif isinstance(question, str):
-        return HTMLMath(question)
-    else:
-        raise ValueError(f"unexpected type {type(question).__name__}"
-                         f" for question {question}")
-    
+
 
 class Answer(Enum):
     UNANSWERED = -1
@@ -289,10 +366,11 @@ class QuizQuestion:
     # in that context options is not yet a list of Options objects
     # but just plain Python dicts as outcome from yaml
     def __init__(self, *,
-                 question: QuestionType,
+                 question: FlexibleContent,
                  options: List, 
                  # if defined, show up on top of the alternatives
-                 question2: str=None,
+                 question2: FlexibleContent=None,
+                 explanation=None, 
                  # do we want to shuffle the options
                  shuffle=True, 
                  # set this to True to mak it plain 
@@ -307,6 +385,7 @@ class QuizQuestion:
         self.question = question
         self.options = options
         self.question2 = question2
+        self.explanation = explanation
         self.shuffle = shuffle
         self.exactly_one_option = exactly_one_option
         self._score_object = Score(score)
@@ -376,36 +455,52 @@ class QuizQuestion:
         if self._widget_instance:
             return self._widget_instance
         
+        # header area
         header_widget = HBox([
             HTML(f'Question # {self.index}').add_class('index'),
             HTML(f'{self._score_object.html()}').add_class('score')
         ]).add_class('question-header')
-        question_widget = question_to_widget(self.question)
-        question = VBox([header_widget,
-                         question_widget]).add_class('question')
+        question_widget = Flexible(self.question).widget()
+        header_widgets = [header_widget, question_widget]
+        if self.explanation:
+            header_widgets.append(self.explanation.widget()) 
+        question = VBox(header_widgets).add_class('question')
         if self.exactly_one_option:
             question.add_class('exactly-one')
-            
+        
+        # the options per se    
         # it's important that we have as many checkboxes as option_boxes
-        self.checkboxes = [Checkbox(value=option.selected, disabled=False, description='', indent=False)
+        self.checkboxes = [Checkbox(value=option.selected, disabled=False,
+                                    description='', indent=False)
                            for option in self._displayed_options]
+        # radio-box behaviour
         if self.exactly_one_option:
             for checkbox in self.checkboxes:
                 checkbox.observe(lambda event: self.radio_button_callback(event))
         labels = [option.render().widget() for option in self._displayed_options]
+        
+        # explanations contains, for each option, either a widget, or None
+        explanations = [option.explanation_widget() 
+                             for option in self._displayed_options]
+        
         options_box = HBox if self.horizontal_options else VBox
-        self.option_boxes = [HBox([checkbox, label]) 
-                             for (checkbox, label) in zip(self.checkboxes, labels)]
+        self.option_boxes = [
+            (VBox([HBox([checkbox, label]), explanation])
+             if explanation
+             else HBox([checkbox, label]))
+            for (checkbox, label, explanation) 
+                in zip(self.checkboxes, labels, explanations)]
         if not self.question2:
             actual_sons = self.option_boxes
         else:
-            actual_sons = [question_to_widget(self.question2).add_class('question2')]
+            actual_sons = [Flexible(self.question2).widget().add_class('question2')]
             actual_sons += self.option_boxes
         options = options_box(actual_sons)
         options.add_class('options')
 
         css_widget = CssContent(CSS).widget()
         
+        # putting it all together
         layout_box = HBox if self.horizontal_layout else VBox
         self._widget_instance = layout_box(
             [question, options, css_widget])
@@ -452,14 +547,15 @@ class QuizQuestion:
 
 
     def individual_feedback(self):
-        for option, checkbox, option_box in zip(
-            self._displayed_options, self.checkboxes, self.option_boxes):
+        for option, option_box, checkbox in zip(
+            self._displayed_options, self.option_boxes, self.checkboxes):
             checkbox.disabled = True            
             # good answer ?
             if option.correct == checkbox.value:
                 option_box.remove_class('wrong-answer')
             else:
                 option_box.add_class('wrong-answer')
+        self._widget_instance.add_class('revealed')
 
 
     def preserve(self) -> List[bool]:
