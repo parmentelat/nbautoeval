@@ -1,3 +1,8 @@
+# 1.1.0-dev3 - 2020 May 3
+
+* in a quiz, question and option objects can have an explanation
+  that gets revealed when the quiz is finished
+
 # 1.1.0-dev2 - 2020 Apr 30
 
 * teachers can define their quiz in yaml
