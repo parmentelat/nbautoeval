@@ -1,16 +1,13 @@
-# 1.1.0-dev3 - 2020 May 3
-
-* in a quiz, question and option objects can have an explanation
-  that gets revealed when the quiz is finished
-
-# 1.1.0-dev2 - 2020 Apr 30
+# 1.1.0 - 2020 May 4
 
 * teachers can define their quiz in yaml
-* and display them with run_yaml_quiz()
-* which creates a new dependency PyYAML
+  and display them with run_yaml_quiz()
+* quiz questions and options objects can have an explanation 
+  that gets revealed when the quiz is finished (#12)
+* improved traces kept when students validate their work
 * new class CodeContent exposed for consistency
 * rough tool for grading quizzes
-* improved traces kept when students validate their work
+* new dependency to PyYAML
 * markdown engine replacement for issue #16  
   MyST a.k.a. myst_parser replaces markdown2
 
