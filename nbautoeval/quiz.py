@@ -83,9 +83,18 @@ CSS = """
     border: var(--border-code);
 }
 
-.nbae-question .widget-checkbox, .nbae-question .question-sequel {
+.nbae-question .widget-checkbox {
     width: auto;
     padding-left: 10px;
+}
+
+.nbae-question .question-sequel {
+    width: auto;
+    margin-left: 10px;
+    padding: 8px 10px;
+    /*border: var(--border-question);*/
+    background-color: var(--question-header-bg);
+    border-radius: 6px;
 }
 
 .nbae-question.right, .nbae-quiz .summary.ok {
@@ -185,6 +194,12 @@ CSS = """
 }
 .nbae-question /*div.widget-html-content*/ pre {
     line-height: 1.2;
+}
+.nbae-question div.widget-html-content {
+    line-height: 1.6;
+}
+.nbae-question div.option-box div {
+    align-self: center;
 }
 """
 
@@ -484,12 +499,14 @@ class QuizQuestion:
                              for option in self._displayed_options]
         
         options_box = HBox if self.horizontal_options else VBox
+        def make_option(checkbox, label, explanation):
+            main = HBox([checkbox, label]).add_class('option-box')
+            return (main if not explanation
+                    else VBox([main, explanation]))
         self.option_boxes = [
-            (VBox([HBox([checkbox, label]), explanation])
-             if explanation
-             else HBox([checkbox, label]))
+            make_option(checkbox, label, explanation)
             for (checkbox, label, explanation) 
-                in zip(self.checkboxes, labels, explanations)]
+            in zip(self.checkboxes, labels, explanations)]
         if not self.question_sequel:
             actual_sons = self.option_boxes
         else:
