@@ -31,7 +31,7 @@ from .quiz import (
 # 
 # this goes for
 # . QuizQuestion.question            - the main question asked
-# . QuizQuestion.question2           - optional auxiliary question
+# . QuizQuestion.question_sequel     - optional question follow-up
 # . quizQuestion.option_none         - optional option object for 'none of the others'
 # . QuizQuestion.explanation         - optional related explanation
 # . all the QuizQuestion.option's              - the main text of the option
@@ -141,7 +141,7 @@ class YamlLoader:
                 if not isinstance(explanation, Explanation):
                     explanation = Explanation(explanation)
                 yaml_dict[k] = explanation
-            elif k in ('question', 'question2'):
+            elif k in ('question', 'question_sequel'):
                 yaml_dict[k] = self.flexible_object(v, MarkdownContent)
             elif k in ('option_none'):
                 yaml_dict[k] = self.flexible_object(v, MarkdownOption)

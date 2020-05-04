@@ -26,7 +26,7 @@ q1:
       on dispose d'une machine avec 64 processeurs, et on essaie de se débrouiller
       pour les utiliser au mieux.
       <br>Cochez les options qui sont raisonnables dans ce contexte :  
-  # of course it's similar for question2
+  # of course it's similar for question_sequel
   # for here on 
   score: *score
   options:

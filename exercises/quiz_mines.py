@@ -82,7 +82,7 @@ always @(posedge clk) begin
         b <= a ;
     end
 end""", is_code=True),
-question2=MarkdownContent("En Verilog, le bloc `always` ci-contre :"),
+question_sequel=MarkdownContent("En Verilog, le bloc `always` ci-contre :"),
 options=[
     MarkdownOption("Représente un bloc de logique combinatoire d'entrées `a` et `b`"),
     Option("Est un bloc de logique séquentielle", correct=True),

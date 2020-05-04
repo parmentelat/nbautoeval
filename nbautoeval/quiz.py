@@ -83,7 +83,7 @@ CSS = """
     border: var(--border-code);
 }
 
-.nbae-question .widget-checkbox, .nbae-question .question2 {
+.nbae-question .widget-checkbox, .nbae-question .question-sequel {
     width: auto;
     padding-left: 10px;
 }
@@ -369,7 +369,7 @@ class QuizQuestion:
                  question: FlexibleContent,
                  options: List, 
                  # if defined, show up on top of the alternatives
-                 question2: FlexibleContent=None,
+                 question_sequel: FlexibleContent=None,
                  explanation=None, 
                  # do we want to shuffle the options
                  shuffle=True, 
@@ -384,7 +384,7 @@ class QuizQuestion:
                  horizontal_options=False):
         self.question = question
         self.options = options
-        self.question2 = question2
+        self.question_sequel = question_sequel
         self.explanation = explanation
         self.shuffle = shuffle
         self.exactly_one_option = exactly_one_option
@@ -490,10 +490,11 @@ class QuizQuestion:
              else HBox([checkbox, label]))
             for (checkbox, label, explanation) 
                 in zip(self.checkboxes, labels, explanations)]
-        if not self.question2:
+        if not self.question_sequel:
             actual_sons = self.option_boxes
         else:
-            actual_sons = [Flexible(self.question2).widget().add_class('question2')]
+            actual_sons = [Flexible(self.question_sequel).widget()
+                           .add_class('question-sequel')]
             actual_sons += self.option_boxes
         options = options_box(actual_sons)
         options.add_class('options')
