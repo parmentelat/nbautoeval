@@ -57,16 +57,26 @@ class YamlLoader:
             if 'type' in item and item['type'] == typename:
                 yield name, item
 
+    def check(self, boolean, message):
+        if not boolean:
+            raise ValueError(message)
+
     def rain_check(self):
         # at least one of each
         assert(list(self.iterate_on('Quiz')))
         questions = list(self.iterate_on('QuizQuestion'))
         assert(questions)
         
-        for _, quiz in self.iterate_on('Quiz'):
+        for quizname, quiz in self.iterate_on('Quiz'):
+            self.check('questions' in quiz, "Quiz must have questions")
+            if isinstance(quiz['questions'], str):
+                quiz['questions'] = quiz['questions'].split()
             for qname in quiz['questions']:
                 if qname not in self.raw:
-                    raise ValueError(f"question `{qname}` not defined in YAML")
+                    raise ValueError(
+                        f"question named `{qname}` is used in "
+                        f"quiz {quizname} "
+                        f"but not found in YAML")
 
         # xxx 
         # check for the class names used in the various _type fields
@@ -155,6 +165,7 @@ class YamlLoader:
         # pdb.set_trace()
         self.debug = debug
         # first make sure the exoname makes sense
+        self.check(exoname in self.raw, f"quiz {exoname} not found")
         yaml_quiz = self.raw[exoname]
         
         # stage1 on questions: build QuizQuestion instances
@@ -272,6 +283,7 @@ def run_yaml_quiz(filename_or_path, exoname, debug=False):
         print(f"Could not parse {filename_or_path}\n{exc}")
     except Exception as exc:
         print(f"OOPS - something wrong with quiz {type(exc)}, {exc}")
-        import traceback
-        print(traceback.format_exc())
+        if debug:
+            import traceback
+            print(traceback.format_exc())
         return exc
