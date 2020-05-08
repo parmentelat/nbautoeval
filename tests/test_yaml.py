@@ -11,7 +11,7 @@ yamldir = localdir.parent / "yaml"
 
 def test_rain_check():
     for file in yamldir.glob("qko*.yaml"):
-        with pytest.raises(AssertionError):
+        with pytest.raises((ValueError, AssertionError)):
             YamlLoader(file).rain_check()
             
 def test_exoname1():
