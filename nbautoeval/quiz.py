@@ -5,7 +5,7 @@ from enum import Enum
 
 from ipywidgets import Layout, HBox, VBox, Checkbox, Button, HTML, HTMLMath
 
-from .content import Content, TextContent, CssContent, MarkdownContent
+from .content import TextContent, MarkdownMathContent, CssContent
 from .storage import log2_quiz, storage_read, storage_save
 from .helpers import truncate
 
@@ -203,18 +203,21 @@ CSS = """
 }
 """
 
+# unless specified otherwise in yaml
+DEFAULT_CONTENT_CLASS = MarkdownMathContent
+
 
 # a flexible content can be defined either with a plain str
 # or with a Content object
-FlexibleContent = Union[str, Content]
+FlexibleContent = Union[str, TextContent]
 
 class Flexible:
     # it's important for the YAML loader that this parameter be called text
     def __init__(self, text: FlexibleContent):
-        if isinstance(text, Content):
+        if isinstance(text, TextContent):
             self.content = text
         elif isinstance(text, str):
-            self.content = MarkdownContent(text)
+            self.content = DEFAULT_CONTENT_CLASS(text)
         else:
             raise ValueError(f"unexpected type {type(text).__name__}"
                              f" for flexible {text}")
@@ -271,6 +274,12 @@ class MathOption(Option):
 class MarkdownOption(Option):
     def render(self):
         return super().render().set_has_markdown(True)
+
+class MarkdownMathOption(Option):
+    def render(self):
+        return super().render().set_has_markdown(True).set_needs_math(True)
+    
+DEFAULT_OPTION_CLASS = MarkdownMathOption
 
 
 # this class captures the order in which options are provided
@@ -354,7 +363,7 @@ class Score:
 
 class QuizQuestion:
     """
-    question can be a str, or a Content object for more complex inputs; 
+    question can be a str, or a TextContent object for more complex inputs; 
     it may include html tags and/or math content between '$$'
 
     options is a list of Option objects; if exactly_one_option is set, 

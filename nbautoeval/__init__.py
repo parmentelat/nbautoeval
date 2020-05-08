@@ -7,8 +7,10 @@ from .exercise_regexp import ExerciseRegexp, ExerciseRegexpGroups
 from .exercise_generator import ExerciseGenerator
 from .exercise_class import ExerciseClass, ClassScenario, ClassExpression, ClassStatement
 
-from .content import TextContent, MarkdownContent, CodeContent, MathContent
-from .quiz import Quiz, QuizQuestion, Option, CodeOption, MathOption, MarkdownOption, Explanation
+from .content import (TextContent, CodeContent, MathContent,
+                      MarkdownContent, MarkdownMathContent)
+from .quiz import (Quiz, QuizQuestion, Explanation,
+                   Option, CodeOption, MathOption, MarkdownOption, MarkdownMathOption)
 from .quiz_loader import run_yaml_quiz
 
 from .version import __version__

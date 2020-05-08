@@ -68,7 +68,15 @@ class Content:
 
     
 class TextContent(Content):
+    '''
+    the generic mechanics to turn a text into a widget
+    several settings are available, which by default
+    are all turned off
     
+    is_code: will cause the whhole content to be taken as code
+    needs_math: will create a HTMLMath widget instead of plain HTML
+    has_markdown: text first goes through myst_parser
+    '''
     def __init__(self, text, 
                  is_code=False, needs_math=False, has_markdown=False,
                  **kwds):
@@ -88,6 +96,10 @@ class TextContent(Content):
         return self.text
 
     def set_is_code(self, is_code):
+        """
+        the set_ methods allow to alter the object with chained statements
+        my_content.set_is_code().set_needs_math()
+        """
         self.is_code = is_code
         return self
     
@@ -113,12 +125,8 @@ class TextContent(Content):
         for cls in self.classes:
             result.add_class(cls)
         return result
-    
-class MarkdownContent(TextContent):
-    
-    def __init__(self, text, needs_math=False, **kwds):
-        super().__init__(text, needs_math=needs_math, has_markdown=True, **kwds)
 
+# get predefined settings just by the class name
 class CodeContent(TextContent):
     
     def __init__(self, text, **kwds):
@@ -131,7 +139,26 @@ class MathContent(TextContent):
         super().__init__(text, **kwds)
         self.needs_math = True
 
+class MarkdownContent(TextContent):
+    def __init__(self, text, **kwds):
+        super().__init__(text, **kwds)
+        self.has_markdown = True
+
+class MarkdownMathContent(TextContent):
+    """
+    most useful - most common
+    """
+    def __init__(self, text, **kwds):
+        super().__init__(text, **kwds)
+        self.has_markdown = True
+        self.needs_math = True
+
+
 class CssContent(Content):
+    """
+    dedicated to inject CSS into HTML through 
+    a <style> tag that has display='none'
+    """
 
     def __init__(self, plain_css, **kwds):
         self.plain_css = plain_css

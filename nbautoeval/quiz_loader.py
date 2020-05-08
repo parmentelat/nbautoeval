@@ -3,11 +3,16 @@ from pathlib import Path
 # pip install PyYAML
 import yaml
 
-from .content import TextContent, MarkdownContent, CodeContent, CssContent
-from .quiz import (
-    Option, CodeOption, MathOption, MarkdownOption,
-    QuizQuestion, Quiz, Explanation,
-)
+# need to import them all here even when not explicitly used
+# so that yaml code can refer to these classes
+from .content import (TextContent, CodeContent, MathContent,
+                      MarkdownContent, MarkdownMathContent)
+from .quiz import (Quiz, QuizQuestion, Explanation,
+                   Option, CodeOption, MathOption, MarkdownOption, MarkdownMathOption,
+                   DEFAULT_OPTION_CLASS)
+
+
+from .quiz import DEFAULT_CONTENT_CLASS
 
 # quite straightforward, we build Python objects 
 # from a YAML regular Python object
@@ -25,7 +30,7 @@ from .quiz import (
 #   explanation: some text right here
 #   # -- or --
 #   explanation:
-#     type: MarkdownContent
+#     type: MarkdownMathContent
 #     text: |
 #       here you have specified the content type
 # 
@@ -36,7 +41,6 @@ from .quiz import (
 # . QuizQuestion.explanation         - optional related explanation
 # . all the QuizQuestion.option's              - the main text of the option
 #   all the QuizQuestion.option.explanation's  - optional related explanation
-
 
 class YamlLoader:
     
@@ -142,12 +146,12 @@ class YamlLoader:
                     explanation = Explanation(explanation)
                 yaml_dict[k] = explanation
             elif k in ('question', 'question_sequel'):
-                yaml_dict[k] = self.flexible_object(v, MarkdownContent)
+                yaml_dict[k] = self.flexible_object(v, DEFAULT_CONTENT_CLASS)
             elif k in ('option_none'):
-                yaml_dict[k] = self.flexible_object(v, MarkdownOption)
+                yaml_dict[k] = self.flexible_object(v, DEFAULT_OPTION_CLASS)
             elif k in ('options'):
                 yaml_dict[k] = [
-                    self.flexible_object(opt, MarkdownOption)
+                    self.flexible_object(opt, DEFAULT_OPTION_CLASS)
                     for opt in v                    
                 ]
             elif k in ('questions'):
