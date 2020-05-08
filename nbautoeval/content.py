@@ -125,6 +125,12 @@ class CodeContent(TextContent):
         super().__init__(text, **kwds)
         self.is_code = True
 
+class MathContent(TextContent):
+    
+    def __init__(self, text, **kwds):
+        super().__init__(text, **kwds)
+        self.needs_math = True
+
 class CssContent(Content):
 
     def __init__(self, plain_css, **kwds):
