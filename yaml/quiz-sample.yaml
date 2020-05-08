@@ -138,6 +138,9 @@ q-math:
       Easy math
       <br>just use `MathOption`
       <br>to create the options
+  explanation:
+    type: MathContent
+    text: '$\forall \phi\in\mathbb{R}, F(\phi) = \int_{-\infty}^{\infty}e^{2i\pi \phi x}f(x)dx$'
   options:
     - type: MathOption
       text: some code and then double dollars $$\forall x\in\mathbb{R}$$

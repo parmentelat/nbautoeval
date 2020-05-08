@@ -6,8 +6,8 @@
 # thanks to this awesome and super effective tuto
 # https://www.youtube.com/watch?v=cdLNKUoMc6c
 #
+from nbautoeval import TextContent, MarkdownContent, MathContent
 from nbautoeval import Quiz, QuizQuestion, Option, CodeOption, MathOption, Explanation
-from nbautoeval import TextContent, MarkdownContent
 
 ### 
 questions1 = []
@@ -44,7 +44,7 @@ options=[
     Option("a yes", correct=True,
             explanation=Explanation(MarkdownContent("some words about why it is so"))),
     Option("no",
-            explanation=Explanation(TextContent(r"\forall x\in\mathbb{R}"))),
+            explanation=Explanation(MathContent(r"$\forall x\in\mathbb{R}$"))),
     Option("don't know",
             explanation=Explanation("this question can only have one option selected")),
     ],
