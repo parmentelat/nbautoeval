@@ -29,7 +29,7 @@
 # ---
 
 # %% [markdown]
-# # one sample quiz 
+# # dealing with code in quizzes
 
 # %% {"scrolled": true}
 # mostly for using under binder or in a devel tree
@@ -37,31 +37,49 @@ import sys
 sys.path.append('..')
 
 # %% [markdown]
-# ## quiz basics : markdown, text and math
+# The YAML format allows to specify an optional `type`; for example
 #
-# in this notebook the correct answers are always the one starting with 'a' or $\alpha$
-
-# %%
-# this is for testing purposes only, it allows to 'reset' the history
-# about this particular exercise
-from nbautoeval.storage import storage_clear
-storage_clear("quiz-sample-one")
-
-# %% {"hide_input": false, "scrolled": false}
-from exercises.quiz_sample import quiz1, quiz2
-quiz1.widget()
+# ```
+#   question: |
+#     the body of a
+#     multi-line question
+# ```
+#
+# is a shorthand for actually this :
+#
+# ```
+#   question: 
+#     text: |
+#       the body of a
+#       multi-line question
+# ```
+#
+# the second form is typically required when more details must be set; so typical idioms include
+#
+# ```
+#   options:
+# # simplest
+#     - "a single-line option"
+# # but if it's a correct one you need to write
+#     - text: "a single-line option"
+#       correct: true
+# # and if you want to specify an alternative type
+#     - text: "a single-line option"
+#       type: CodeOption
+#       correct: true
+# ```
 
 # %% [markdown]
-# ## made for code
+# ## examples of code in questions and options
+
+# %% {"hide_input": false, "scrolled": false}
+from nbautoeval import run_yaml_quiz
+run_yaml_quiz("quiz02-code", "quiz-demo-code")
 
 # %%
-# this is for testing purposes only, it allows to 'reset' the history
-# about this particular exercise
+# XXX this is for testing purposes only XXX
 from nbautoeval.storage import storage_clear
-storage_clear("quiz-sample-two")
-
-# %% {"scrolled": false}
-quiz2.widget()
+storage_clear("demo-code-exoname")
 
 # %% [markdown]
 # ## under the hood
@@ -69,5 +87,5 @@ quiz2.widget()
 # %% [markdown]
 # Here's the code that defines the above quizzes
 
-# %% {"scrolled": false}
-# !cat ../exercises/quiz_sample.py
+# %% {"scrolled": false, "cell_style": "center"}
+# !cat yaml/quiz02-code.yaml

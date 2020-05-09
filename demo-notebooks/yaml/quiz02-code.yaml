@@ -1,0 +1,63 @@
+# see quiz01-basic.yaml for hints on resources 
+# on how to learn the YAML format
+# and how this is used for defining quiz instances
+#
+# here we demonstrate the use of `type:` on all contents
+# to choose another class for entering contents
+# namely here CodeOption and CodeContent
+
+quiz-demo-code:
+  type: Quiz
+  exoname: demo-code-exoname
+  # no shuffle is best for tutos 
+  shuffle: false
+  max_attempts: 3
+  # specifying max_grade causes the final grade to be scaled accordingly
+  max_grade: 20
+  questions: 
+    - q-code-options-1
+    - q-code-options-2
+
+q-code-options-1:
+  type: QuizQuestion
+  score: 8
+  # note this new attribute
+  # it means the options go in a horizontal box
+  horizontal_options: true
+  question:
+    text: |
+      it is easy to create an option that contains code  
+      - and only code - with a <code>CodeOption</code> instance  
+      note here how options are displayed horizontally  
+      thanks to `horizontal_options` set on the `Quiz` instance  
+      also we end lines with double spaces, markdown for *newline*
+  options:
+    - text: a = sorted(x for x in list if x.is_valid())
+      type: CodeOption
+      correct: true
+    # again it's maybe safer to quote this 
+    - text: "b = sort(x for x in list if x.is_valid())"
+      type: CodeOption
+
+
+q-code-options-2:
+  type: QuizQuestion
+  score: 16
+  question:
+    type: CodeContent
+    text: |
+      # of course the code can go in the question as well
+      # it can be done with usual markdown
+      # however when it's only code it can be 
+      # more convenient to use a CodeContent instance 
+      def fact(n):
+          if n <= 1:
+              return 1
+          return n * fact(n-1)
+  options:
+    - text: a = sorted(x for x in list if x.is_valid())
+      type: CodeOption
+      correct: true
+    # again it's maybe safer to quote this 
+    - text: "b = sort(x for x in list if x.is_valid())"
+      type: CodeOption

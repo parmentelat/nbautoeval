@@ -1,0 +1,101 @@
+# see quiz01-basic.yaml for hints on resources 
+# on how to learn the YAML format
+# and how this is used for defining quiz instances
+#
+# here we demonstrate the use of `type:` on all contents
+# to choose another class for entering contents
+# namely here CodeOption and CodeContent
+
+quiz-demo-shuffle:
+  type: Quiz
+  exoname: demo-shuffle-exoname
+  max_attempts: 1
+  questions: 
+    - q-shuffle-1
+    - q-shuffle-2
+#    - q-shuffle-3
+
+q-shuffle-1:
+  type: QuizQuestion
+  horizontal_layout: True
+  question: > 
+    this question has `shuffle=False`, so options will
+    always show up alphabetically
+  shuffle: no
+  options:
+  - text: apple
+    correct: yes
+  - bananas
+  - pears
+
+q-shuffle-2:
+  type: QuizQuestion
+  question: > 
+    this question has not set `shuffle`, resulting in using default `True`
+  options:
+  - text: apple
+    correct: yes
+  - bananas
+  - pears
+
+
+#######
+quiz-demo-layout:
+  type: Quiz
+  exoname: demo-layout-exoname
+  questions: 
+    - horizontal-options
+    - horizontal-layout
+    - horizontal-none
+    - horizontal-both
+
+
+horizontal-layout:
+  type: QuizQuestion
+  horizontal_layout: yes
+  question: |
+    `horizontal_layout=True` means to have the question  
+    and the options appear side by side (in a horizontal box)
+  options:
+    - text: <img src="../media/image1.png" width="150px">
+      correct: yes
+    - text: <img src="../media/image2.png" width="150px">
+
+
+horizontal-options:
+  type: QuizQuestion
+  horizontal_options: yes
+  question: |
+    `horizontal_options` means the **options appear side by side** like here,
+    because `horizontal_layout` is `False`, the question spans 100% of the page width
+  options:
+    - text: <img src="../media/image1.png" width="150px">
+      correct: yes
+    - text: <img src="../media/image2.png" width="150px">
+
+
+horizontal-none:
+  type: QuizQuestion
+  question: |
+    the default is to have none of these 2 horizontal flags 
+
+  options:
+    - text: <img src="../media/image1.png" width="150px">
+      correct: yes
+    - text: <img src="../media/image2.png" width="150px">
+
+
+horizontal-both:
+  type: QuizQuestion
+  horizontal_layout: yes
+  horizontal_options: yes
+  question: |
+    of course they can be used together as well
+
+    although it's maybe not that useful
+
+  options:
+    - text: <img src="../media/image1.png" width="150px">
+      correct: yes
+    - text: <img src="../media/image2.png" width="150px">
+

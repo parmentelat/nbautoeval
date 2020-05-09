@@ -1,0 +1,61 @@
+markdown-globals:
+  markdown_sample: &markdown_sample |
+    ### title level 3 
+
+    in fact you can use markdown wherever you want
+    although titles are probably too much
+
+    > a quotation (although our css still sucks on blockquotes)
+
+    * some
+    * bullets
+
+    and both flavours of code insertion
+
+    ```python
+    # this code fenced with triple backticks
+    # here tagged as python
+    # check for coloring (not supported at first)
+    def foo(n):
+        return f"{n}**2 = {n**2}"
+    ```
+
+    *** 
+    here we try the same but with a 4-space indentation which is
+    less intuitive but well
+
+        # this code is 4-space indented
+        def bar(n):
+            return f"{n}**3 = {n**3}"
+
+
+quiz-markdown:
+  type: Quiz
+  exoname: yaml-sample-three
+  shuffle: false
+  max_attempts: 3
+  # specifying max_grade causes the final grade to be scaled accordingly
+  max_grade: 20
+  questions: 
+    - q-markdown-in-question
+    - q-markdown-in-options
+
+q-markdown-in-question:
+  type: QuizQuestion
+  score: 256
+  question:
+    text: *markdown_sample
+  options:
+    - text: "a option 1"
+      correct: yes
+    - text: "option 2"
+
+q-markdown-in-options:
+  type: QuizQuestion
+  score: 256
+  question:
+    text: a simple question
+  options:
+    - text: *markdown_sample
+    - text: *markdown_sample
+      correct: yes      

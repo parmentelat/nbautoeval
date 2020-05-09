@@ -1,0 +1,157 @@
+# if you know nothing about YAML check this up
+# https://www.youtube.com/watch?v=cdLNKUoMc6c
+#
+# YAML allows us to create a pure Python data structure
+# that the quiz loader will transform into proper Quiz instances
+# 
+# some conveniences are offered by the loader such as
+#
+# * giving questions a name, that a Quiz object can refer to
+# * allowing to chose alternative types for leaves
+#   i.e. displayeable material can be tagged as CodeContent 
+#   or similar variants
+# 
+# for the rest the structure maps the attributes of the 
+# Quiz, QuizQuestion and Option classes
+# 
+# high-level entities are expected to be typed as either
+# Quiz or QuizQuestion
+# other entries are ignored (but can be useful though, see globals)
+
+##### 
+# nothing magical about the 'globals' name
+# because it has no 'type' field it is ignored by the loader
+# but defining it allows us to take advantage of YAML variables in
+# the rest of the file
+globals:
+  # in shorter words here we define a globale variable 'score'
+  score: &score 4
+  # note that you can define all 3 parts of a score
+  # in the order good answer - wrong answer - no answer
+  elaborate_score: &elaborate [6, -3, 1]
+
+
+# this is the name that you use in run_yaml_quiz
+quiz-basics:
+  type: Quiz
+  # if you don't specify an exoname it will be derived
+  # from the yaml name (here quiz1)
+  # remember though that it is probably best to pick another exoname
+  # b/c otherwise it becomes really trivial to cheat as soon as you 
+  # are aware of storage_clear
+  exoname: quiz-content-my-exoname
+  # the default is to shuffle questions but it's
+  # sometimes confusing especially for this tutorial
+  shuffle: false
+  # to compute a final grade on 20
+  max_grade: 20
+  max_attempts: 3
+  questions: 
+    - q-contents
+    - q-exactly-one
+    - q-score
+
+q-contents:
+  type: QuizQuestion
+  score: *score
+  question:
+    text: | 
+      ### contents
+      
+      most contents can be written *in markdown* with `code inside`
+      <br> and even math $\forall x\in\mathbb{R}$
+  options:
+    # see yaml syntax; the dash can be on its own line or not
+    - text: a correct option
+      correct: true
+    - text: nope
+    - text: |
+        thanks to `YAML`'s `|` operator one can easily enter markdown    
+        and math and all can be mixed $$\forall z\in\mathbb{C}$$ 
+        even on multiple lines
+
+        ```
+        # with code in the middle if needed
+        ```
+
+q-exactly-one:
+  type: QuizQuestion
+  score: *elaborate
+  exactly_one_option: true
+  question:
+    # most of the time it does not matter to use | or > to enter texts
+    text: >
+      ### logic
+
+      a question can be created with
+      <br>`exactly_one_option=True`, in which case
+      <br>you get a radio buttons behaviour
+      <br>and the question has no ♧
+  question_sequel: |
+    note that students can always unselect all answers even in this case
+
+    also, you'll get a warning if you try to build a question with no correct option; 
+    see `option_none` to create a dummy option in such cases.
+  options:
+      - text: a yes
+        correct: true
+      # beware that 'no' apparently is some sort of YAML keyword
+      # fortunately for me vscode knew about that and was using another color
+      # othrewise I'd still be looking for the issue here
+      # maybe it's safer to always use quoted text
+      - text: "no"
+      - text: don't know
+
+q-score:
+  type: QuizQuestion
+  # a more elaborate score with good answer, wrong answer, no answer
+  score: [6, -3, 1]
+  question:
+    text: |
+      ### scores
+
+      a question scores can be either
+        
+        * a simple value (for good answers)
+        * or more generally 3 values for good/bad/no answer
+      
+      default score is **1** / **-1** / **0**
+  question_sequel: |
+    also note the `max_grade` attribute on `Quiz` objects; here the final
+    score will be rescaled out of 20
+  options:
+    - text: apple
+      correct: True
+    - text: apricot
+      correct: True
+    - text: pear
+    - text: pineapple
+
+
+quiz-explanations:    
+  type: Quiz
+  max_attempts: 1
+  exoname: explanations
+  questions:
+    - q-explanation
+
+q-explanation:
+  type: QuizQuestion
+  question: |
+    ### explanations
+
+    you can attach explanations to questions and options
+
+    these get shown when the quiz is over
+  explanation:
+    here again **markdown** or math $\forall\epsilon\exists\alpha\in\mathbb{R}$
+  options:
+    - text:
+        a good answer
+      correct: yes
+      explanation:
+        here again **markdown** or math $\forall\epsilon,\exists\alpha\in\mathbb{R}$
+    - text:
+        wrong answer
+      explanation:
+        here again **markdown** or math $\forall\epsilon\exists\alpha\in\mathbb{R}$

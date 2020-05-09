@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -29,30 +28,23 @@
 # ---
 
 # %% [markdown]
-# # mimicking an older quiz
+# # markdown in quizzes
 
 # %% {"scrolled": true}
 # mostly for using under binder or in a devel tree
 import sys
 sys.path.append('..')
 
-# %% [markdown]
-# Starting from a sample quiz provided by C. Joly, we demonstrate a couple features and show how that initial sample could be approximated within the nbautoeval model.
-#
-# About shuffling and randomizing : see also [./demo09-quiz2.py](this other demo notebook] for more examples about this.
+# %% {"scrolled": false}
+from nbautoeval import run_yaml_quiz
 
-# %% [markdown]
-# ## the quiz
+run_yaml_quiz("test-markdown", "quiz-markdown")
 
 # %%
 # this is for testing purposes only, it allows to 'reset' the history
 # about this particular exercise
 from nbautoeval.storage import storage_clear
-storage_clear("quiz-sample-mines")
-
-# %% {"scrolled": false}
-from exercises.quiz_mines import quiz
-quiz.widget()
+storage_clear("quiz-markdown")
 
 # %% [markdown]
 # ## under the hood
@@ -61,4 +53,4 @@ quiz.widget()
 # Here's the code that defines the above quizz
 
 # %% {"scrolled": false}
-# !cat ../exercises/quiz_mines.py
+# !cat ./test-markdown.yaml

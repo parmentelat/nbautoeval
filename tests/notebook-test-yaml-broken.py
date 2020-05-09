@@ -42,7 +42,9 @@ sys.path.append('..')
 # Here's a few examples of broken definitions, and how they are notified to the teacher; note that this sanity check happens upon creation of the Quiz instance, no need to call widget() to be notified
 
 # %%
-from exercises.quiz_broken import broken_quiz
+from nbautoeval import run_yaml_quiz
+
+run_yaml_quiz("test-broken", "quiz-broken")
 
 # %% [markdown]
 # Also note that there's no runtime outlining of a broken quiz, for now at least... 
@@ -53,9 +55,6 @@ from exercises.quiz_broken import broken_quiz
 from nbautoeval.storage import storage_clear
 storage_clear("quiz-broken")
 
-# %% {"scrolled": false}
-broken_quiz.widget()
-
 # %% [markdown]
 # ## under the hood
 
@@ -63,4 +62,4 @@ broken_quiz.widget()
 # Here's the code that defines the above quizz
 
 # %% {"scrolled": false}
-# !cat ../exercises/quiz_mines.py
+# !cat ./test-broken.yaml

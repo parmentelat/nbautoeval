@@ -1,0 +1,47 @@
+quiz-broken:
+  type: Quiz
+  questions:
+    - ok
+    - ko-one-but-two
+    - ko
+    - ko-none-plus-exactly-one
+
+ok:
+  type: QuizQuestion
+  question: should be fine
+  options:
+    - text: yes1
+      correct: yes
+    - text: yes2
+      correct: yes
+    - text: no1
+    - text: no2
+
+ko-one-but-two:
+  type: QuizQuestion
+  exactly_one_option: yes
+  question: broken because 2 options and exactly_one_option
+  options:
+    - text: yes1
+      correct: yes
+    - text: yes2
+      correct: yes
+    - text: no1
+    - text: no2
+
+ko:
+  type: QuizQuestion
+  question: broken because no correct option
+  options:
+    - text: no1
+    - text: no2
+
+ko-none-plus-exactly-one:
+  type: QuizQuestion
+  exactly_one_option: yes
+  question: > 
+    broken too, has no correct option,
+    and exactly_one_option on top
+  options:
+    - text: no1
+    - text: no2
