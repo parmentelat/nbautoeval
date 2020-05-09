@@ -26,6 +26,7 @@ setuptools.setup(
     author_email     = "thierry.parmentelat@inria.fr",
     description      = "A mini framework to implement auto-evaluated exercises in Jupyter notebooks",
     long_description = contents("README.md"),
+    long_description_content_type = "text/markdown",
     license          = "CC BY-SA 4.0",
     keywords         = "jupyter notebooks exercises",
     url              = "https://github.com/parmentelat/nbautoeval",

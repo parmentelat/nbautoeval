@@ -1,3 +1,12 @@
+# 1.1.1 - 2020 May 8
+
+* fixed awkward bug in rendering contents  
+  the MarkdownMathContent and MarkdownMathOption classes
+  should now fit most common needs, and are the new defaults
+* expose class `MathContent` for consistency
+* documentation on quizzes rewritten to focus on YAML, 
+  has become much cleaner and shorter
+
 # 1.1.0 - 2020 May 4
 
 * teachers can define their quiz in yaml

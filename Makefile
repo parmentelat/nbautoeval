@@ -39,3 +39,19 @@ pypi:
 testpypi: 
 	./setup.py sdist upload -r testpypi
 
+# 9 May 2020 - Makefile needs tweaks
+# could not upload on pypi using the former recipe
+# that was complaining with a weird message about
+# the long_description in setup.py not being in ReST;
+# I did add a line to change that to markdown
+# but that was not enough, so I moved to twine:
+#   pip install twine
+#   python setup.py sdist bdist_wheel
+#   twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+#   twine upload dist/*
+# also I configured my login/password at pypi (both test and prod)
+# using keyring (see https://pypi.org/project/twine/)
+# so this should now work just fine
+#
+# also note that the location where we search for update-version-from-changelog
+# is probably no longer valid anyway
