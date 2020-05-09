@@ -92,7 +92,8 @@ class YamlLoader:
     # use opt_type_field_name=None if that's not a flexible option
     def object_from_dict(self, yaml_dict, default_class, opt_type_field_name):
         if not isinstance(yaml_dict, dict):
-            print(f"WARNING: expecting a dict, got object {yaml_dict} instead")
+            print(f"WARNING: expecting a dict, got a {type(yaml_dict).__name__} "
+                  f"object {yaml_dict} instead")
         args = yaml_dict.copy()
         cls = default_class
         if opt_type_field_name in args:
