@@ -28,6 +28,7 @@ CSS = """
     --border-code: 1px solid #a0a0a0;
     --border-explanation: 1px solid #b0b0b0;
     --border-submit: 2px solid #084177;
+    --border-separator-options: 0.8px solid navy;
 }
 
 .widget-vbox.nbae-question, .widget-hbox.nbae-question {
@@ -162,11 +163,13 @@ CSS = """
 .nbae-question div.options>div.wrong-answer {
     margin-top: 8px;
 }
-.nbae-question div.options.widget-vbox>div {
-    border-bottom: 0.8px solid #d0d0d0;
+.nbae-question div.options.widget-vbox>div:not(:last-child) {
+    border-bottom: var(--border-separator-options);
+    padding-bottom: 5px;
 }
-.nbae-question div.options.widget-hbox>div {
-    border-right: 0.8px solid #d0d0d0;
+.nbae-question div.options.widget-hbox>div:not(:last-child) {
+    border-right: var(--border-separator-options);
+    padding-right: 5px;
 }
 
 .nbae-question .explanation::before {
