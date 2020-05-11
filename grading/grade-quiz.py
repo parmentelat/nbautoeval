@@ -6,6 +6,13 @@
 # as the traces now have gone to a json format
 # overall logic should be mostly ok though
 
+import sys
+WARNING = """grade-quiz.py is out-dated and requires
+being adaptated to the JSON-based traces system"""
+print("WARNING: ", WARNING)
+print("aborting")
+sys.exit(1)
+
 
 import re
 import json
