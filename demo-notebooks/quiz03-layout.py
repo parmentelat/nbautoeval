@@ -54,7 +54,9 @@ from nbautoeval import run_yaml_quiz
 run_yaml_quiz("quiz03-layout", "quiz-demo-shuffle")
 
 # %%
-# XXX this is for testing purposes only XXX
+# XXX this is for demo purposes only XXX
+# XXX so counters may be reset XXX 
+
 from nbautoeval.storage import storage_clear
 storage_clear("demo-shuffle-exoname")
 
@@ -69,7 +71,9 @@ from nbautoeval import run_yaml_quiz
 run_yaml_quiz("quiz03-layout", "quiz-demo-layout")
 
 # %%
-# XXX this is for testing purposes only XXX
+# XXX this is for demo purposes only XXX
+# XXX so counters may be reset XXX 
+
 from nbautoeval.storage import storage_clear
 storage_clear("demo-layout-exoname")
 
@@ -81,3 +85,5 @@ storage_clear("demo-layout-exoname")
 
 # %% {"scrolled": false, "cell_style": "center"}
 # !cat yaml/quiz03-layout.yaml
+
+# %%

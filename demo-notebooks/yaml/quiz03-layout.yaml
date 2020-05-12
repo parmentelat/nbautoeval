@@ -21,6 +21,8 @@ q-shuffle-1:
   question: > 
     this question has `shuffle=False`, so options will
     always show up alphabetically
+  question_sequel: >
+    And now you choose :
   shuffle: no
   options:
   - text: apple
