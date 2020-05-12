@@ -1,3 +1,10 @@
+# 1.1.2 - 2020 May 12
+
+* Makefile now uses twine for publishing onto pypi 
+* no change in the library itself
+* slight brushes in the doc
+
+
 # 1.1.1 - 2020 May 8
 
 * fixed awkward bug in rendering contents  
