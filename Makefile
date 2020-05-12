@@ -1,17 +1,8 @@
-# update version.py from most recent version found in CHANGELOG.md
-all: version
-
-# retrieve utility script
-update_version_from_changelog:
-	curl -O https://raw.githubusercontent.com/parmentelat/apssh/master/update_version_from_changelog
-	chmod +x $@
-
-version: update_version_from_changelog
-	update_version_from_changelog
-
 ########## for uploading onto pypi
-# this assumes you have an entry 'pypi' in your .pypirc
-# see pypi documentation on how to create .pypirc
+# updated in May 2020 
+# run pip install twine if needed
+# I configured my login/password at pypi (both test and prod)
+# using keyring (see https://pypi.org/project/twine/)
 
 LIBRARY = nbautoeval
 
@@ -28,7 +19,8 @@ pypi:
 	@if ! grep -q ' $(VERSION)' CHANGELOG.md ; then echo no mention of $(VERSION) in CHANGELOG.md; false; fi
 	@echo "You are about to release $(VERSION) - OK (Ctrl-c if not) ? " ; read _
 	git tag $(VERSIONTAG)
-	./setup.py sdist upload -r pypi
+	./setup.py sdist bdist_wheel
+	twine upload dist/*
 
 # it can be convenient to define a test entry, say testpypi, in your .pypirc
 # that points at the testpypi public site
@@ -37,21 +29,6 @@ pypi:
 # pip install -i https://testpypi.python.org/pypi $(LIBRARY)
 # dependencies need to be managed manually though
 testpypi: 
-	./setup.py sdist upload -r testpypi
+	./setup.py sdist bdist_wheel
+	twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
-# 9 May 2020 - Makefile needs tweaks
-# could not upload on pypi using the former recipe
-# that was complaining with a weird message about
-# the long_description in setup.py not being in ReST;
-# I did add a line to change that to markdown
-# but that was not enough, so I moved to twine:
-#   pip install twine
-#   python setup.py sdist bdist_wheel
-#   twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-#   twine upload dist/*
-# also I configured my login/password at pypi (both test and prod)
-# using keyring (see https://pypi.org/project/twine/)
-# so this should now work just fine
-#
-# also note that the location where we search for update-version-from-changelog
-# is probably no longer valid anyway
