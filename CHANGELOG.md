@@ -1,3 +1,7 @@
+# 1.1.3 - 2020 May 12
+
+* based on shareable Makefile.pypi
+
 # 1.1.2 - 2020 May 12
 
 * Makefile now uses twine for publishing onto pypi 
