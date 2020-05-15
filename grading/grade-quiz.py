@@ -7,12 +7,6 @@
 # overall logic should be mostly ok though
 
 import sys
-WARNING = """grade-quiz.py is out-dated and requires
-being adaptated to the JSON-based traces system"""
-print("WARNING: ", WARNING)
-print("aborting")
-sys.exit(1)
-
 
 import re
 import json
@@ -26,46 +20,37 @@ Grade = Union[int, float]               # final output
 Attempt = Tuple[Keyword, List[Grade]]   # temp data structure
 
 
-UID = r"[0-9]+"
-KWD = r"[a-zA-Z0-9_-]+"
-DATE = r"[0-9/:-]+"
-SCORE = r"[0-9.-]+"
-# for now this assumes a max_grade was used (parsed as mgr)
-quiz_log_pattern = (
-    rf"(?P<date>{DATE})\s(?P<uid>{UID})\s(?P<kwd>{KWD})\s"
-    rf"(?P<sc>{SCORE})/(?P<msc>{SCORE})\s(?P<gr>{SCORE})/(?P<mgr>{SCORE})"
-)
-
 def scan(root) -> Iterator[Tuple[Student, Path]]:
     """
-    searches a whole directory to spot logfiles
+    searches a whole directory to spot trace files
     discovers student names through a heuristic on filenames
     """
     root = Path(root).resolve()
-    for log in Path(root).glob("**/.nbautoeval"):
+    for trace in Path(root).glob("**/.nbautoeval.trace"):
         # retrieve student name as first level from root
-        student = log.resolve().relative_to(root).parts[0]
-        yield student, log
+        student = trace.resolve().relative_to(root).parts[0]
+        yield student, trace
 
 
-def best_grades_from_log(student, log, quiz_keywords) -> Dict[Keyword, Grade]:
+def best_grades_from_trace(student, trace, quiz_keywords) -> Dict[Keyword, Grade]:
     """
-    read one log file and scans for provided keywords
+    read one trace file and scans for provided keywords
     returns best grade for each keyword
     """
     student_attempts = {keyword: [] for keyword in quiz_keywords}
-    with log.open() as feed:
+    with trace.open() as feed:
         for line in feed:
-            match = re.match(quiz_log_pattern, line)
-            if not match:
-                # as of this writing it could be wither
-                # a regular non-quiz exercise result
-                # or it could be the quiz has no max_grade defined
+            record = json.loads(line)
+            if record['type'] != 'quiz':
                 continue
-            keyword = match.group('kwd')
+            keyword = record['exoname']
             if keyword not in student_attempts:
                 continue
-            gr, mgr = match.group('gr'), match.group('mgr')
+            if 'max_score' in record:
+                k_gr, k_mgr = ('normalized_score', 'normalized_max_score')
+            else:
+                k_gr, k_mgr = ('score', 'max_score')
+            gr, mgr = record[k_gr], record[k_mgr] 
             attempt = (gr, mgr)
             student_attempts[keyword].append(attempt)
             # print(f"exo {keyword}, gr={gr} and mgr={mgr}")
@@ -85,10 +70,10 @@ def best_grades_from_log(student, log, quiz_keywords) -> Dict[Keyword, Grade]:
 
 def all_grades_from_root(root, keywords) -> Dict[Student, Dict[Keyword, Grade]]:
     """
-    returns final (max) grades from all log files found in root
+    returns final (max) grades from all trace files found in root
     """
-    return {student: best_grades_from_log(student, log, keywords)
-            for student, log in scan(root)}
+    return {student: best_grades_from_trace(student, trace, keywords)
+            for student, trace in scan(root)}
 
 
 def main():
@@ -96,7 +81,7 @@ def main():
     parser.add_argument("keywords", metavar='keyword', type=str, nargs="+")
     parser.add_argument("-r", "--root", dest="roots",
                         action='append', type=str,
-                        help="root directories to search for .nbautoeval logs")
+                        help="root directories to search for .nbautoeval traces")
     parser.add_argument("-o", "--output",
                         help="filename to store as JSON")
     parser.add_argument("-v", "--verbose",
@@ -115,7 +100,7 @@ def main():
     
     if args.output:
         with Path(args.output).open('w') as writer:
-            writer.write(json.dumps(student_grades))
+            writer.write(json.dumps(student_grades) + "\n")
     if not args.output or args.verbose:
         for student, grades in sorted(student_grades.items()):
             print(f"{student} -> {grades}")
