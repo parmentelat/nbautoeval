@@ -120,4 +120,4 @@ class ExerciseRegexpGroups(ExerciseRegexp):
     @property
     def column_headers(self):
         return (self._column_headers if self._column_headers is not None 
-            else ('chaîne', 'groups', 'obtenu'))
+            else ('chaîne', 'groupes', 'obtenu'))
