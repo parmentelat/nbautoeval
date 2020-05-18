@@ -1,3 +1,8 @@
+# 1.1.4 - 2020 May 18
+
+* groupes vs groups
+* grade-quiz.py based on json and .nbautoeval.trace
+
 # 1.1.3 - 2020 May 12
 
 * based on shareable Makefile.pypi
