@@ -7,7 +7,7 @@ from ipywidgets import Widget
 from nbautoeval.quiz_loader import YamlLoader, run_yaml_quiz
 
 localdir = Path(__file__).parent
-yamldir = localdir.parent / "yaml"
+yamldir = localdir.parent / "tests"
 
 def test_rain_check():
     for file in yamldir.glob("test-ko-*.yaml"):
