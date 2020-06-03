@@ -1,3 +1,9 @@
+# 1.1.5 - 2020 May 18
+
+* for Windows, replace os.getuid() with os.getlogin()
+* cosmetic tweaks in demo notebooks, including pure Python listing() helper
+  to display files on Windows
+
 # 1.1.4 - 2020 May 18
 
 * groupes vs groups
