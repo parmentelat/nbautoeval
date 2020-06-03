@@ -32,9 +32,10 @@
 # # dealing with code in quizzes
 
 # %% {"scrolled": true}
-# mostly for using under binder or in a devel tree
+# optional and specific to our use case
+# see first demo notebook for an explanation about this cell
 import sys
-sys.path.append('..')
+sys.path.append("..")
 
 # %% [markdown]
 # The YAML format allows to specify an optional `type`; for example
@@ -88,4 +89,5 @@ storage_clear("demo-code-exoname")
 # Here's the code that defines the above quizzes
 
 # %% {"scrolled": false, "cell_style": "center"}
-# !cat yaml/quiz02-code.yaml
+from listing import listing
+listing("yaml/quiz02-code.yaml")

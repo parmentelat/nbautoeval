@@ -20,7 +20,8 @@
 # <span style="float:left;">Licence CC BY-NC-ND</span><span style="float:right;">Thierry Parmentelat&nbsp;<img src="../media/inria-25.png" style="display:inline"></span><br/>
 
 # %%
-# just so that it runs smoothly under binder
+# optional and specific to our use case
+# see first demo notebook for an explanation about this cell
 import sys
 sys.path.append("..")
 
@@ -160,4 +161,5 @@ exo_curve_noname.example()
 # ## Corresponding python code
 
 # %%
-# %cat ../exercises/curve.py
+from listing import listing
+listing("../exercises/curve.py")

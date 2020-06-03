@@ -24,7 +24,8 @@
 # # class-based exercises
 
 # %%
-# just so that it runs smoothly under binder
+# optional and specific to our use case
+# see first demo notebook for an explanation about this cell
 import sys
 sys.path.append("..")
 
@@ -165,4 +166,5 @@ exo_fifo.correction(FifoNewbie)
 # as always, the python code here can be seen below:
 
 # %% hide_input=false
-# %cat ../exercises/fifoclass.py
+from listing import listing
+listing("../exercises/fifoclass.py")

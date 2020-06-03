@@ -27,7 +27,11 @@
 # ## For binder
 
 # %% [markdown]
-# So that Python can find the `nbautoeval` package, especially under binder :
+# In production, you will want to simply install nbautoeval using `pip`; if running under binder, that would mean mentioning `nbautoeval` in `binder/requirements.txt`.
+#
+# However as a convenience in the `nbautoeval` repo itself, we want to eat our own food :
+# * when running locally, you'll want to run something like `pip install -e .` 
+# * for binder, the next celle is here to instruct Python where to find the `nbautoeval` package; again in a more general situation, this is not needed :
 
 # %%
 import sys
@@ -65,7 +69,7 @@ exo_percentages.example()
 # ## Tell the student to write their own code
 
 # %% [markdown]
-# As a rule of thumb, it is advisable to provide something that is syntaxically correct. This way it won't break complete evaluation of the notebook, which can come in handy when doublecheking.
+# As a rule of thumb, it is advisable to provide something that is syntaxically correct. This way it won't break complete evaluation of the notebook, which can come in handy when doublechecking.
 
 # %%
 # write your own implementation here
@@ -115,5 +119,8 @@ exo_percentages3.correction(percentages)
 # %% [markdown]
 # Below is what the python code in `percentages.py` looks like; once comments are trimmed down, this amounts to about a dozen lines&nbsp;:
 
-# %%
-# %cat ../exercises/percentages.py
+# %% scrolled=false
+# here's the Python code that defines the exercise
+
+from listing import listing
+listing("../exercises/percentages.py")

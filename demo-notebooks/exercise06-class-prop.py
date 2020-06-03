@@ -24,7 +24,8 @@
 # # class-based exercises - part 2
 
 # %%
-# just so that it runs smoothly under binder
+# optional and specific to our use case
+# see first demo notebook for an explanation about this cell
 import sys
 sys.path.append("..")
 
@@ -69,4 +70,5 @@ exo_gauge.correction(Gauge)
 # ### under the hood
 
 # %%
-# !cat ../exercises/gaugeclass.py
+from listing import listing
+listing("../exercises/gaugeclass.py")

@@ -20,9 +20,10 @@
 # # A sample generator exercise
 
 # %%
-# just so that it runs smoothly under binder
+# optional and specific to our use case
+# see first demo notebook for an explanation about this cell
 import sys
-sys.path.append('..')
+sys.path.append("..")
 
 # %% [markdown]
 # ## usual generator
@@ -150,7 +151,8 @@ exo_count_maxed.correction(mycount_ko)
 # ***
 
 # %%
-# !cat ../exercises/squares.py
+from listing import listing
+listing("../exercises/squares.py")
 
 # %% [markdown]
 # ***
@@ -183,7 +185,7 @@ exo_primes.example()
 #exo_primes_no_limit.example()
 
 # %%
-# !cat ../exercises/primes.py
+listing("../exercises/primes.py")
 
 # %% [markdown]
 # ***
@@ -217,4 +219,4 @@ from exercises.differential import differential
 exo_differential.correction(differential)
 
 # %%
-# !cat ../exercises/differential.py
+listing("../exercises/differential.py")
