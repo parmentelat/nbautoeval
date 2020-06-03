@@ -47,7 +47,7 @@ def _log_line(exoname, message):
     """
     try:
         now = time.strftime("%D-%H:%M", time.localtime())
-        uid = os.getuid()
+        uid = os.getlogin()
         with _log_path().open('a') as log:
             line = f"{now} {uid} {exoname} {message}\n"
             log.write(line)
