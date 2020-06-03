@@ -1,4 +1,9 @@
-# 1.1.5 - 2020 May 18
+# 1.1.6 - 2020 Jun 3
+
+* drop userid altogether, this is fragile and not meningful anyway, 
+  it is not even exposed in the new json format
+
+# 1.1.5 - 2020 Jun 3
 
 * for Windows, replace os.getuid() with os.getlogin()
 * cosmetic tweaks in demo notebooks, including pure Python listing() helper
