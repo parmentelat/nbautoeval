@@ -37,6 +37,20 @@ def _log2_path():
 def _storage_path():
     return _log_path().with_suffix(".storage")
 
+# historically for each attempt we stored in 
+#    ~/.nbautoeval 
+# a line with
+# <date> <userid> <exoname> <details...>
+# with details depending on the kind of exercise 
+# * functions get a OK/KO, while
+# * quizzes get details on the grade
+# because this format has grown fragile it is recommended to read
+#   ~/.nbautoeval.trace instead,
+# which has the same info but in JSON format
+# now, for compatibility we still store the old format
+# but the way to compute this <userid> thingy is fragile too
+# and it is no longer exposed in the json output anyway
+# so from 1.1.6 we just write 'unknown-user' instead of userid
 
 # ----------
 # first-generation logging - for exercises initially
@@ -47,7 +61,7 @@ def _log_line(exoname, message):
     """
     try:
         now = time.strftime("%D-%H:%M", time.localtime())
-        uid = os.getlogin()
+        uid = 'unknown-user'
         with _log_path().open('a') as log:
             line = f"{now} {uid} {exoname} {message}\n"
             log.write(line)
