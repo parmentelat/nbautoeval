@@ -1,3 +1,7 @@
+# 1.2.0 - 2020 Aug 14
+
+* support for base64-encoded yaml quiz
+
 # 1.1.6 - 2020 Jun 3
 
 * drop userid altogether, this is fragile and not meningful anyway, 
