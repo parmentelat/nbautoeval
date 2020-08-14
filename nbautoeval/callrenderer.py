@@ -29,7 +29,7 @@ class CallRenderer:
     def __repr__(self):
         result =  f"<CallRenderer"
         if self.show_function: result += f" show_function={self.show_function}"
-        if self.max_width: result += f" tr_w={self.max_width}"
+        if self.max_width: result += f" m_w={self.max_width}"
         if self.prefix: result += f" pre={self.prefix}"
         if self.postfix: result += f" post={self.postfix}"
         result += ">"
