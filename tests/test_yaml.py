@@ -20,7 +20,15 @@ def test_exoname1():
     quiz = loader.build_quiz(witness, True)
     assert quiz.exoname == witness
 
+def test_exoname2():
+    witness = "quiz1"
+    loader = YamlLoader(yamldir / "test-ok-2.yamlb")
+    quiz = loader.build_quiz(witness, True)
+    assert quiz.exoname == witness
+
 # black box testing
 def test_all_in_one():
-    w = run_yaml_quiz("test-ok-1", "quiz1")
-    assert isinstance(w, Widget)
+    w1 = run_yaml_quiz("test-ok-1", "quiz1")
+    assert isinstance(w1, Widget)
+    w2 = run_yaml_quiz("test-ok-2", "quiz1")
+    assert isinstance(w2, Widget)

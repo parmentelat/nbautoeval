@@ -1,6 +1,8 @@
 from pathlib import Path
 
 # pip install PyYAML
+import base64
+import binascii
 import yaml
 
 # need to import them all here even when not explicitly used
@@ -28,7 +30,7 @@ from .quiz import DEFAULT_CONTENT_CLASS
 #   type: Quiz
 #   # one can either do 
 #   explanation: some text right here
-#   # -- or --
+#   # // or //
 #   explanation:
 #     type: MarkdownMathContent
 #     text: |
@@ -52,10 +54,21 @@ class YamlLoader:
     
     def __init__(self, filename_or_path):
         self.path = Path(filename_or_path)
-        # self.raw is the yaml content as-is
-        with self.path.open() as feed:
-            self.raw = yaml.safe_load(feed.read())
-        
+        with self.path.open('rb') as feed:
+            binary_content = feed.read()
+        # first try, yaml-read as-is
+        try:
+            self.raw = yaml.safe_load(binary_content.decode(encoding="utf-8"))
+            # somehow the exception does not always trigger 
+            # and in that case we receive a str
+            if not isinstance(self.raw, dict):
+                raise binascii.Error(None)
+        except binascii.Error:
+            self.raw = yaml.safe_load(base64.standard_b64decode(binary_content))
+        except Except:
+            print("Cannot load quiz from yaml f{self.path}")
+            raise
+
     def iterate_on(self, typename):
         for name, item in self.raw.items():
             if 'type' in item and item['type'] == typename:
@@ -241,7 +254,7 @@ def locate_from_radical(filename_or_path, debug):
         yield path / ".quiz"
 
     # possible extensions added to the radical
-    extensions = ["", ".yaml", ".yml" ]
+    extensions = ["", ".yaml", ".yml", ".yamlb" ]
     
     # search it
     anchors = [ path for path in anchors if is_under(home, path) ]
