@@ -65,7 +65,7 @@ class YamlLoader:
                 raise binascii.Error(None)
         except binascii.Error:
             self.raw = yaml.safe_load(base64.standard_b64decode(binary_content))
-        except Except:
+        except Exception:
             print("Cannot load quiz from yaml f{self.path}")
             raise
 
