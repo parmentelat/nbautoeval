@@ -301,6 +301,7 @@ def run_yaml_quiz(filename_or_path, exoname, debug=False):
         print(f"Could not parse {filename_or_path}\n{exc}")
     except Exception as exc:
         print(f"OOPS - something wrong with quiz {type(exc)}, {exc}")
+        debug = True
         if debug:
             import traceback
             print(traceback.format_exc())

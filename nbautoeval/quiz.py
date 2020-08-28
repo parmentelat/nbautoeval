@@ -15,9 +15,9 @@ CSS = """
     --question-bg-odd: #d6e4f0; 
     --question-bg-even: #ddebf8;
     --question-bg-right: #dafcf0;
-    --question-bg-wrong: #ffd6d9;
+    --question-bg-partial: #ffd6d9; /* pale pink/red */
+    --question-bg-wrong: #c94277;      /* darker red */
     /* individual options after revealed */
-    --option-wrong: #ff2e63;
     --explanation-right: #f8f8f8;
     --explanation-wrong: #f0f0f0;
     /* misc */
@@ -60,6 +60,8 @@ CSS = """
     font-size: 125%;
 }
 .nbae-question .question-header {
+    padding-top: 8px;
+    padding-bottom: 8px;
     border-bottom: 1px solid #084177;
 }
 .nbae-question .score::before {
@@ -101,8 +103,12 @@ CSS = """
 .nbae-question.right, .nbae-quiz .summary.ok {
     background-color: var(--question-bg-right);
 }
+/* keep this light pink and not dark red */
 .nbae-question.wrong, .nbae-quiz .summary.ko {
-    background-color: var(--question-bg-wrong);
+    background-color: var(--question-bg-partial);
+}
+.nbae-question.partial {
+    background-color: var(--question-bg-partial);
 }
 .nbae-question.unanswered {
     background-color: var(--question-bg-odd);
@@ -129,7 +135,7 @@ CSS = """
 }
 
 .nbae-quiz .wrong-answer {
-    background-color: var(--option-wrong);
+    background-color: var(--question-bg-wrong);
     border-radius: 6px;
 }
 
@@ -140,9 +146,10 @@ CSS = """
     padding-right: 6px;
 }
 
-.nbae-question.unanswered span.unanswered,
-.nbae-question.right span.right,
-.nbae-question.wrong span.wrong {
+.nbae-question.unanswered span/*.unanswered*/,
+.nbae-question.partial span/*.partial*/,
+.nbae-question.right span/*.right*/,
+.nbae-question.wrong span/*.wrong*/ {
     font-weight: bold;
     font-size: larger;    
     padding: 4px;
@@ -158,6 +165,9 @@ CSS = """
 }
 .nbae-question.wrong span.wrong {
     background-color: var(--question-bg-wrong);
+}
+.nbae-question.partial span.partial {
+    background-color: var(--question-bg-partial);
 }
  
 .nbae-question div.options>div.wrong-answer {
@@ -203,6 +213,27 @@ CSS = """
 }
 .nbae-question div.option-box div {
     align-self: center;
+}
+/* from https://stackoverflow.com/questions/8206315/css3-tooltip-with-hoverafter-positioning-and-size */
+*[tooltip] {
+  position: relative;
+  border-bottom: dotted 1px #000;
+}
+*[tooltip]:hover:before {
+/**[tooltip]:before {*/
+  content: attr(tooltip);
+  background-color: #000;
+  color: #fff;
+  /*top: 1em;*/
+  /*bottom: 100%;*/
+  left: 105%;
+  position: absolute;
+  white-space: nowrap;
+  padding: 5px;
+  border-radius: 4px;
+  z-index: 1000;
+  font-weight: initial;
+  font-size: initial;
 }
 """
 
@@ -319,19 +350,25 @@ class _DisplayedQuestions(_DisplayedItems):
 
 
 class Answer(Enum):
-    UNANSWERED = -1
+    UNANSWERED = -1   # MUST BE <0
     WRONG = 0
-    RIGHT = 1
+    RIGHT = 1000
 
 
-def points(score):
-    return f"{score} {'pt' if score<=1 else 'pts'}"
+# cosmetic, show integers as :d and reals as :.2f
+def display(score):
+    if abs(score-round(score)) < 0.01:
+        return f"{round(score):d}"
+    else:
+        return f"{score:.2f}"
+    
+def point_or_points(score):
+    return f"{display(score)} {'pt' if score<=1 else 'pts'}"
 
 # to allow for QuizQuestion(... score=1)
 # or           QuizQuestion(... score=(6, -1))
 # or           QuizQuestion(... score=(6, -3, 1))
 class Score:
-    # in points
     def __init__(self, single_arg=None):
         self.if_right = 1
         self.if_wrong = -1
@@ -349,17 +386,49 @@ class Score:
         else:
             raise ValueError(f"Score constructor expects a single int\n"
                              f"or a {ok_types} of 2 or 3 ints")
+        # this is the default; use use_progressive_grading()
+        # to set otherwise, not in the constructor signature
+        # because of the way the loader works
+        self.all_or_nothing = True
+
+    def use_progressive_grading(self):
+        self.all_or_nothing = False
 
 
-    def score(self, answer):
+    def all_or_nothing_score(self, answer):
         return (self.if_right if answer == Answer.RIGHT
                 else self.if_wrong if answer == Answer.WRONG
                 else self.if_unanswered)
+        
+    def progressive_score(self, nb_options, nb_correct_answers):
+        if nb_correct_answers == Answer.UNANSWERED:
+            return self.if_unanswered
+        if nb_correct_answers == Answer.RIGHT:
+            return self.if_right
+        return (self.if_wrong
+               + (nb_correct_answers/nb_options)*(self.if_right-self.if_wrong))
 
-    def html(self):
-        return (f"<span class='right'>{points(self.if_right)}</span>"
-                f" / <span class='wrong'>{points(self.if_wrong)}</span>"
-                f" / <span class='unanswered'>{points(self.if_unanswered)}</span>")
+    def html(self, partial_score="‒‒", partial_message=None):
+        def blob(klass, text, msg):
+            return f"<span class='{klass}' tooltip='{msg}'>{text}</span>"                    
+        result =  ""
+        right_points = point_or_points(self.if_right)
+        result += blob('right', right_points, f" {right_points} for a correct answer")
+        wrong_points = point_or_points(self.if_wrong)
+        if not self.all_or_nothing:
+            result += " / "
+            message = (partial_message or
+                       f"between {wrong_points} and {right_points} "
+                       f"for a partially good answer")
+            result += blob('partial', partial_score, message)
+        result += " / "
+        result += blob('wrong', wrong_points, f"{wrong_points} for a wrong answer")
+        result += " / "
+        unanswered_points = point_or_points(self.if_unanswered)
+        result += blob('unanswered', unanswered_points, 
+                       f"{unanswered_points} if not answered at all")
+        return result
+    
     def __str__(self):
         return f"{self.if_right}/{self.if_wrong}/{self.if_unanswered}"
         
@@ -403,6 +472,7 @@ class QuizQuestion:
                  # set this to True to mak it plain 
                  # that there is exactly one option to select
                  exactly_one_option=False,
+                 all_or_nothing=None,
                  option_none=None,
                  # how to display 
                  # for now, this is simple
@@ -415,18 +485,29 @@ class QuizQuestion:
         self.explanation = explanation
         self.shuffle = shuffle
         self.exactly_one_option = exactly_one_option
+        # default if unspecified depends on type
+        if all_or_nothing is not None:
+            self.all_or_nothing = all_or_nothing
+        else:
+            self.all_or_nothing = self.exactly_one_option
+        # default for scores historically is all_or_nothing
         self._score_object = Score(score)
+        if not self.all_or_nothing:
+            self._score_object.use_progressive_grading()
         self.horizontal_layout = horizontal_layout
         self.horizontal_options = horizontal_options
         self.option_none = option_none
         #
         self.feedback_area = None
         self._widget_instance = None
-        # the rank in the Quiz object
+        # the rank in the Quiz objectf.explanation
         self.index = None
         # 
         self._post_inited = False
-        
+
+    @property
+    def nb_options(self):
+        return len(self.options)
 
     # post-processing once options has been elaborated
     def post_init(self):
@@ -459,18 +540,51 @@ class QuizQuestion:
         self.index = index
 
 
-    def answer(self):
+    def detailed_answer(self):
+        """
+        * if self.all_on_nothing
+          returns Answer.UNANSWERED or Answer.RIGHT or Answer.WRONG
+          
+        * otherwise, for progressive grading, returns
+          Answer.UNANSWERED or Answer.WRONG if all options are wrong
+          or the number of correct options if not quite right
+          or Answer.RIGHT if all options are OK
+        
+        """
+        
         selected = [i for (i, checkbox) in enumerate(self.checkboxes)
                     if checkbox.value]
         if not selected:
+            # importantly UNANSWERED is -1
             return Answer.UNANSWERED
-        else:
-            return (Answer.RIGHT if set(selected) == set(self._displayed_options.correct_indices())
+        if self.all_or_nothing:
+            return (Answer.RIGHT 
+                    if set(selected) == set(self._displayed_options.correct_indices())
                     else Answer.WRONG)
+        else:
+            world = set(range(self.nb_options))
+            should_be_checked = set(self._displayed_options.correct_indices())
+            should_be_unchecked = world - should_be_checked
+            are_checked = set(selected)
+            are_unchecked = world - are_checked
+            right_options = (len(should_be_checked & are_checked)
+                            +len(should_be_unchecked & are_unchecked))
+            if right_options == self.nb_options:
+                return Answer.RIGHT
+            else:
+                return right_options
 
 
     def score(self):
-        return self._score_object.score(self.answer())
+        if self.all_or_nothing:
+            return self._score_object.all_or_nothing_score(
+                self.detailed_answer())
+        else:
+            return self._score_object.progressive_score(
+                self.nb_options, self.detailed_answer()
+            )
+
+
     def max_score(self):
         return self._score_object.if_right
 
@@ -483,9 +597,10 @@ class QuizQuestion:
             return self._widget_instance
         
         # header area
+        self._score_widget = HTML(f'{self._score_object.html()}').add_class('score')
         header_widget = HBox([
             HTML(f'Question # {self.index}').add_class('index'),
-            HTML(f'{self._score_object.html()}').add_class('score')
+            self._score_widget,
         ]).add_class('question-header')
         question_widget = Flexible(self.question).widget()
         header_widgets = [header_widget, question_widget]
@@ -563,17 +678,34 @@ class QuizQuestion:
         """
         assuming the widget was created already, of course
         """
+        all_classes = ('right', 'partial', 'wrong', 'unanswered')
         if self.feedback_area is None:
             return
         if answer == Answer.UNANSWERED:
-            on, offs = ('unanswered', ['right', 'wrong'])
+            on = 'unanswered'
         elif answer == Answer.RIGHT:
-            on, offs = ('right', ['unanswered', 'wrong'])
+            on = 'right'
+        elif answer == Answer.WRONG:
+            on = 'wrong'
         else:
-            on, offs = ('wrong', ['right', 'unanswered'])
+            on = 'partial'
         self.feedback_area.add_class(on)
-        for off in offs:
-            self.feedback_area.remove_class(off)
+        for off in all_classes:
+            if off != on:
+                self.feedback_area.remove_class(off)
+        # the score area
+        if self.all_or_nothing:
+            return
+        if on != 'partial':
+            self._score_widget.value = self._score_object.html()
+        else:
+            right_options = self.detailed_answer()
+            partial_score = self._score_object.progressive_score(
+                self.nb_options, right_options)
+            message = (f"partial score based on "
+                       f"{right_options}/{self.nb_options} good answers")
+            self._score_widget.value = self._score_object.html(
+                point_or_points(partial_score), message)
 
 
     def individual_feedback(self):
@@ -695,34 +827,35 @@ class Quiz:
             question.restore(list_of_bools)
 
 
-    def final_score_html(self):
+    def score_html(self, final):
         s, m, ns, nm = self.total_score()
-        final = "final score "
-        if self.max_grade is None:
-            final += f"<span class='final'>{s}</span> / {points(m)}"
+        score = ""
+        if final:
+            score += (f"final score "
+                      f"(after {self.current_attempts}/{self.max_attempts} attempts) ")
         else:
-            final += f"{s} / {m}"
-            final += f" = <span class='final'>{ns:.2f}</span> / {points(nm)}"
-        return final
+            score += (f"score for attempt #{self.current_attempts} ")
+        if self.max_grade is None:
+            score += f"<span class='final'>{display(s)}</span>/{m}"
+        else:
+            score += f"{display(s)}/{m}"
+            score += f" = <span class='final'>{display(ns)}/{nm}</span>"
+        return score
         
 
     def update(self):
         # there may be latency if the host is loaded
-        self.answers = [question.answer() 
+        self.answers = [question.detailed_answer() 
                         for question in self.displayed_questions]
         right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
         all_right = (len(right_answers) == len(self.answers))
         if all_right or self.current_attempts >= self.max_attempts:
             # materialize all questions
             for question in self.displayed_questions:
-                question.feedback(question.answer())
+                question.feedback(question.detailed_answer())
                 question.individual_feedback()
-            # disable submit button
             self.submit_button.description = "quiz over"
-            summary = self.final_score_html()
-            if self.max_attempts > 1:
-                summary += (f" ⎯⎯⎯ after {self.current_attempts}"
-                            f" / {self.max_attempts} attempts")
+            summary = self.score_html(final=True)
             self.submit_summary.value = summary
             if all_right:
                 self.submit_summary.add_class('ok')
@@ -738,7 +871,8 @@ class Quiz:
                 f"submit ({left}/{self.max_attempts} attempts left)")
             if self.current_attempts >= 1:
                 self.submit_summary.value = (
-                    f"{len(right_answers)}/{len(self.answers)} questions OK")
+                    f"{self.score_html(final=False)}"
+                    f" ({len(right_answers)}/{len(self.answers)} questions OK)")
             self.submit_button.disabled = False
 
     def total_score(self):
