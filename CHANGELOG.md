@@ -1,3 +1,10 @@
+# 1.3.0 - 2020 Aug 28
+
+* implement #22 - questions with multiple exactly_one_option = False
+  are by default using progressive grading
+* plus cosmetic changes in rendering the score of each question
+* each attempt displays the corresponding score
+
 # 1.2.0 - 2020 Aug 14
 
 * support for base64-encoded yaml quiz
