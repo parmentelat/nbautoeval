@@ -1,8 +1,7 @@
 # an earlier version was relying on markdown2
 #from myst_parser.main import to_html, default_parser
 
-from myst_parser.main import default_parser
-
+from myst_parser.main import default_parser, MdParserConfig
 
 from ipywidgets import HTML, HTMLMath, Layout
 
@@ -118,7 +117,9 @@ class TextContent(Content):
 
         text = self.text
         if self.has_markdown:
-            parser = default_parser("html")
+            config = MdParserConfig(renderer="html")
+            parser = default_parser(config)
+
             # math + markdown requires to turn off myst_parser's math
             # capabilities, the math thingy gets managed by HTMLMath already
             if self.needs_math:
