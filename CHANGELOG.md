@@ -1,3 +1,7 @@
+# 1.4.0 - 2020 Sep 4
+
+* fix for using myst-parser 0.12
+
 # 1.3.0 - 2020 Aug 28
 
 * implement #22 - questions with multiple exactly_one_option = False
