@@ -13,4 +13,6 @@ from .quiz import (Quiz, QuizQuestion, Explanation,
                    Option, CodeOption, MathOption, MarkdownOption, MarkdownMathOption)
 from .quiz_loader import run_yaml_quiz
 
+from .quiz_help import quiz_help
+
 from .version import __version__
