@@ -1,0 +1,74 @@
+# see quiz01-basic.yaml for hints on resources 
+# on how to learn the YAML format
+# and how this is used for defining quiz instances
+#
+# here we demonstrate the use of `type:` on all contents
+# to choose another class for entering contents
+# namely here CodeOption and CodeContent
+
+quiz-matrices:
+  type: Quiz
+  exoname: matrices-exoname
+  max_attempts: 3
+  questions: 
+    - matrices
+
+matrices:
+  type: QuizQuestion
+  question: > 
+    How do you like matrices ?
+  question_sequel: >
+    and other variants...
+  shuffle: yes
+  # clealry we have a glitch here, as we need to 
+  # double backslashes in here 
+  # (all occurrences of \\\\ should be only \\
+  options:
+    - text: >
+        $$
+        \begin{matrix}
+        1 & 2 & 3 \\\\
+        a & b & c
+        \end{matrix}
+        $$
+      correct: yes
+    - text: >
+        $$
+        \begin{pmatrix}
+        1 & 2 & 3 \\\\
+        a & b & c
+        \end{pmatrix}
+        $$
+      correct: yes
+    - text: >
+        $$
+        \begin{bmatrix}
+        1 & 2 & 3 \\\\
+        a & b & c
+        \end{bmatrix}
+        $$
+      correct: yes
+    - text: >
+        $$
+        \begin{Bmatrix}
+        1 & 2 & 3 \\\\
+        a & b & c
+        \end{Bmatrix}
+        $$
+      correct: yes
+    - text: >
+        $$
+        \begin{vmatrix}
+        1 & 2 & 3 \\\\
+        a & b & c
+        \end{vmatrix}
+        $$
+      correct: yes
+    - text: >
+        $$
+        \begin{Vmatrix}
+        1 & 2 & 3 \\\\
+        a & b & c
+        \end{Vmatrix}
+        $$
+      correct: yes
