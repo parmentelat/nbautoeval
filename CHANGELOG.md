@@ -1,3 +1,8 @@
+# 1.5.0 - 2020 Sep 4
+
+* changed to use markdown-it-py directly, with a lighter dependency footprint
+* new function quiz_help() in english and french
+
 # 1.4.0 - 2020 Sep 4
 
 * fix for using myst-parser 0.12
