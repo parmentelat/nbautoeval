@@ -146,14 +146,12 @@ CSS = """
     padding-right: 6px;
 }
 
-.nbae-question.unanswered span/*.unanswered*/,
-.nbae-question.partial span/*.partial*/,
-.nbae-question.right span/*.right*/,
-.nbae-question.wrong span/*.wrong*/ {
+.nbae-question div.score span {
     font-weight: bold;
     font-size: larger;    
     padding: 4px;
 }
+
 .nbae-question.unanswered span.unanswered {
     background-color: var(--question-bg-odd);
 }

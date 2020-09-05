@@ -3,6 +3,6 @@ ipython
 ipywidgets
 numpy
 PyYAML
-myst_parser
+markdown-it-py
 # for the demo notebooks 
 jupytext

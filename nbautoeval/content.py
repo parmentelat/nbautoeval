@@ -1,7 +1,7 @@
 # an earlier version was relying on markdown2
 #from myst_parser.main import to_html, default_parser
 
-from myst_parser.main import default_parser, MdParserConfig
+from markdown_it import MarkdownIt
 
 from ipywidgets import HTML, HTMLMath, Layout
 
@@ -75,9 +75,9 @@ class TextContent(Content):
     several settings are available, which by default
     are all turned off
     
-    is_code: will cause the whhole content to be taken as code
+    is_code: will cause the whole content to be taken as code
     needs_math: will create a HTMLMath widget instead of plain HTML
-    has_markdown: text first goes through myst_parser
+    has_markdown: text first goes through a markdown stage
     '''
     def __init__(self, text, 
                  is_code=False, needs_math=False, has_markdown=False,
@@ -117,13 +117,7 @@ class TextContent(Content):
 
         text = self.text
         if self.has_markdown:
-            config = MdParserConfig(renderer="html")
-            parser = default_parser(config)
-
-            # math + markdown requires to turn off myst_parser's math
-            # capabilities, the math thingy gets managed by HTMLMath already
-            if self.needs_math:
-                parser.disable("math_single").disable("math_inline")
+            parser = MarkdownIt("commonmark")
             text = parser.render(text)
         if self.is_code:
             text = f"<pre>{text}</pre>"
