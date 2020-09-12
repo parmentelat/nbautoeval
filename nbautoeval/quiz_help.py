@@ -4,8 +4,7 @@ from markdown_it import MarkdownIt
 
 french = """
 * le quiz est contenu dans **une cellule de code**, 
-  le plus souvent celle-ci est **vide au départ**,  
-  vous devez **l'évaluer** pour faire **apparaitre les questions**
+  que **vous devez évaluer** pour faire **apparaitre les questions**
 * toutes les questions ont **au moins une réponse valable**,  
   si vous ne cochez aucune réponse on considère que vous préférez ne pas répondre
 * il y a deux sortes de questions,  
