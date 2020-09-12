@@ -1,3 +1,7 @@
+# 1.5.1 - 2020 Sep 12
+
+* cosmetic change in quiz_help()
+
 # 1.5.0 - 2020 Sep 4
 
 * changed to use markdown-it-py directly, with a lighter dependency footprint
