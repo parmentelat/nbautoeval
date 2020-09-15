@@ -1,0 +1,9 @@
+demo-notebooks/essai*
+tests/essai*
+build
+cypress
+archive
+*.whl
+*.gz
+sample-mines
+nbautoeval.egg-info
