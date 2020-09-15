@@ -140,7 +140,7 @@ CSS = """
     border-radius: 6px;
 }
 
-.nbae-quiz .final {
+.nbae-quiz .main-score {
     font-weight: bold;
     font-size: larger;
     padding-left: 6px;
@@ -804,7 +804,7 @@ class Quiz:
         sons.append(HBox([self.submit_button, self.submit_summary])
                     .add_class('result-area'))
         toplevel = VBox(sons).add_class('nbae-quiz')
-        self.update()
+        self.update(within_submit=False)
         return toplevel
 
     
@@ -814,7 +814,7 @@ class Quiz:
         #  we need to disable this until the event is processed
         # update() will re-enable it later on if needed
         self.submit_button.disabled = True
-        self.update()
+        self.update(within_submit=True)
         storage_save(self.exoname, 'current_attempts', self.current_attempts)
         self.save_submitted()
         # xxx no longer needed if we can get all changes to be saved
@@ -843,33 +843,54 @@ class Quiz:
         storage_save(self.exoname, "preserved", self.preserve())
     def save_submitted(self):
         history = storage_read(self.exoname, "submitted", [])
-        this_attempt = dict(when=now(), answers=self.preserve())
+        this_attempt = dict(when=now(), answers=self.preserve(), html=self.summary_html)
         history.append(this_attempt)
         storage_save(self.exoname, "submitted", history)
 
 
-    def score_html(self, final):
+    # final no longer used
+    def score_html(self, right_answers):
         s, m, ns, nm = self.total_score()
         score = ""
-        if final:
-            score += (f"last score "
-                      f"(after {self.current_attempts}/{self.max_attempts} attempts) ")
-        else:
-            score += (f"score for attempt #{self.current_attempts} ")
+        score += (f"score for attempt #{self.current_attempts}:&nbsp;&nbsp;&nbsp; ")
         if self.max_grade is None:
-            score += f"<span class='final'>{display(s)}</span>/{m}"
+            score += f"<span class='main-score'>{display(s)}/{m}</span>"
         else:
             score += f"{display(s)}/{m}"
-            score += f" = <span class='final'>{display(ns)}/{nm}</span>"
+            score += f" = <span class='main-score'>{display(ns)}/{nm}</span>"
+        score += f" ({len(right_answers)}/{len(self.answers)} questions OK)"
         return score
         
 
-    def update(self):
+    def update(self, *, within_submit):
         # there may be latency if the host is loaded
         self.answers = [question.detailed_answer() 
                         for question in self.displayed_questions]
         right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
         all_right = (len(right_answers) == len(self.answers))
+
+        history = storage_read(self.exoname, "submitted", [])
+        present = now()
+        today, right_now = present['date'], present['time']
+        def past_entry(event):
+            when = event['when']
+            if when['date'] == today:
+                timestamp = f"@{when['time']}"
+            else:
+                timestamp = f"on{when['date']} @{when['time']}"
+            return f"{timestamp} {event['html']}"
+        past_summaries = [
+            past_entry(event) for event in history
+        ]
+        def update_summary(current_summary):
+            aggregate = ""
+            aggregate += "<div>"
+            for summary in past_summaries:
+                aggregate += f"{summary}<br>"
+            if within_submit:
+                aggregate += f"@{right_now} {current_summary}"
+            aggregate += "</div>"
+            self.submit_summary.value = aggregate
         # quiz is over - either way (all good or attempts ran out)
         if all_right or self.current_attempts >= self.max_attempts:
             # materialize all questions
@@ -877,8 +898,8 @@ class Quiz:
                 question.feedback(question.detailed_answer())
                 question.individual_feedback()
             self.submit_button.description = "quiz over"
-            summary = self.score_html(final=True)
-            self.submit_summary.value = summary
+            self.summary_html = f"{self.score_html(right_answers)}"
+            update_summary(self.summary_html)
             if all_right:
                 self.submit_summary.add_class('ok')
             else:
@@ -892,9 +913,8 @@ class Quiz:
             self.submit_button.description = (
                 f"submit ({left}/{self.max_attempts} attempts left)")
             if self.current_attempts >= 1:
-                self.submit_summary.value = (
-                    f"{self.score_html(final=False)}"
-                    f" ({len(right_answers)}/{len(self.answers)} questions OK)")
+                self.summary_html = f"{self.score_html(right_answers)}"
+                update_summary(self.summary_html)
             self.submit_button.disabled = False
 
     def total_score(self):
