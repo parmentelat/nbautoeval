@@ -31,6 +31,8 @@ sys.path.append("..")
 # this utility provides a summary of the *rules of the game*
 
 # %%
+# also supported is quiz_help("fr")
+
 from nbautoeval import quiz_help
 quiz_help()
 
@@ -38,7 +40,7 @@ quiz_help()
 # ## quizzes in YAML files
 
 # %% [markdown]
-# A quiz object is a collections of questions; each question has several options, at least one of which being correct.
+# A quiz object is a collection of questions; each question has several options, at least one of which being correct.
 #
 # You can define a quiz inside a YAML file; we'll see a few simple examples below (it is possible to define quizzes in Python as well, but not recommended for getting started.
 #
@@ -96,5 +98,3 @@ storage_clear("explanations")
 # %% {"scrolled": false, "cell_style": "center"}
 from listing import listing
 listing("yaml/quiz01-basics.yaml")
-
-# %%

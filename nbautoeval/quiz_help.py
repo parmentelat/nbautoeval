@@ -56,13 +56,13 @@ english = """
   you obtain 2/3 between the min and max grades
 * you have a fixed number of attempts to answer a quiz - shown in the submit button;
   once that number has run out - or earier if you get the max score -
-  the correcrtion outlines (in stark red) the boxes that you have gotten wrong;
+  the correction outlines (in stark red) the boxes that you have gotten wrong;
   additional areas with a ☛ may provide additional explanation
 * your final score corresponds to your best attempt; 
   attempts are independent from one another, there is no cumulative effect :  
   if for example you get 10/20 on your first attempt, with question 1 being right,
   and 12/20 on your second one with question 1 begin wrong, the second score is retained,
-  the right answer on attempt #1 does not impact attempt #2
+  the correct answer on attempt #1 does not impact attempt #2
 """
 
 
