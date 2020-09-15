@@ -1,3 +1,7 @@
+# 1.5.2 - 2020 Sep 15
+
+* feedback on submit shows results for past attempts
+
 # 1.5.1 - 2020 Sep 12
 
 * cosmetic change in quiz_help()
