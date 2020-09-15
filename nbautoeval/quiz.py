@@ -1,4 +1,5 @@
 import random
+import time
 
 from typing import List, Union
 from enum import Enum
@@ -234,6 +235,10 @@ CSS = """
   font-size: initial;
 }
 """
+
+def now():
+    return dict(date=time.strftime("%Y-%m-%d"),
+                time=time.strftime("%H:%M:%S"))
 
 # unless specified otherwise in yaml
 DEFAULT_CONTENT_CLASS = MarkdownMathContent
@@ -613,9 +618,15 @@ class QuizQuestion:
         self.checkboxes = [Checkbox(value=option.selected, disabled=False,
                                     description='', indent=False)
                            for option in self._displayed_options]
-        # radio-box behaviour
-        if self.exactly_one_option:
-            for checkbox in self.checkboxes:
+        # arm callback so that choices get saved at all times
+        # xxx not working at this point as we have no means
+        # to retrieve the parent Quiz object to trigger a save_preserved
+        #def preserve(b):
+        #    self.xxx_quiz_xxx.save_preserved()
+        for checkbox in self.checkboxes:
+            # checkbox.observe(preserve)
+            # radio-box behaviour
+            if self.exactly_one_option:
                 checkbox.observe(lambda event: self.radio_button_callback(event))
         labels = [option.render().widget() for option in self._displayed_options]
         
@@ -722,6 +733,7 @@ class QuizQuestion:
         for option, checkbox in zip(self._displayed_options, self.checkboxes):
             option.selected = checkbox.value
         return [option.selected for option in self.options]
+    
             
     def restore(self, bools: List[bool]):
         for option, boolean in zip(self.options, bools):
@@ -773,7 +785,7 @@ class Quiz:
         self.displayed_questions = _DisplayedQuestions(self.questions, self.shuffle)
         # needs to be saved somewhere
         self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
-        preserved = storage_read(self.exoname, "answers", [])
+        preserved = storage_read(self.exoname, "preserved", [])
         if preserved: 
             self.restore(preserved)
         # set question rank
@@ -804,7 +816,9 @@ class Quiz:
         self.submit_button.disabled = True
         self.update()
         storage_save(self.exoname, 'current_attempts', self.current_attempts)
-        storage_save(self.exoname, "answers", self.preserve())
+        self.save_submitted()
+        # xxx no longer needed if we can get all changes to be saved
+        self.save_preserved()
         (current_score, max_score,
          normalized_score, normalized_max_score) = self.total_score()
         log_kwds = {}
@@ -825,11 +839,20 @@ class Quiz:
             question.restore(list_of_bools)
 
 
+    def save_preserved(self):
+        storage_save(self.exoname, "preserved", self.preserve())
+    def save_submitted(self):
+        history = storage_read(self.exoname, "submitted", [])
+        this_attempt = dict(when=now(), answers=self.preserve())
+        history.append(this_attempt)
+        storage_save(self.exoname, "submitted", history)
+
+
     def score_html(self, final):
         s, m, ns, nm = self.total_score()
         score = ""
         if final:
-            score += (f"final score "
+            score += (f"last score "
                       f"(after {self.current_attempts}/{self.max_attempts} attempts) ")
         else:
             score += (f"score for attempt #{self.current_attempts} ")
@@ -847,6 +870,7 @@ class Quiz:
                         for question in self.displayed_questions]
         right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
         all_right = (len(right_answers) == len(self.answers))
+        # quiz is over - either way (all good or attempts ran out)
         if all_right or self.current_attempts >= self.max_attempts:
             # materialize all questions
             for question in self.displayed_questions:
