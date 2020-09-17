@@ -29,7 +29,7 @@ class Renderer:
             return (TextContent(repr(python_object))
                     .add_css_properties({'align-self': 'center'})
                     .set_is_code(not isinstance(python_object, Exception)))
-                                       
+
 
     def __repr__(self):
         return f"<Renderer {type(self)}>"
@@ -41,7 +41,7 @@ class PPrintRenderer(Renderer):
         self.width = width
         self.indent = indent
         self.compact = compact
-    
+
     def render(self, python_object):
         return (TextContent(
                     pprint.pformat(python_object, compact=self.compact,

@@ -16,26 +16,26 @@ from .quiz import (Quiz, QuizQuestion, Explanation,
 
 from .quiz import DEFAULT_CONTENT_CLASS
 
-# quite straightforward, we build Python objects 
+# quite straightforward, we build Python objects
 # from a YAML regular Python object
-# the purpose of object_from_dict to build 
+# the purpose of object_from_dict to build
 # is to create Python objects from the YAML (dict) data
 # so the `type` field allows to chose the Python class name
-# 
-# 
+#
+#
 # for more convenience some components in the Quiz structure
 # may be entered as either a plain str, or a Content object
 # example
 # the-quiz:
 #   type: Quiz
-#   # one can either do 
+#   # one can either do
 #   explanation: some text right here
 #   # // or //
 #   explanation:
 #     type: MarkdownMathContent
 #     text: |
 #       here you have specified the content type
-# 
+#
 # this goes for
 # . QuizQuestion.question            - the main question asked
 # . QuizQuestion.question_sequel     - optional question follow-up
@@ -45,13 +45,13 @@ from .quiz import DEFAULT_CONTENT_CLASS
 #   all the QuizQuestion.option.explanation's  - optional related explanation
 
 class YamlLoader:
-    
+
     """
     allows to parse a YAML file
     do some high-levels checks
     and build a Quiz object given its name
     """
-    
+
     def __init__(self, filename_or_path):
         self.path = Path(filename_or_path)
         with self.path.open('rb') as feed:
@@ -59,7 +59,7 @@ class YamlLoader:
         # first try, yaml-read as-is
         try:
             self.raw = yaml.safe_load(binary_content.decode(encoding="utf-8"))
-            # somehow the exception does not always trigger 
+            # somehow the exception does not always trigger
             # and in that case we receive a str
             if not isinstance(self.raw, dict):
                 raise binascii.Error(None)
@@ -83,7 +83,7 @@ class YamlLoader:
         assert(list(self.iterate_on('Quiz')))
         questions = list(self.iterate_on('QuizQuestion'))
         assert(questions)
-        
+
         for quizname, quiz in self.iterate_on('Quiz'):
             self.check('questions' in quiz, "Quiz must have questions")
             if isinstance(quiz['questions'], str):
@@ -95,10 +95,10 @@ class YamlLoader:
                         f"quiz {quizname} "
                         f"but not found in YAML")
 
-        # xxx 
+        # xxx
         # check for the class names used in the various _type fields
 
-    # build (real instance) object from the 
+    # build (real instance) object from the
     # dictionary that comes out of yaml
     # opt_type_field_name is meant to allow the yaml desc. to
     # chose another class than the default
@@ -142,7 +142,7 @@ class YamlLoader:
                             f"got {type(str_or_dict.__name__)} {str_or_dict}")
 
     # recursively browse a yaml structure to apply the transformation to objects
-    # logic is depth-first scan, and when coming back up apply any additional 
+    # logic is depth-first scan, and when coming back up apply any additional
     # change
     def process(self, yaml_dict):
         if not isinstance(yaml_dict, dict):
@@ -166,7 +166,7 @@ class YamlLoader:
             elif k in ('options'):
                 yaml_dict[k] = [
                     self.flexible_object(opt, DEFAULT_OPTION_CLASS)
-                    for opt in v                    
+                    for opt in v
                 ]
             elif k in ('questions'):
                 yaml_dict[k] = [
@@ -185,7 +185,7 @@ class YamlLoader:
         # first make sure the exoname makes sense
         self.check(exoname in self.raw, f"quiz {exoname} not found")
         yaml_quiz = self.raw[exoname]
-        
+
         # stage1 on questions: build QuizQuestion instances
         processed_questions = {
             name: self.object_from_dict(self.process(yaml_question), QuizQuestion, None)
@@ -196,7 +196,7 @@ class YamlLoader:
             print(f"question {qname} -> {question}")
             break
         """
-        
+
         # artificially inject exoname from YAML id
         if 'exoname' not in yaml_quiz:
             yaml_quiz['exoname'] = exoname
@@ -207,22 +207,22 @@ class YamlLoader:
             processed_questions[qname] for qname in quiz.questions
         ]
 
-        return quiz            
+        return quiz
 
 #
 # a little salt to make it not completey obvious
 # how to cheat by looking into the quiz source
-# typically using $HOME/.yaml to store source might be 
+# typically using $HOME/.yaml to store source might be
 # a good idea
 # typically search {radical}, {radical}.yaml {radical}.yml
 # in the following dirs (if under HOME)
-# .  ./yaml  ./.yaml 
+# .  ./yaml  ./.yaml
 # .. ../yaml ../.yaml
 # ../.. ../../yaml ../../.yaml
 # HOME HOME/yaml HOME/.yaml
-# 
+#
 def locate_from_radical(filename_or_path, debug):
-    
+
     # skip heuristics if its an existing filename
     checking = Path(filename_or_path)
     if checking.exists():
@@ -231,13 +231,13 @@ def locate_from_radical(filename_or_path, debug):
         if debug:
             print(f"cannot use absolute but non existing path {filename_or_path}")
         return None
-    
+
     # if provided a relative path, use only basename
     radical = checking.parts[-1]
 
     def is_under(root, potential_subdir):
-        return root in potential_subdir.parents    
-    
+        return root in potential_subdir.parents
+
     home = Path.home()
     # main locations where to start searching
     anchors = [
@@ -255,12 +255,12 @@ def locate_from_radical(filename_or_path, debug):
 
     # possible extensions added to the radical
     extensions = ["", ".yaml", ".yml", ".yamlb" ]
-    
+
     # search it
     anchors = [ path for path in anchors if is_under(home, path) ]
-    
+
     paths = [ d for path in anchors for d in iter_derivatives(path)]
-    
+
     failed = []
     for path in paths:
         for extension in extensions:
@@ -269,7 +269,7 @@ def locate_from_radical(filename_or_path, debug):
                 return candidate
             elif debug:
                 failed.append(candidate)
-    
+
     print(f"could not spot quiz {filename_or_path}")
     if debug:
         for candidate in failed:
@@ -285,7 +285,7 @@ def run_yaml_quiz(filename_or_path, exoname, debug=False):
     * parse the file (or Path)
     * build a Quiz object corresponding to exoname
     * create and return widget
-    
+
     use debug=True until you get the YAML file right
     """
 

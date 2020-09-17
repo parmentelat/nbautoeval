@@ -13,7 +13,7 @@ def test_rain_check():
     for file in yamldir.glob("test-ko-*.yaml"):
         with pytest.raises((ValueError, AssertionError)):
             YamlLoader(file).rain_check()
-            
+
 def test_exoname1():
     witness = "quiz1"
     loader = YamlLoader(yamldir / "test-ok-1.yaml")

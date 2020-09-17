@@ -9,13 +9,13 @@ class Call:
     def __init__(self, function, args: ArgsTupleDict):
         self.function = function
         self.args = args
-    
+
 
 #
 class CallRenderer:
 
-    def __init__(self, *, 
-                 is_code=True, show_function=True, prefix="", postfix="", 
+    def __init__(self, *,
+                 is_code=True, show_function=True, prefix="", postfix="",
                  max_width=0, css_properties=None):
 
         self.is_code = is_code
@@ -33,7 +33,7 @@ class CallRenderer:
         if self.prefix: result += f" pre={self.prefix}"
         if self.postfix: result += f" post={self.postfix}"
         result += ">"
-        return result        
+        return result
 
 
     def visible_function_name(self, call):
@@ -43,7 +43,7 @@ class CallRenderer:
         if function_name is True:
             function_name = call.function.__name__
         return function_name
-        
+
 
     def render(self, call: Call):
         text = ', '.join(call.args.tokens())
@@ -72,7 +72,7 @@ class PPrintCallRenderer(CallRenderer):
         self.compact = compact
         super().__init__(*args, **kwds)
 
-    
+
     def render(self, call: Call):
         # try to render with no width limit, if it fits it's OK
         raw_content = super().render(call)
@@ -127,7 +127,7 @@ class IsliceRenderer(PPrintCallRenderer):
             else:
                 return f"iters →{end}/{step}"
         return f"ERROR: unknown islice {generator_args.islice}"
-        
+
     # by design this should be called on Call objects
     # whose Args instance is a GeneratorArgs
     def render(self, generator_call):
@@ -138,4 +138,4 @@ class IsliceRenderer(PPrintCallRenderer):
         # xxx not super clean...
         default_content.text += f"\n<b>{self.pretty_slice(generator_args)}</b>"
         return default_content
-        
+

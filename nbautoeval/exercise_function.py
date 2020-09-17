@@ -19,12 +19,12 @@ DEBUG = False
 
 
 default_column_headers_visible_function_name = (
-    "appel", 
+    "appel",
     "attendu",
     "obtenu",
 )
 default_column_headers_no_function_name = (
-    "arguments", 
+    "arguments",
     "attendu",
     "obtenu",
 )
@@ -37,7 +37,7 @@ column_span_classes = (
 CSS = """
 .nbae-fun {
     width: max-content;
-    border-top: .1em solid black; 
+    border-top: .1em solid black;
     border-bottom: .1em solid black;
     padding: 0.1em 0em;
     row-gap: 0.5em;
@@ -65,7 +65,7 @@ div.nbae-fun .cell span {
 }
 .nbae-fun .cell.ok, .nbae-fun .cell.ok code, .nbae-fun .result.ok {
     background-color: #d4f8e8;
-} 
+}
 .nbae-fun .cell.ok.even, .nbae-fun .cell.ok code.even, .nbae-fun .result.ok.even {
     background-color: #c4f8d8;
 }
@@ -102,8 +102,8 @@ class ExerciseFunction:                                           # pylint: disa
     function The teacher version of that function is provided as
     'solution' and is used against datasets to generate an online
     correction or example.
-    
-    A dataset is typically an instance of Args, it describes 
+
+    A dataset is typically an instance of Args, it describes
     how the function is to be called (the arguments, both named and unnamed).
 
     **NOTE** that the Args model predates keyword-only and a fortiori
@@ -126,18 +126,18 @@ class ExerciseFunction:                                           # pylint: disa
     copy_mode='shallow' to the constructor here.
 
     In terms of rendering, an ExerciseFunction object requires 2 renderer objects
-    
-    * call_renderer is used to compute the contents of the leftmost column in the output 
-      of both correction() and example(); 
+
+    * call_renderer is used to compute the contents of the leftmost column in the output
+      of both correction() and example();
       this attribute should be a `CallRenderer` instance, that has a `render()` method
       that works on `Call` instances, and that returns a `Content` object.
     * result_renderer works similarly, it is used to render the results of the function
-      calls in the internal columns of the output of correction(), and the rightmost 
+      calls in the internal columns of the output of correction(), and the rightmost
       column of the output of example();
 
     Typical uses of these 2 rendering attributes would be
-    
-    * ExerciseFunction(call_renderer=CallRenderer(show_function=False))  
+
+    * ExerciseFunction(call_renderer=CallRenderer(show_function=False))
       allows to remove the function name, showing only arguments, to save space
     * ExerciseFunction(call_renderer=PPrintRenderer(width=30))
     * ExerciseFunction(result_renderer=PPrintRenderer(width=30)) allows to set
@@ -150,7 +150,7 @@ class ExerciseFunction:                                           # pylint: disa
                  # how to render
                  call_renderer=None,
                  result_renderer=None,
-                 # 
+                 #
                  column_headers=None,
                  font_size=default_font_size,
                  header_font_size=default_header_font_size,
@@ -168,10 +168,10 @@ class ExerciseFunction:                                           # pylint: disa
         self.call_renderer = call_renderer or CallRenderer()
         self.result_renderer = result_renderer or Renderer()
         # header names: at this point, just remember any data passed
-        # it's too erly to compute the actual value, as show_function 
+        # it's too erly to compute the actual value, as show_function
         # could be turned off later on - see e.g. ExerciseRegexp
         self._column_headers = column_headers
-        # 
+        #
         self.header_font_size = header_font_size
         self.font_size = font_size
         ###
@@ -181,7 +181,7 @@ class ExerciseFunction:                                           # pylint: disa
 
     @property
     def column_headers(self):
-        return (self._column_headers if self._column_headers is not None 
+        return (self._column_headers if self._column_headers is not None
             else default_column_headers_visible_function_name if self.call_renderer.show_function
             else default_column_headers_no_function_name)
 
@@ -195,20 +195,20 @@ class ExerciseFunction:                                           # pylint: disa
         datasets = self.datasets
         copy_mode = self.copy_mode
 
-        # 
+        #
         headers_props = {'font-size': self.header_font_size}
         body_props = {'font-size': self.font_size}
         contents = [TextContent(x, css_properties=headers_props)
                     .add_classes(['header', span_class])
                     for (x, span_class) in zip(self.column_headers, column_span_classes)]
-        
+
 
         overall = True
 
         for index, dataset in enumerate(datasets):
             # will use original dataset for rendering to avoid any side-effects
             # during running
-        
+
             # always clone all inputs
             if copy_mode != 'tee':
                 student_dataset = dataset.clone(copy_mode)
@@ -239,7 +239,7 @@ class ExerciseFunction:                                           # pylint: disa
             classes = ['cell']
             if index % 2 == 0:
                 classes.append("even")
-            
+
             call = Call(self.solution, dataset)
             contents.append(self.call_renderer.render(call)
                             .add_classes(classes)
@@ -260,7 +260,7 @@ class ExerciseFunction:                                           # pylint: disa
         log_correction(self.name, overall)
         # xxx would make sense to expose how many examples were right or wrong
         log2_correction(self.name, success=overall)
-        
+
         contents.append(CssContent(CSS))
 
         gridbox_layout  = Layout(grid_template_columns = 'max-content 1fr 1fr max-content',
@@ -283,7 +283,7 @@ class ExerciseFunction:                                           # pylint: disa
         body_props = {'font-size': self.font_size}
         contents = [TextContent(x, css_properties=headers_props).add_class('header')
                     for x in self.column_headers[:2]]
-        # 
+        #
 
         for index, dataset in enumerate(self.datasets[:how_many]):
             # clone enve in example() mode to avoid altering datasets
@@ -292,7 +292,7 @@ class ExerciseFunction:                                           # pylint: disa
             else:
                 sample_dataset, dataset = dataset.copy_for_tee(self.copy_mode)
 
-            # run 
+            # run
             try:
                 expected = sample_dataset.call(self.solution)
             except Exception as exc:                     # pylint:disable=w0703
@@ -303,7 +303,7 @@ class ExerciseFunction:                                           # pylint: disa
             if index % 2 == 0:
                 classes.append("even")
 
-            
+
             call = Call(self.solution, dataset)
             contents.append(self.call_renderer.render(call)
                             .add_classes(classes)
@@ -328,7 +328,7 @@ class ExerciseFunction:                                           # pylint: disa
 
         the default here is to use ==
         """
-        
+
         if DEBUG:
             print(f"ExerciseFunction.validate is comparing {expected} with {result}")
 

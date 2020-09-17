@@ -13,7 +13,7 @@ from .helpers import truncate
 CSS = """
 :root {
     /* these two are for unanswered */
-    --question-bg-odd: #d6e4f0; 
+    --question-bg-odd: #d6e4f0;
     --question-bg-even: #ddebf8;
     --question-bg-right: #dafcf0;
     --question-bg-partial: #ffd6d9; /* pale pink/red */
@@ -149,7 +149,7 @@ CSS = """
 
 .nbae-question div.score span {
     font-weight: bold;
-    font-size: larger;    
+    font-size: larger;
     padding: 4px;
 }
 
@@ -168,7 +168,7 @@ CSS = """
 .nbae-question.partial span.partial {
     background-color: var(--question-bg-partial);
 }
- 
+
 .nbae-question div.options>div.wrong-answer {
     margin-top: 8px;
 }
@@ -278,17 +278,17 @@ class GenericBooleanOption:
         self.selected = None
     def render(self):
         print(f"Option classes must implement render()")
-        
-        
+
+
 class Option(GenericBooleanOption):
     """
     the most basic kind of Option allows to enter a simple text
-    see more specialized classes for other kinds of inputs, 
+    see more specialized classes for other kinds of inputs,
     like CodeOption, MathOption and MarkdownOption
 
-    correct=True should be set on options that are valid and 
+    correct=True should be set on options that are valid and
     that students should check as such
-    
+
     """
     def __init__(self, text, explanation=None, **kwds):
         super().__init__(**kwds)
@@ -298,16 +298,16 @@ class Option(GenericBooleanOption):
         return TextContent(self.text)
     def explanation_widget(self):
         return None if not self.explanation else self.explanation.widget()
-    
+
 
 class CodeOption(Option):
     def render(self):
         return super().render().set_is_code(True).add_class('code')
-    
+
 class MathOption(Option):
     def render(self):
         return super().render().set_needs_math(True)
-    
+
 class MarkdownOption(Option):
     def render(self):
         return super().render().set_has_markdown(True)
@@ -315,12 +315,12 @@ class MarkdownOption(Option):
 class MarkdownMathOption(Option):
     def render(self):
         return super().render().set_has_markdown(True).set_needs_math(True)
-    
+
 DEFAULT_OPTION_CLASS = MarkdownMathOption
 
 
 # this class captures the order in which options are provided
-# in the QuizQuestion object     
+# in the QuizQuestion object
 class _TeacherOptions:
     def __init__(self, options: List[GenericBooleanOption]):
         self.options = options
@@ -328,9 +328,9 @@ class _TeacherOptions:
         self.options.append(option_none)
     def __iter__(self):
         return iter(self.options)
-    
 
-# this class captures the order in which options or questions 
+
+# this class captures the order in which options or questions
 # actually displayed, which is randomized from the input list
 # (as defined in the YAML code) when shuffle is True
 class _DisplayedItems:
@@ -364,7 +364,7 @@ def display(score):
         return f"{round(score):d}"
     else:
         return f"{score:.2f}"
-    
+
 def point_or_points(score):
     return f"{display(score)} {'pt' if score<=1 else 'pts'}"
 
@@ -402,7 +402,7 @@ class Score:
         return (self.if_right if answer == Answer.RIGHT
                 else self.if_wrong if answer == Answer.WRONG
                 else self.if_unanswered)
-        
+
     def progressive_score(self, nb_options, nb_correct_answers):
         if nb_correct_answers == Answer.UNANSWERED:
             return self.if_unanswered
@@ -413,7 +413,7 @@ class Score:
 
     def html(self, partial_score="‒‒", partial_message=None):
         def blob(klass, text, msg):
-            return f"<span class='{klass}' tooltip='{msg}'>{text}</span>"                    
+            return f"<span class='{klass}' tooltip='{msg}'>{text}</span>"
         result =  ""
         right_points = point_or_points(self.if_right)
         result += blob('right', right_points, f" {right_points} for a correct answer")
@@ -428,56 +428,56 @@ class Score:
         result += blob('wrong', wrong_points, f"{wrong_points} for a wrong answer")
         result += " / "
         unanswered_points = point_or_points(self.if_unanswered)
-        result += blob('unanswered', unanswered_points, 
+        result += blob('unanswered', unanswered_points,
                        f"{unanswered_points} if not answered at all")
         return result
-    
+
     def __str__(self):
         return f"{self.if_right}/{self.if_wrong}/{self.if_unanswered}"
-        
+
 
 class QuizQuestion:
     """
-    question can be a str, or a TextContent object for more complex inputs; 
+    question can be a str, or a TextContent object for more complex inputs;
     it may include html tags and/or math content between '$$'
 
-    options is a list of Option objects; if exactly_one_option is set, 
+    options is a list of Option objects; if exactly_one_option is set,
     then obviously exactly one of these options must have correct=True
-    (this needs to be explicit, an options list with one correct option 
+    (this needs to be explicit, an options list with one correct option
     is not deemed enough a condition)
     when exactly_one_option is set, the checkboxes behave like radio buttons
-    
+
     if option_none is provided, it should be an Option object, that will
     be guaranteed to appear last even when options are shuffled; it is designed
     so that a teacher can create a 'none of the above' option
-    
-    shuffle is a boolean indicating if the options must be shuffled 
+
+    shuffle is a boolean indicating if the options must be shuffled
     around for each student
-    
-    when horizontal_layout is set, the answers appear on the right of the question, 
+
+    when horizontal_layout is set, the answers appear on the right of the question,
     otherwise they appear below
-    
+
     when horizontal_options is set, the answers are displayed in a horizontal box
-    instead of a vertical one    
+    instead of a vertical one
     """
-    
+
     # constructor is kept as slight as possible for the yaml loader
     # in that context options is not yet a list of Options objects
     # but just plain Python dicts as outcome from yaml
     def __init__(self, *,
                  question: FlexibleContent,
-                 options: List, 
+                 options: List,
                  # if defined, show up on top of the alternatives
                  question_sequel: FlexibleContent=None,
-                 explanation=None, 
+                 explanation=None,
                  # do we want to shuffle the options
-                 shuffle=True, 
-                 # set this to True to mak it plain 
+                 shuffle=True,
+                 # set this to True to mak it plain
                  # that there is exactly one option to select
                  exactly_one_option=False,
                  all_or_nothing=None,
                  option_none=None,
-                 # how to display 
+                 # how to display
                  # for now, this is simple
                  score=1,
                  horizontal_layout=False,
@@ -505,7 +505,7 @@ class QuizQuestion:
         self._widget_instance = None
         # the rank in the Quiz objectf.explanation
         self.index = None
-        # 
+        #
         self._post_inited = False
 
     @property
@@ -524,7 +524,7 @@ class QuizQuestion:
             self._displayed_options.append(self.option_none)
         self.sanity_check()
         self._post_inited = True
-        
+
 
     def sanity_check(self):
         def report(*messages):
@@ -538,7 +538,7 @@ class QuizQuestion:
                 report(f"has no correct answers, this is not supported,\n"
                        f"\tplease add an option like 'none of the other answers'")
 
-        
+
     def set_index(self, index):
         self.index = index
 
@@ -547,21 +547,21 @@ class QuizQuestion:
         """
         * if self.all_on_nothing
           returns Answer.UNANSWERED or Answer.RIGHT or Answer.WRONG
-          
+
         * otherwise, for progressive grading, returns
           Answer.UNANSWERED or Answer.WRONG if all options are wrong
           or the number of correct options if not quite right
           or Answer.RIGHT if all options are OK
-        
+
         """
-        
+
         selected = [i for (i, checkbox) in enumerate(self.checkboxes)
                     if checkbox.value]
         if not selected:
             # importantly UNANSWERED is -1
             return Answer.UNANSWERED
         if self.all_or_nothing:
-            return (Answer.RIGHT 
+            return (Answer.RIGHT
                     if set(selected) == set(self._displayed_options.correct_indices())
                     else Answer.WRONG)
         else:
@@ -593,12 +593,12 @@ class QuizQuestion:
 
 
     def widget(self):
-        
+
         self.post_init()
-        
+
         if self._widget_instance:
             return self._widget_instance
-        
+
         # header area
         self._score_widget = HTML(f'{self._score_object.html()}').add_class('score')
         header_widget = HBox([
@@ -608,12 +608,12 @@ class QuizQuestion:
         question_widget = Flexible(self.question).widget()
         header_widgets = [header_widget, question_widget]
         if self.explanation:
-            header_widgets.append(self.explanation.widget()) 
+            header_widgets.append(self.explanation.widget())
         question = VBox(header_widgets).add_class('question')
         if self.exactly_one_option:
             question.add_class('exactly-one')
-        
-        # the options per se    
+
+        # the options per se
         # it's important that we have as many checkboxes as option_boxes
         self.checkboxes = [Checkbox(value=option.selected, disabled=False,
                                     description='', indent=False)
@@ -629,11 +629,11 @@ class QuizQuestion:
             if self.exactly_one_option:
                 checkbox.observe(lambda event: self.radio_button_callback(event))
         labels = [option.render().widget() for option in self._displayed_options]
-        
+
         # explanations contains, for each option, either a widget, or None
-        explanations = [option.explanation_widget() 
+        explanations = [option.explanation_widget()
                              for option in self._displayed_options]
-        
+
         options_box = HBox if self.horizontal_options else VBox
         def make_option(checkbox, label, explanation):
             main = HBox([checkbox, label]).add_class('option-box')
@@ -641,7 +641,7 @@ class QuizQuestion:
                     else VBox([main, explanation]))
         self.option_boxes = [
             make_option(checkbox, label, explanation)
-            for (checkbox, label, explanation) 
+            for (checkbox, label, explanation)
             in zip(self.checkboxes, labels, explanations)]
         if not self.question_sequel:
             actual_sons = self.option_boxes
@@ -653,7 +653,7 @@ class QuizQuestion:
         options.add_class('options')
 
         css_widget = CssContent(CSS).widget()
-        
+
         # putting it all together
         layout_box = HBox if self.horizontal_layout else VBox
         self._widget_instance = layout_box(
@@ -661,11 +661,11 @@ class QuizQuestion:
         self._widget_instance.add_class('nbae-question')
         self.feedback_area = self._widget_instance
         self.feedback(Answer.UNANSWERED)
-        return self._widget_instance            
+        return self._widget_instance
 
 
     # this will be bound to the checkbox widgets through observe()
-    # which passes along an event object 
+    # which passes along an event object
     def radio_button_callback(self, event):
         # only interested in that sort of events
         if event['name'] != 'value':
@@ -681,7 +681,7 @@ class QuizQuestion:
         for other in self.checkboxes:
             if other is not checkbox:
                 other.value = False
-        
+
 
     def feedback(self, answer: Answer):
         """
@@ -720,7 +720,7 @@ class QuizQuestion:
     def individual_feedback(self):
         for option, option_box, checkbox in zip(
             self._displayed_options, self.option_boxes, self.checkboxes):
-            checkbox.disabled = True            
+            checkbox.disabled = True
             # good answer ?
             if option.correct == checkbox.value:
                 option_box.remove_class('wrong-answer')
@@ -733,8 +733,8 @@ class QuizQuestion:
         for option, checkbox in zip(self._displayed_options, self.checkboxes):
             option.selected = checkbox.value
         return [option.selected for option in self.options]
-    
-            
+
+
     def restore(self, bools: List[bool]):
         for option, boolean in zip(self.options, bools):
             option.selected = boolean
@@ -747,15 +747,15 @@ class Quiz:
     """
     a quiz is made of several questions
     one can only submit a full Quiz, not just one question at a time
-    """    
-    
+    """
+
     # same approach to hyper-light constructor
     # the questions attribute might temporarily be a list of
     # plain Python objects, not QuizQuestion instances yet
     def __init__(self,
                  *,
-                 exoname, 
-                 questions: List[QuizQuestion], 
+                 exoname,
+                 questions: List[QuizQuestion],
                  shuffle=True,
                  max_attempts=2,
                  max_grade=None):
@@ -764,12 +764,12 @@ class Quiz:
         self.shuffle = shuffle
         self.max_attempts = max_attempts
         self.max_grade = max_grade
-        
+
         # private - for updating the UI
         self.submit_button = None
         self.submit_summary = None
         #
-        self._post_inited = False        
+        self._post_inited = False
 
 
     def post_init(self):
@@ -786,7 +786,7 @@ class Quiz:
         # needs to be saved somewhere
         self.current_attempts = storage_read(self.exoname, 'current_attempts', 0)
         preserved = storage_read(self.exoname, "preserved", [])
-        if preserved: 
+        if preserved:
             self.restore(preserved)
         # set question rank
         for index, question in enumerate(self.displayed_questions, 1):
@@ -807,7 +807,7 @@ class Quiz:
         self.update(within_submit=False)
         return toplevel
 
-    
+
     def submit(self, _button):
         self.current_attempts += 1
         # because of possible load/network latency,
@@ -825,7 +825,7 @@ class Quiz:
         if self.max_grade:
             log_kwds = dict(normalized_score=normalized_score,
                             normalized_max_score=normalized_max_score)
-        log2_quiz(self.exoname, 
+        log2_quiz(self.exoname,
                   attempt=self.current_attempts, max_attempts=self.max_attempts,
                   score=current_score, max_score=max_score,
                   **log_kwds)
@@ -833,7 +833,7 @@ class Quiz:
 
     def preserve(self) -> List[List[bool]]:
         return [question.preserve() for question in self.questions]
-            
+
     def restore(self, list_of_list_of_bools):
         for question, list_of_bools in zip(self.questions, list_of_list_of_bools):
             question.restore(list_of_bools)
@@ -860,11 +860,11 @@ class Quiz:
             score += f" = <span class='main-score'>{display(ns)}/{nm}</span>"
         score += f" ({len(right_answers)}/{len(self.answers)} questions OK)"
         return score
-        
+
 
     def update(self, *, within_submit):
         # there may be latency if the host is loaded
-        self.answers = [question.detailed_answer() 
+        self.answers = [question.detailed_answer()
                         for question in self.displayed_questions]
         right_answers = [answer for answer in self.answers if answer == Answer.RIGHT]
         all_right = (len(right_answers) == len(self.answers))
