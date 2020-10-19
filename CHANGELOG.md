@@ -1,3 +1,7 @@
+# 1.5.3 - 2020 Oct 19
+
+* minor cosmetic tweaks
+
 # 1.5.2 - 2020 Sep 15
 
 * feedback on submit shows results for past attempts
