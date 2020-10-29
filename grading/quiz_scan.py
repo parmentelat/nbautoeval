@@ -1,17 +1,28 @@
-#!/usr/bin/env python
+"""
+a command to produce quiz grades as a JSON file
 
-# NOTE : tweak before use !!!
+inputs:
+* roots: directories where to look for results
+* -e option: names of the quizzes of interest
 
-# this script was used once but is now obsolete
-# as the traces now have gone to a json format
-# overall logic should be mostly ok though
+it will:
+* search for .nbautoeval.trace files located anywhere under the provided roots
+* then extract all recorded attempts and retains the best score
+* and produce a json (if -o is used to chose a destination json file)
+* otherwise a plain text summary is written on the terminal
+
+WARNING:
+it is assumed that .nbautoeval.trace is located in a user's homedir
+so a heuristic is used to compute the student name from the
+full path of the trace file, namely the basename of the parent directory
+"""
 
 import sys
 
 import re
 import json
 from pathlib import Path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 from typing import Tuple, Union, List, Iterator, Dict
 
 Exoname = str                           # an exoname as per nbautoeval
@@ -82,10 +93,10 @@ def all_grades_from_root(root, exonames) -> Dict[Student, Dict[Exoname, Grade]]:
 
 
 def main():
-    parser = ArgumentParser()
+    parser = ArgumentParser(epilog=__doc__, formatter_class=RawTextHelpFormatter)
     parser.add_argument("roots", metavar='roots', type=str, nargs="+",
                         help="root directories to search for .nbautoeval traces")
-    parser.add_argument("-e", "--exo", dest="exonames", 
+    parser.add_argument("-e", "--exo", dest="exonames",
                         action='append', type=str,
                         help="the exonames we are interested in")
     parser.add_argument("-o", "--output",
@@ -111,7 +122,7 @@ def main():
         for student, grades in sorted(student_grades.items()):
             message = ""
             for exoname, grade in grades.items():
-                message += f"{exoname}: {grade:.2f}"
+                message += f"{exoname}: {grade:.2f} "
             print(f"{student:^32}:  {message}")
 
 if __name__ == '__main__':

@@ -34,10 +34,15 @@ setuptools.setup(
     install_requires = [
         'ipython',
         'ipywidgets',
-        'numpy', 
+        'numpy',
         'PyYAML',
         'myst_parser',
     ],
+    entry_points = {
+        'console_scripts': [
+            'nbae-quiz-scan = grading.quiz_scan:main',
+        ],
+    },
     classifiers      = [
         "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
