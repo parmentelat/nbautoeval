@@ -25,7 +25,7 @@ import sys
 sys.path.append("..")
 
 # %% [markdown]
-# The YAML format allows to specify an optional `type`; for example
+# The YAML format allows to specify an optional `text`; for example
 #
 # ```
 #   question: |

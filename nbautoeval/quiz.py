@@ -507,6 +507,8 @@ class QuizQuestion:
         self.index = None
         #
         self._post_inited = False
+        self.backlink = None
+
 
     @property
     def nb_options(self):
@@ -619,12 +621,10 @@ class QuizQuestion:
                                     description='', indent=False)
                            for option in self._displayed_options]
         # arm callback so that choices get saved at all times
-        # xxx not working at this point as we have no means
-        # to retrieve the parent Quiz object to trigger a save_preserved
-        #def preserve(b):
-        #    self.xxx_quiz_xxx.save_preserved()
+        def preserve(b):
+            self.backlink.save_preserved()
         for checkbox in self.checkboxes:
-            # checkbox.observe(preserve)
+            checkbox.observe(preserve)
             # radio-box behaviour
             if self.exactly_one_option:
                 checkbox.observe(lambda event: self.radio_button_callback(event))
@@ -791,6 +791,9 @@ class Quiz:
         # set question rank
         for index, question in enumerate(self.displayed_questions, 1):
             question.set_index(index)
+        for question in self.questions:
+            question.backlink = self
+
         self._post_inited = True
 
 
@@ -817,8 +820,8 @@ class Quiz:
         self.update(within_submit=True)
         storage_save(self.exoname, 'current_attempts', self.current_attempts)
         self.save_submitted()
-        # xxx no longer needed if we can get all changes to be saved
-        self.save_preserved()
+        # no longer needed if we can get all changes to be saved
+        #self.save_preserved()
         (current_score, max_score,
          normalized_score, normalized_max_score) = self.total_score()
         log_kwds = {}
