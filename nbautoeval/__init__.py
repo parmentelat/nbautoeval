@@ -1,5 +1,5 @@
 from .args import Args, GeneratorArgs
-from .renderer import Renderer, PPrintRenderer, MultilineRenderer
+from .renderer import Renderer, PPrintRenderer, MultilineRenderer, ImshowRenderer
 from .callrenderer import CallRenderer, PPrintCallRenderer, IsliceRenderer
 
 from .exercise_function import ExerciseFunction, ExerciseFunctionNumpy

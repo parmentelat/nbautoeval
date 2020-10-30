@@ -1,6 +1,6 @@
 import pprint
 
-from .content import TextContent
+from .content import TextContent, ImshowContent
 
 r"""
 various ways to render a Python object
@@ -51,7 +51,31 @@ class PPrintRenderer(Renderer):
 
 
 class MultilineRenderer(Renderer):
+
     def render(self, python_object):
         if not isinstance(python_object, str):
             python_object = repr(python_object)
         return TextContent("\\n\n".join(python_object.split("\n")))
+
+
+class ImshowRenderer(PPrintRenderer):
+
+    def __init__(self, css_width='100%', cmap=None, *args, **kwds):
+        self.css_width = css_width
+        self.cmap = cmap
+        super().__init__(*args, **kwds)
+
+    def render(self, python_object):
+        try:
+            import numpy as np
+            import matplotlib
+            # empty ndarrays cannot be imshow'ed
+            if isinstance(python_object, np.ndarray) and python_object.size:
+                return (ImshowContent(python_object, self.css_width, self.cmap)
+                        .add_css_properties({'align-self': 'center'}))
+        except ModuleNotFoundError as exc:
+            print(f"Imshow missing module {exc}")
+            print(f"Imshow using PPrint fallback")
+            pass
+        # fallback
+        return super().render(python_object)

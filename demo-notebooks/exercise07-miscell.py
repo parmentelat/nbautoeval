@@ -50,8 +50,8 @@ sys.path.append("..")
 # Taking the case of `ExerciseFunction` which is a representative example, here's how the rendering works:
 #
 # * the `exercise` instance has 2 renderers :
-#   * exercise.call_renderer (see file `callrenderer.py`)
-#   * exercise.result_renderer (see file `renderer.py`)
+#   * `exercise.call_renderer` (see file `callrenderer.py`)
+#   * `exercise.result_renderer` (see file `renderer.py`)
 # * when showing the line corresponding to one function call, i.e. one `Args` instance that I call, say, `args`:
 #   * for the leftmost column  
 #     `exercise.call_renderer.render(call)` is called and is expected to produce a `Rendered` object; in this context `call` is a `Call` instance that contains `args` - as well as the function called;
@@ -85,3 +85,44 @@ exo_curve_noname.correction(curve)
 # %%
 from listing import listing
 listing("../exercises/curve.py")
+
+# %% [markdown]
+# # display numpy arrays as images
+
+# %% [markdown]
+# at this point this is primarily a prototype
+
+# %%
+from exercises.checkers import exo_checkers
+exo_checkers.example(1)
+
+# %%
+import numpy as np
+
+def checkers(n):
+    ...
+
+def checkers1(n):
+    I, J = np.indices((n, n))
+    return (I+J) % 2
+
+def checkers2(n):
+    I, J = np.indices((n, n))
+    return (I+J+1) % 2
+
+
+# %%
+exo_checkers.correction(checkers)
+
+# %%
+exo_checkers.correction(checkers1)
+
+# %%
+exo_checkers.correction(checkers2)
+
+# %%
+from listing import listing
+listing("../exercises/checkers.py")
+
+# %% [markdown]
+# ***

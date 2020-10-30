@@ -3,7 +3,7 @@
 
 from markdown_it import MarkdownIt
 
-from ipywidgets import HTML, HTMLMath, Layout
+from ipywidgets import HTML, HTMLMath, Layout, Image
 
 class Content:
 
@@ -57,6 +57,9 @@ class Content:
         self.layout_dict.update(layout_dict)
         return self
 
+    # default needed in some corner cases; must return self
+    def set_is_code(self, *_):
+        return self
 
     def widget(self):
         """
@@ -197,3 +200,38 @@ class ResultContent(Content):
 
     def the_class(self):
         return 'ok' if self.boolean else 'ko'
+
+class ImshowContent(Content):
+    """
+    a numpy (2d) ndarray, with a (css) width
+    """
+
+    def __init__(self, ndarray, css_width, cmap, **kwds):
+        self.ndarray = ndarray
+        self.css_width = css_width
+        self.cmap = cmap
+        super().__init__(**kwds)
+
+    def _widget_(self):
+        # using a BytesIO to perform imsave in memory
+        from matplotlib.pyplot import imsave
+        import base64
+        import io
+        import tempfile
+        with io.BytesIO() as temp:
+            kwds = {}
+            if self.cmap is not None:
+                kwds['cmap'] = self.cmap
+            imsave(temp, self.ndarray, **kwds)
+            temp.seek(0)
+            image_bytes = temp.read()
+        # must be a str
+        b64repr = base64.b64encode(image_bytes).decode(encoding="ascii")
+        html = (f"<img"
+                f" width='{self.css_width}' "
+                f" style='image-rendering: pixelated'"
+                f" src='data:image/png; base64, {b64repr}'/>")
+        result = HTML(html)
+        for cls in self.classes:
+            result.add_class(cls)
+        return result
