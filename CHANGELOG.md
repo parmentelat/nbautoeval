@@ -1,3 +1,9 @@
+# 1.6.0 - 2020 Oct 30
+
+* new `ImshowRenderer` for numpy arrays
+* close #25
+* close #28
+
 # 1.5.3 - 2020 Oct 19
 
 * minor cosmetic tweaks
