@@ -56,7 +56,7 @@ CSS = """
 .nbae-cls .scenario.header {
     padding: 0.3em 0em 0em 0em; 
     border-bottom: none;
-    border-top: .1em solid #444;
+    border-top: 3px solid darkcyan;
 }
 .nbae-cls .span-1-to-4 {
     grid-column: 1 / span 4;
