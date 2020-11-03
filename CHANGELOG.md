@@ -1,3 +1,8 @@
+# 1.6.2 - 2020 Nov 3
+
+* slight cosmetic tweak in class scenarios rendering
+* 1.6.1 is broken
+
 # 1.6.0 - 2020 Oct 30
 
 * new `ImshowRenderer` for numpy arrays
