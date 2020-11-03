@@ -92,7 +92,8 @@ scenario2 = ClassScenario(
     "INSTANCE.outgoing()",
 )    
 
-exo_fifo = ExerciseClass (Fifo, [scenario1, scenario2], check_init=False)
+exo_fifo = ExerciseClass(
+    Fifo, [scenario1, scenario2], check_init=False, obj_name='F')
 
 if __name__ == '__main__':
     exo_fifo.correction(Fifo)
