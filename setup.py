@@ -30,7 +30,7 @@ setuptools.setup(
     license          = "CC BY-SA 4.0",
     keywords         = "jupyter notebooks exercises",
     url              = "https://github.com/parmentelat/nbautoeval",
-    packages         = setuptools.find_packages(),
+    packages         = ['nbautoeval', 'nbautoeval.grading'],
     install_requires = [
         'ipython',
         'ipywidgets',
@@ -40,7 +40,7 @@ setuptools.setup(
     ],
     entry_points = {
         'console_scripts': [
-            'nbae-quiz-scan = grading.quiz_scan:main',
+            'nbae-quiz-scan = nbautoeval.grading.quiz_scan:main',
         ],
     },
     classifiers      = [
