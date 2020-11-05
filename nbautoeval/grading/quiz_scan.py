@@ -39,16 +39,23 @@ def scan(root) -> Iterator[Tuple[Student, Path]]:
     blabla/students/studentname/coursename/.nbautoeval*
     """
     root = Path(root).resolve()
-    # print(f"scanning {root=}")
+
+    if root.is_file():
+        if root.name != ".nbautoeval.trace":
+            return
+        trace = root
+        student = trace.resolve().parents[1].name
+        yield student, trace
+        return
+
     for trace in Path(root).glob("**/.nbautoeval.trace"):
         # retrieve student name as first level from root
         # student = trace.resolve().relative_to(root).parts[0]
         student = trace.resolve().parents[1].name
-        # print(f"yielding {student=} and {trace=}")
         yield student, trace
 
 
-def best_grades_from_trace(student, trace, quiz_exonames) -> Dict[Exoname, Grade]:
+def best_grades_from_trace(student, trace, quiz_exonames, ignore) -> Dict[Exoname, Grade]:
     """
     read one trace file and scans for provided exonames
     returns best grade for each exoname
@@ -69,26 +76,27 @@ def best_grades_from_trace(student, trace, quiz_exonames) -> Dict[Exoname, Grade
             gr, mgr = record[k_gr], record[k_mgr]
             attempt = (gr, mgr)
             student_attempts[exoname].append(attempt)
-            # print(f"exo {exoname}, gr={gr} and mgr={mgr}")
     student_results = {}
     for exoname, attempts in student_attempts.items():
         if not attempts:
-            print(f"WARNING student {student} has no records for {exoname}")
+            if not ignore:
+                print(f"WARNING student {student} has no records for {exoname}")
             continue
         # check consistency of mgr across all attempts
         mgrs = {attempt[1] for attempt in attempts}
         if len(mgrs) != 1:
-            print(f"WARNING student {student} - cannot grade b/c of different max grades {mgrs}")
+            if not ignore:
+                print(f"WARNING student {student} - cannot grade b/c of different max grades {mgrs}")
             continue
         student_results[exoname] = max(attempt[0] for attempt in attempts)
     return student_results
 
 
-def all_grades_from_root(root, exonames) -> Dict[Student, Dict[Exoname, Grade]]:
+def all_grades_from_root(root, exonames, ignore) -> Dict[Student, Dict[Exoname, Grade]]:
     """
     returns final (max) grades from all trace files found in root
     """
-    return {student: best_grades_from_trace(student, trace, exonames)
+    return {student: best_grades_from_trace(student, trace, exonames, ignore)
             for student, trace in scan(root)}
 
 
@@ -99,6 +107,9 @@ def main():
     parser.add_argument("-e", "--exo", dest="exonames",
                         action='append', type=str,
                         help="the exonames we are interested in")
+    parser.add_argument("-i", "--ignore", action='store_true', default=False,
+                        help="when set, remove warnings, and json only contains entries "
+                             "for students who have at least one grade")
     parser.add_argument("-o", "--output",
                         help="filename to store as JSON")
     parser.add_argument("-v", "--verbose", action='store_true', default=False,
@@ -106,14 +117,17 @@ def main():
     args = parser.parse_args()
 
     roots = args.roots
-    if not args.roots:
+    if not args.roots or not args.exonames:
         parser.print_help()
         exit(1)
 
     # we assume one student appears in only one root
     student_grades = {}
     for root in roots:
-        student_grades.update(all_grades_from_root(root, args.exonames))
+        student_grades.update(all_grades_from_root(root, args.exonames, args.ignore))
+
+    if args.ignore:
+        student_grades = { k: v for (k, v) in student_grades.items() if v}
 
     if args.output:
         with Path(args.output).open('w') as writer:
