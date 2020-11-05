@@ -1,3 +1,7 @@
+# 1.6.3 - 2020 Nov 5
+
+* improved nbae-quiz-scan script
+
 # 1.6.2 - 2020 Nov 3
 
 * slight cosmetic tweak in class scenarios rendering
