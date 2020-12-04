@@ -125,4 +125,20 @@ from listing import listing
 listing("../exercises/checkers.py")
 
 # %% [markdown]
+# # long args
+
+# %%
+from exercises.longargs import exo_longargs
+exo_longargs.example()
+
+
+# %%
+def longargs(x):
+    return len(x) %2 == 0
+
+
+# %%
+exo_longargs.correction(longargs)
+
+# %% [markdown]
 # ***
