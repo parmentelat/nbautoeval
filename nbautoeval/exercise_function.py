@@ -12,6 +12,7 @@ from .callrenderer import Call, CallRenderer
 from .renderer import Renderer
 from .helpers import default_font_size, default_header_font_size
 from .storage import log_correction, log2_correction
+import pandas as pd
 
 
 DEBUG = False
@@ -331,8 +332,10 @@ class ExerciseFunction:                                           # pylint: disa
 
         if DEBUG:
             print(f"ExerciseFunction.validate is comparing {expected} with {result}")
-
-        return expected == result
+        if isinstance(expected, pd.DataFrame):
+            return expected.equals(result)
+        else:
+            return expected == result
 
 # see this question on SO
 # https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
