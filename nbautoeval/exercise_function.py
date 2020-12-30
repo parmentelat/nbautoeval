@@ -332,7 +332,7 @@ class ExerciseFunction:                                           # pylint: disa
 
         if DEBUG:
             print(f"ExerciseFunction.validate is comparing {expected} with {result}")
-        if isinstance(expected, pd.DataFrame):
+        if isinstance(expected, (pd.DataFrame, pd.Series)):
             return expected.equals(result)
         else:
             return expected == result
