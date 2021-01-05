@@ -140,5 +140,11 @@ def longargs(x):
 # %%
 exo_longargs.correction(longargs)
 
+# %% [markdown] cell_style="center"
+# # pandas
+
+# %% [markdown]
+# As of jan 2021, the new class `ExerciseFunction` allows to deal with funtions that return a pandas `DataFrame` or `Series` - a demo sample would be great
+
 # %% [markdown]
 # ***

@@ -334,6 +334,10 @@ class ExerciseFunction:                                           # pylint: disa
 
         return expected == result
 
+
+
+# ExerciseFunctionNumpy - no hard requirement on pandas
+
 # see this question on SO
 # https://stackoverflow.com/questions/40659212/futurewarning-elementwise-comparison-failed-returning-scalar-but-in-the-futur
 
@@ -375,6 +379,26 @@ try:
                     print("OOPS2", type(exc), exc)
                     return False
 
-except Exception:
-    #print("ExerciseFunctionNumpy not defined ; numpy not installed ? ")
-    pass
+except ModuleNotFoundError:
+    class ExerciseFunctionNumpy(ExerciseFunction):
+        def __init__(self, *args, **kwds):
+            print("WARNING: dummy ExerciseFunctionNumpy - numpy not installed ?")
+            super().__init__(*args, **kwds)
+
+
+# ExerciseFunctionPandas - no hard requirement on pandas
+try:
+    import pandas as pd
+
+    class ExerciseFunctionPandas(ExerciseFunction):
+        """
+        This is suitable for functions that are expected to return 
+        either a pandas DataFrame or Series object
+        """
+        def validate(self, expected, result):
+            return expected.equals(result)
+except ModuleNotFoundError:
+    class ExerciseFunctionPandas(ExerciseFunction):
+        def __init__(self, *args, **kwds):
+            print("WARNING: dummy ExerciseFunctionNumpy - numpy not installed ?")
+            super().__init__(*args, **kwds)
