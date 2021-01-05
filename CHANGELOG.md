@@ -1,3 +1,10 @@
+# 1.7.0 - 2021 Jan 5
+
+* new class `ExerciseFunctionPandas` for dealing with functions that return
+  a DataFrame or a Series
+* publish a recipe for dealing with hard-wired fixed-width columns
+* add missing exo in git repo
+
 # 1.6.3 - 2020 Nov 5
 
 * improved nbae-quiz-scan script
