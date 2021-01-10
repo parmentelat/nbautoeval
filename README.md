@@ -38,9 +38,13 @@ was then duplicated into a [MOOC on
 bioinformatics](https://github.com/parmentelat/flotbioinfo) in Spring 2016 where it was
 named `nbautoeval` for the first time, but still embedded in a greater git module.
 
-The current git repo is created in June 2016 from that basis, with the intention
-to be used as a git subtree from these 2 repos, and possibly others since a few
-people have proved interested.
+A separate git repo was created in June 2016 from that basis, with the
+intention to be used as a git subtree from these 2 repos (because at
+the time, adding Python libraries in order to customize the notebook
+runtime on the remote Jupyter platform was a pain)
+
+Now this tool ships as a standalone Python library hosted on pypi.org,
+and so it can easily be added to any docker image
 
 # Installation
 
@@ -63,7 +67,7 @@ A teacher who wishes to implement an exercise needs to write 2 parts :
 * One python file that defines an instance of an exercise class; this in a nutshell
   typically involves
   * providing one solution (let's say a function) written in Python
-  * providing a set of input data
+  * providing a set of input data - as an instance of the `Args` dedicated class
   * plus optionnally various tweaks for rendering results
 
 * One notebook that imports this exercise object, and can then take advantage of it to
