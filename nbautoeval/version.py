@@ -1,1 +1,5 @@
-__version__ = "1.7.0"
+import importlib
+import importlib.metadata
+
+# from pyproject.toml
+__version__ = importlib.metadata.version("nbautoeval")

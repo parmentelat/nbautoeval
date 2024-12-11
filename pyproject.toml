@@ -1,0 +1,32 @@
+[project]
+name = "nbautoeval"
+version = "0.8.0"
+description = "A mini framework to implement auto-evaluated exercises in Jupyter notebooks"
+license = "CC-BY-SA-4.0"
+readme = "README.md"
+authors = [
+    {name = "Thierry Parmentelat", email = "thierry.parmentelat@inria.fr"},
+]
+keywords=['Jupyter', 'exercises', 'auto-evaluation']
+requires-python = ">=3.10"
+dependencies = [
+    'ipython',
+    'ipywidgets',
+    'numpy',
+    'PyYAML',
+    'myst_parser',
+]
+
+
+[project.scripts]
+nbae-quiz-scan = "nbautoeval.grading.quiz_scan:main"
+
+[project.urls]
+Homepage = "https://github.com/parmentelat/nbautoeval"
+# never got around to that
+# Documentation = "https://nbautoeval.readthedocs.io"
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
