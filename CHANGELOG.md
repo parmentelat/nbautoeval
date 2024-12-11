@@ -1,3 +1,7 @@
+# 1.8.0 - 2024 Dec 11
+
+* package with pyproject.toml
+
 # 1.7.0 - 2021 Jan 5
 
 * new class `ExerciseFunctionPandas` for dealing with functions that return
